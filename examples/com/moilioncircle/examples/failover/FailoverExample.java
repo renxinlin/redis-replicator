@@ -56,6 +56,8 @@ public class FailoverExample {
         // You will see that 30002 is the master and 30005 is the slave of 30002.
         // Write some KV to 30002 then run the following code.
         // After code running then kill 30002. the slave 30005 will be the new master. you will see following code will do failover with partial synchronizations(PSYNC2) .
+
+        // todo  rotter需要封装这套架构 形成自动故障转移功能
         Replicator r = new RedisReplicator("redis://127.0.0.1:30002?verbose=yes&retries=10");
         try {
             r.open();

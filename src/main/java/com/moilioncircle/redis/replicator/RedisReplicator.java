@@ -34,6 +34,9 @@ import com.moilioncircle.redis.replicator.rdb.datatype.Module;
 import com.moilioncircle.redis.replicator.rdb.module.ModuleParser;
 
 /**
+ *
+ * info replication
+ *
  * @author Leon Chen
  * @since 2.1.0
  */

@@ -21,3 +21,9 @@ hs_err_pid*
 /redis-replicator.iml
 /.idea
 /bin/
+
+
+.html
+.rdb
+.dump
+.aof

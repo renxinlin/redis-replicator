@@ -96,6 +96,7 @@ public class RedisMixReplicator extends AbstractReplicator {
             configuration.setReplOffset(parser.parse());
         }
         if (getStatus() != CONNECTED) return;
+        // 发送 aof开始事件
         submitEvent(new PreCommandSyncEvent());
         try {
             final long[] offset = new long[1];

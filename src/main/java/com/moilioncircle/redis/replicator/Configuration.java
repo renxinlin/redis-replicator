@@ -27,6 +27,48 @@ import com.moilioncircle.redis.replicator.net.SslContextFactory;
 import com.moilioncircle.redis.replicator.util.Strings;
 
 /**
+ *
+ *
+ *
+ *协议名   Redis版本  原理                             问题
+ * SYNC   2.8以下    每次都生成RDB文件，复制到slave节点   网络秒级抖动都会造成master bgsave，影响服务可用性
+ * PSYNC  2.8及以上
+ * PSYNC2 4.0及以上  用master_replid1(当前主从复制ID)和master_replid2（上一次主从复制ID）取代了runid，故障切换后master_replid2替换为master_replid1
+ *
+ *
+ *
+ *
+ * 2.8版本后
+ * 引入了replication backlog buffer(后文称：复制积压缓冲区 ringbuffer）；复制积压缓冲区是redis维护的固定长度缓冲队列(由参数repl-backlog-size设置，默认1MB)
+ * 如果runid与master的一致，且复制偏移量在master的复制积压缓冲区中还有(即offset >= min(backlog值)，master就认为部分重同步成功，不再进行全量同步
+ *
+ *
+ *
+ *
+ * repl-backlog-size参数设置，默认大小是1M，其大小可以根据每秒产生的命令、（master执行rdb bgsave） +（ master发送rdb到slave） + （slave load rdb文件）时间之和来估算积压缓冲区的大小，repl-backlog-size值不小于这两者的乘积
+ * replication buffer由client-output-buffer-limit slave设置，当这个值太小会导致主从复制链接断开【因而推荐把slave replication buffer的hard/soft limit设置成512M】
+ *
+ * replication buffer对应于每个slave，通过config set client-output-buffer-limit slave
+ *
+ *
+ *
+ *
+ *
+ * > info replication
+ * # Replication
+ * role:master
+ * connected_slaves:0
+ * master_replid:117be6fda92f7909557d8096cc140ddf2ee40452
+ * master_replid2:0000000000000000000000000000000000000000
+ * master_repl_offset:39420283
+ * second_repl_offset:-1
+ * repl_backlog_active:0
+ * repl_backlog_size:1048576
+ * repl_backlog_first_byte_offset:38371708
+ * repl_backlog_histlen:1048576
+ *
+ *
+ * info replication
  * @author Leon Chen
  * @since 2.1.0
  */
