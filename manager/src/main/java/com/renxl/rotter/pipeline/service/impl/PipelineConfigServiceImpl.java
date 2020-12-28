@@ -43,6 +43,8 @@ public class PipelineConfigServiceImpl extends ServiceImpl<PipelineConfigMapper,
 
     @Override
     public void deleteById(Integer id) {
+        PipelineConfig pipelineConfig = baseMapper.selectById(id);
+        Asserts.check(!pipelineConfig.isStart(), RotterResponse.BizCodeAndMsg.PIPLINED_STARTED);
         baseMapper.deleteById(id);
     }
 
@@ -72,5 +74,13 @@ public class PipelineConfigServiceImpl extends ServiceImpl<PipelineConfigMapper,
     @Override
     public RotterResponse<Void> updatePipelineConfig(PipelineConfig pipelineConfig) {
         throw new RotterException(" unsupported operation for update config ");
+    }
+
+    @Override
+    public void stop(Integer id) {
+        // todo 停止只需要停止许可即可; node会自动处理
+
+
+        // 清除相关资源
     }
 }

@@ -15,4 +15,7 @@ public interface INodeSelector {
      * @return
      */
     String getRuningNode(List<String> nodes,String lastNode);
+
+
+
 }
