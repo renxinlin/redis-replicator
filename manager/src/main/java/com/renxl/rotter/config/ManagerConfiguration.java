@@ -1,5 +1,6 @@
 package com.renxl.rotter.config;
 
+import com.renxl.rotter.register.RegisterrWatcher;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.DefaultCommunicationClientImpl;
@@ -40,9 +41,17 @@ public class ManagerConfiguration {
         return dubboCommunicationEndpoint;
     }
 
-
-
-
+    /**
+     * manager 选举 选举后的master作为与node节点交互的manger
+     * 其他左右follower节点等待当前master manager掉线
+     *
+     * @return
+     */
+    @Bean(initMethod = "initial", destroyMethod = "destory")
+    public RegisterrWatcher registerrWatcher() {
+        RegisterrWatcher registerrWatcher = new RegisterrWatcher();
+        return registerrWatcher;
+    }
 
 
 }
