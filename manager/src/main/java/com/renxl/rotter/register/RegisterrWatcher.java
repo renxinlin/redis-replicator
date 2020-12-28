@@ -1,29 +1,41 @@
-package com.renxl.rotter.manager;
+package com.renxl.rotter.register;
 
-import com.renxl.rotter.config.CompomentManager;
+import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.zookeeper.ZKclient;
+import com.renxl.rotter.zookeeper.ZookeeperConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 import static com.renxl.rotter.zookeeper.ZookeeperConfig.managerMasterParent;
 
 /**
- * 监控zk上的manager交互
+ * 基于zk的master选举
  */
 @Slf4j
-public class MetaManagerWatcher {
+public class RegisterrWatcher {
 
 
     PathChildrenCache managerCache;
 
-    public void init() {
-
+    public void initial() {
+        final String hostAddress = AddressUtils.getHostAddress().getHostAddress();
+        log.info("start register manager master [{}]", hostAddress);
+        try {
+            if (ZKclient.instance.isNodeExist(managerMasterParent)) {
+                ZKclient.instance.createNode(managerMasterParent, null);
+            }
+            ZKclient.instance.createEphemeral(ZookeeperConfig.managerMaster, hostAddress);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         CuratorFramework client = ZKclient.instance.getClient();
 
@@ -40,21 +52,13 @@ public class MetaManagerWatcher {
                             ChildData data = event.getData();
                             String managerAddress = new String(data.getData());
                             switch (event.getType()) {
-                                case INITIALIZED:
-
-                                    break;
-
-                                case CHILD_ADDED:
-                                    CompomentManager.getInstance().updateMeta(managerAddress);
-                                    break;
-                                case CHILD_UPDATED:
-                                    CompomentManager.getInstance().updateMeta(managerAddress);
-                                    break;
-
                                 case CHILD_REMOVED:
-                                    log.error("manager been remmoved " + managerAddress);
+                                    try {
+                                        ZKclient.instance.createEphemeral(ZookeeperConfig.managerMaster, hostAddress);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                     break;
-
                                 default:
                                     break;
                             }

@@ -94,6 +94,19 @@ public class ZKclient {
     }
 
 
+    public String getNode(String zkPath) {
+        try {
+
+            byte[] bytes = client.getData().forPath(zkPath);
+             return new String(bytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     public String createEphemeralSeqNode(String srcpath, byte[] data) {
         try {
             // 创建一个 ZNode 节点
@@ -102,6 +115,27 @@ public class ZKclient {
                     .withMode(CreateMode.EPHEMERAL_SEQUENTIAL)
                     .forPath(srcpath, data);
 
+            return path;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public String createEphemeral(String srcpath, String data) {
+        byte[] payload = null;
+        try {
+            if (!StringUtils.isEmpty(data)) {
+
+                 payload = data.getBytes("UTF-8");
+            }
+            // 创建一个 ZNode 节点
+            String path = client.create()
+                    .creatingParentsIfNeeded()
+                    .withMode(CreateMode.EPHEMERAL)
+                    .forPath(srcpath, payload);
             return path;
 
         } catch (Exception e) {

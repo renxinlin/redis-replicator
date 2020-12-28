@@ -33,6 +33,11 @@ public class ZookeeperConfig  implements ApplicationContextAware {
     private String peerPath = "/net/chatcenter/";
 
 
+    public static final String managerMaster = "/rotter/manager";
+
+    public static final String managerMasterParent = "/rotter";
+
+
     private static ZookeeperConfig zookeeperConfig  ;
 
     public static ZookeeperConfig getInstance() {

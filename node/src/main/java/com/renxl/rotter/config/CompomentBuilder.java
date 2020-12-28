@@ -1,6 +1,7 @@
 package com.renxl.rotter.config;
 
 import com.renxl.rotter.manager.MetaManager;
+import com.renxl.rotter.manager.MetaManagerWatcher;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.DefaultCommunicationClientImpl;
@@ -25,7 +26,8 @@ public class CompomentBuilder {
 
         // 元信息管理器 todo 获取zk上的manager信息 start的get
         MetaManager manager = new MetaManager();
-
+        MetaManagerWatcher metaManagerWatcher = new MetaManagerWatcher();
+        instance.setMetaManagerWatcher(metaManagerWatcher);
         instance.setCommunicationClient(communicationClient);
         instance.setDubboCommunicationConnectionFactory(communicationConnectionFactory);
 
