@@ -16,7 +16,7 @@
 
 package com.renxl.rotter.rpcclient.impl.dubbo;
 
-import com.AddressUtils;
+import com.renxl.rotter.common.AddressUtils;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
 import com.alibaba.dubbo.rpc.Exporter;
@@ -24,6 +24,7 @@ import com.alibaba.dubbo.rpc.ProxyFactory;
 import com.alibaba.dubbo.rpc.protocol.dubbo.DubboProtocol;
 import com.renxl.rotter.rpcclient.CommunicationEndpoint;
 import com.renxl.rotter.rpcclient.impl.AbstractCommunicationEndpoint;
+import com.renxl.rotter.rpcclient.impl.DefaultCommunicationClientImpl;
 
 import java.net.InetAddress;
 import java.text.MessageFormat;
@@ -35,9 +36,7 @@ import java.text.MessageFormat;
  */
 public class DubboCommunicationEndpoint extends AbstractCommunicationEndpoint {
     private static  InetAddress ip = null;
-
     static {
-        // todo 网卡ip获取
         ip = AddressUtils.getHostAddress();
     }
     private static   String DUBBO_SERVICE_URL = "dubbo://"+ip.getHostAddress()+":{0}/endpoint?server=netty&codec=dubbo&serialization=java&heartbeat=5000&iothreads=4&threads=50&connections=30";
@@ -45,7 +44,7 @@ public class DubboCommunicationEndpoint extends AbstractCommunicationEndpoint {
     private ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getExtension("javassist");
 
     private Exporter<CommunicationEndpoint> exporter = null;
-    private int port = 2088;
+    private int port = DefaultCommunicationClientImpl.DEFAULT_PORT;
 
     public DubboCommunicationEndpoint() {
 

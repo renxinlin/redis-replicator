@@ -16,35 +16,12 @@
 
 package com.renxl.rotter.rpcclient;
 
-import com.renxl.rotter.common.RotterToStringStyle;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import java.io.Serializable;
-
 /**
- * 通讯事件对象
- *
- * @author jianghang 2011-9-9 下午04:02:53
+ * 通讯事件类型
+ * 
+ * @author jianghang 2011-9-9 下午04:02:13
  */
-public abstract class Event implements Serializable {
+public interface EventType {
 
-    private static final long serialVersionUID = 208038167977229245L;
-
-    private EventType type;
-
-    protected Event() {
-    }
-
-    protected Event(EventType type) {
-        this.type = type;
-    }
-
-    public EventType getType() {
-        return type;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, RotterToStringStyle.DEFAULT_STYLE);
-    }
+    public String name();
 }

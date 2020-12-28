@@ -57,7 +57,32 @@ public class FailoverExample {
         // Write some KV to 30002 then run the following code.
         // After code running then kill 30002. the slave 30005 will be the new master. you will see following code will do failover with partial synchronizations(PSYNC2) .
 
-        // todo  rotter需要封装这套架构 形成自动故障转移功能
+        /**
+         *
+         *
+         *
+         * psync2在宕机的时候会保存自己的复制信息到rdb中 这是优化与psync的地方
+         * 虽然psync2是有两组replid和offset
+         *
+         * master_replid:117be6fda92f7909557d8096cc140ddf2ee40452
+         * master_replid2:0000000000000000000000000000000000000000
+         * master_repl_offset:39420283
+         * second_repl_offset:-1
+         *
+         *
+         *
+         *
+         *
+         * 但是rotter只需要维护一份replid即可
+         *
+         *
+         *
+         * 但是otter需要知道整个集群的信息
+         * 以及故障时候谁是master的信息
+         * 对于redis发生故障
+         * Rotterdam不会进行HA 而是等待redis新的选举完毕后重连
+         *
+         */
         Replicator r = new RedisReplicator("redis://127.0.0.1:30002?verbose=yes&retries=10");
         try {
             r.open();

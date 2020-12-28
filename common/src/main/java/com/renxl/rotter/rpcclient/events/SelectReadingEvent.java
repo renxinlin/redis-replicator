@@ -9,8 +9,8 @@ import lombok.Data;
  * @create: 2020-12-28 15:51
  */
 @Data
-public class LoadReadingEvent extends Event {
-    private Integer pipelineId;
+public class SelectReadingEvent extends Event {
+    private  Integer pipelineId;
     private Integer nodeId;
     private String nodeIp;
 

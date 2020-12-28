@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com;
+package com.renxl.rotter.common;
 
 import java.io.IOException;
 import java.net.InetAddress;

@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 
 /**
- * <p>
- * HA 优先跨机房选择
- * 服务实现类
- * </p>
+ * 放弃zk
+ * 统一采用mysql存储信息
+ * 采用rpc进行通信
+ * 保持完整的风格体系
  *
  * @author renxl
  * @since 2020-12-28
@@ -29,16 +29,17 @@ public class ZookeeperPermitServiceImpl extends ServiceImpl<PipelineTaskReadingM
     /**
      * 尾缀为pipelineId
      */
-    private String permitLoadNodes = "/rotter/permit/load/{0}";;
+    private String permitLoadNodes = "/rotter/permit/load/{0}";
+    ;
 
     @Override
     public void permit(Integer pipelineId) {
         String permitSelectInfo = MessageFormat.format(permitSelectNodes, String.valueOf(pipelineId));
         String permitLoadInfo = MessageFormat.format(permitLoadNodes, String.valueOf(pipelineId));
         // select 允许
-        ZKclient.instance.createNode(permitSelectInfo,null);
+        ZKclient.instance.createNode(permitSelectInfo, null);
         // load 允许
-        ZKclient.instance.createNode(permitLoadInfo,null);
+        ZKclient.instance.createNode(permitLoadInfo, null);
 
     }
 }

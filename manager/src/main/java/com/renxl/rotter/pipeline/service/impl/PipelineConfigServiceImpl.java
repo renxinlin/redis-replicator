@@ -2,12 +2,14 @@ package com.renxl.rotter.pipeline.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.renxl.rotter.pipeline.domain.PipelineConfig;
+import com.renxl.rotter.pipeline.domain.PipelineNodeInfo;
 import com.renxl.rotter.pipeline.framework.Asserts;
 import com.renxl.rotter.pipeline.framework.RotterException;
 import com.renxl.rotter.pipeline.framework.RotterResponse;
 import com.renxl.rotter.pipeline.mapper.PipelineConfigMapper;
 import com.renxl.rotter.pipeline.service.INodeSelector;
 import com.renxl.rotter.pipeline.service.IPipelineConfigService;
+import com.renxl.rotter.pipeline.service.IPipelineNodeInfoService;
 import com.renxl.rotter.rpcclient.Callback;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.events.*;
@@ -32,6 +34,11 @@ public class PipelineConfigServiceImpl extends ServiceImpl<PipelineConfigMapper,
 
     @Autowired
     CommunicationClient communicationClient;
+
+
+    @Autowired
+    IPipelineNodeInfoService iPipelineNodeInfoService;
+
 
     @Override
     public RotterResponse<Void> addPipelineConfig(PipelineConfig pipelineConfig) {
@@ -68,6 +75,10 @@ public class PipelineConfigServiceImpl extends ServiceImpl<PipelineConfigMapper,
         // 此时 同步任务可能在准备中 也可能在执行中; 但是都不允许再次启动
         pipelineConfig.start();
         baseMapper.updateById(pipelineConfig);
+        PipelineNodeInfo pipelineNodeInfo = new PipelineNodeInfo();
+        pipelineNodeInfo.init(pipelineConfig.getId(),selectNode,loadNode);
+        iPipelineNodeInfoService.save(pipelineNodeInfo);
+
 
     }
 

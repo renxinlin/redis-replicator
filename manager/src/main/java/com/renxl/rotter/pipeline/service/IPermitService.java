@@ -9,7 +9,10 @@ package com.renxl.rotter.pipeline.service;
  */
 public interface IPermitService {
 
-
+    /**
+     * 进行许可
+     * @param pipelineId
+     */
     void permit(Integer pipelineId);
 
 }

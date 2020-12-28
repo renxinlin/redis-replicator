@@ -38,7 +38,13 @@ public class PipelineNodeInfo implements Serializable {
     /**
      * 最后一次执行同步任务的机器，再次执行时候不会选择该机器
      */
-    private Integer lastNodeNode;
+    private String lastLoadNode;
 
 
+
+    public void init(Long id, String selectNode, String loadNode) {
+        pipelineId = id.longValue();
+        lastSelectNode = selectNode;
+        lastLoadNode = loadNode;
+    }
 }

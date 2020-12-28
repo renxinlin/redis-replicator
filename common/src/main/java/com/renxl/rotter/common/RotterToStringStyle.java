@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.renxl.rotter;
+package com.renxl.rotter.common;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

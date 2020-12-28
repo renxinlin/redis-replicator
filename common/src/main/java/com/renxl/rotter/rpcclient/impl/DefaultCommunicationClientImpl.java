@@ -36,6 +36,8 @@ import java.util.concurrent.*;
 public class DefaultCommunicationClientImpl implements CommunicationClient {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultCommunicationClientImpl.class);
+    // todo 配置化
+    public static final int DEFAULT_PORT = 6666;
 
     private CommunicationConnectionFactory factory = null;
     private int poolSize = 10;
@@ -205,9 +207,10 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
     private CommunicationParam buildParams(String addr) {
         CommunicationParam params = new CommunicationParam();
         String[] strs = StringUtils.split(addr, ":");
-        if (strs == null || strs.length != 2) {
+        if (strs == null) {
             throw new IllegalArgumentException("addr example: 127.0.0.1:1099");
         }
+
         InetAddress address = null;
         try {
             address = InetAddress.getByName(strs[0]);
@@ -215,7 +218,9 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
             throw new CommunicationException("addr_error", "addr[" + addr + "] is unknow!");
         }
         params.setIp(address.getHostAddress());
-        params.setPort(Integer.valueOf(strs[1]));
+        int port = strs.length == 1 ? DEFAULT_PORT : Integer.valueOf(strs[1]);
+
+        params.setPort(port);
         return params;
     }
 
@@ -244,5 +249,6 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
     public void setDiscard(boolean discard) {
         this.discard = discard;
     }
+
 
 }
