@@ -24,22 +24,23 @@ import lombok.Data;
  * @author jianghang
  */
 @Data
-public class HeartEvent extends Event {
+public class NodeHeartEvent extends Event {
 
     private static final long serialVersionUID = 8690886624112649424L;
 
 
-    private String pipelineId;
+    private String nodeIp;
 
     // type
-    public HeartEvent(){
-        super(HeartEventType.HEARTBEAT);
+    public NodeHeartEvent(String ip){
+        super(HeartEventType.nodeHeartBeat);
+        nodeIp = ip;
     }
 
     private Byte heart = 1;
 
     public static enum HeartEventType implements EventType {
-        HEARTBEAT;
+        nodeHeartBeat;
     }
 
     public Byte getHeart() {

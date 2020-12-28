@@ -4,6 +4,7 @@ import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.DefaultCommunicationClientImpl;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationConnectionFactory;
+import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,6 +32,17 @@ public class ManagerConfiguration {
         CommunicationConnectionFactory communicationConnectionFactory = new DubboCommunicationConnectionFactory();
         return communicationConnectionFactory;
     }
+
+
+    @Bean(initMethod = "initial", destroyMethod = "destory")
+    public DubboCommunicationEndpoint dubboCommunicationEndpoint() {
+        DubboCommunicationEndpoint dubboCommunicationEndpoint = new DubboCommunicationEndpoint();
+        return dubboCommunicationEndpoint;
+    }
+
+
+
+
 
 
 }

@@ -18,6 +18,7 @@ package com.renxl.rotter.rpcclient.impl;
 
 import com.alibaba.dubbo.common.utils.NamedThreadFactory;
 import com.renxl.rotter.rpcclient.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import java.util.concurrent.*;
  *
  * @author jianghang
  */
+@Slf4j
 public class DefaultCommunicationClientImpl implements CommunicationClient {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultCommunicationClientImpl.class);
@@ -64,6 +66,9 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
         executor = new ThreadPoolExecutor(poolSize, poolSize, 60 * 1000L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(10 * 1000),
                 new NamedThreadFactory("communication-async"), handler);
+        executor.execute(()->{
+            logger.info("start");
+        });
     }
 
     public void destory() {
