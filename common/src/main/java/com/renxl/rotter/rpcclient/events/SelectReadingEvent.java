@@ -1,7 +1,9 @@
 package com.renxl.rotter.rpcclient.events;
 
 import com.renxl.rotter.rpcclient.Event;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @description:
@@ -9,9 +11,10 @@ import lombok.Data;
  * @create: 2020-12-28 15:51
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SelectReadingEvent extends Event {
     private  Integer pipelineId;
-    private Integer nodeId;
-    private String nodeIp;
+    private  String nodeIp;
 
 }

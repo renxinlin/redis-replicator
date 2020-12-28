@@ -6,15 +6,14 @@ import com.renxl.rotter.manager.ManagerInfo;
 import com.renxl.rotter.manager.MetaManager;
 import com.renxl.rotter.manager.MetaManagerWatcher;
 import com.renxl.rotter.rpcclient.CommunicationClient;
-import com.renxl.rotter.rpcclient.events.LoadPermitEvent;
-import com.renxl.rotter.rpcclient.events.SelectPermitEvent;
+import com.renxl.rotter.rpcclient.events.LoadReadingEvent;
+import com.renxl.rotter.rpcclient.events.SelectReadingEvent;
 import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationEndpoint;
 import com.renxl.rotter.task.HeartbeatScheduler;
 import com.renxl.rotter.task.TaskServiceListener;
 import com.renxl.rotter.zookeeper.ZKclient;
 import lombok.Data;
-
 import static com.renxl.rotter.zookeeper.ZookeeperConfig.managerMaster;
 
 /**
@@ -29,41 +28,34 @@ public class CompomentManager implements LifeCycle {
      * node核心组件
      */
     private static volatile CompomentManager INSTANCE;
-
-    /**
-     * rpc连接工厂
-     */
-    private CommunicationConnectionFactory dubboCommunicationConnectionFactory;
-
-    /**
-     * rpc客户端
-     */
-    private CommunicationClient communicationClient;
-
-    /**
-     * dubbo服务暴露
-     */
-    private DubboCommunicationEndpoint dubboCommunicationEndpoint;
-
-    /**
-     * node 心跳
-     */
-    private HeartbeatScheduler hearbeatScheduler;
-
-    /**
-     * manager master
-     */
-    private MetaManager metaManager;
-
-    /**
-     * manager master
-     */
-    private MetaManagerWatcher metaManagerWatcher;
-
     /**
      * 接收manager的 同步调度任务
      */
     TaskServiceListener taskServiceListener;
+    /**
+     * rpc连接工厂
+     */
+    private CommunicationConnectionFactory dubboCommunicationConnectionFactory;
+    /**
+     * rpc客户端
+     */
+    private CommunicationClient communicationClient;
+    /**
+     * dubbo服务暴露
+     */
+    private DubboCommunicationEndpoint dubboCommunicationEndpoint;
+    /**
+     * node 心跳
+     */
+    private HeartbeatScheduler hearbeatScheduler;
+    /**
+     * manager master
+     */
+    private MetaManager metaManager;
+    /**
+     * manager master
+     */
+    private MetaManagerWatcher metaManagerWatcher;
 
     private CompomentManager() {
 
@@ -115,13 +107,13 @@ public class CompomentManager implements LifeCycle {
 
     public void callLoadPermit(Integer pipelineId) {
         String managerAddress = metaManager.getManager().getManagerAddress();
-        communicationClient.call(managerAddress,new LoadPermitEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
+        communicationClient.call(managerAddress, new LoadReadingEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
 
     }
 
     public void callSelectPermit(Integer pipelineId) {
         String managerAddress = metaManager.getManager().getManagerAddress();
-        communicationClient.call(managerAddress,new SelectPermitEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
+        communicationClient.call(managerAddress, new SelectReadingEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
 
     }
 }
