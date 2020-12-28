@@ -1,13 +1,17 @@
 package com.renxl.rotter.config;
 
 import com.renxl.rotter.LifeCycle;
+import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.manager.ManagerInfo;
 import com.renxl.rotter.manager.MetaManager;
 import com.renxl.rotter.manager.MetaManagerWatcher;
 import com.renxl.rotter.rpcclient.CommunicationClient;
+import com.renxl.rotter.rpcclient.events.LoadPermitEvent;
+import com.renxl.rotter.rpcclient.events.SelectPermitEvent;
 import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationEndpoint;
 import com.renxl.rotter.task.HeartbeatScheduler;
+import com.renxl.rotter.task.TaskServiceListener;
 import com.renxl.rotter.zookeeper.ZKclient;
 import lombok.Data;
 
@@ -56,6 +60,10 @@ public class CompomentManager implements LifeCycle {
      */
     private MetaManagerWatcher metaManagerWatcher;
 
+    /**
+     * 接收manager的 同步调度任务
+     */
+    TaskServiceListener taskServiceListener;
 
     private CompomentManager() {
 
@@ -102,6 +110,18 @@ public class CompomentManager implements LifeCycle {
         ManagerInfo managerInfo = new ManagerInfo();
         managerInfo.setManagerAddress(managerAddress);
         metaManager.setManager(managerInfo);
+
+    }
+
+    public void callLoadPermit(Integer pipelineId) {
+        String managerAddress = metaManager.getManager().getManagerAddress();
+        communicationClient.call(managerAddress,new LoadPermitEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
+
+    }
+
+    public void callSelectPermit(Integer pipelineId) {
+        String managerAddress = metaManager.getManager().getManagerAddress();
+        communicationClient.call(managerAddress,new SelectPermitEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
 
     }
 }

@@ -10,7 +10,6 @@ import com.renxl.rotter.pipeline.mapper.PipelineConfigMapper;
 import com.renxl.rotter.pipeline.service.INodeSelector;
 import com.renxl.rotter.pipeline.service.IPipelineConfigService;
 import com.renxl.rotter.pipeline.service.IPipelineNodeInfoService;
-import com.renxl.rotter.rpcclient.Callback;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.events.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,8 +68,8 @@ public class PipelineConfigServiceImpl extends ServiceImpl<PipelineConfigMapper,
         Asserts.check(!StringUtils.isEmpty(loadNode), RotterResponse.BizCodeAndMsg.PING_ERRPR);
 
         // 通知node节点启动准备资源
-        communicationClient.call(selectNode,new StartTaskEvent(pipelineConfig.getSourceRedises(),pipelineConfig.getParallelism()));
-        communicationClient.call(loadNode,new LoadTaskEvent(pipelineConfig.getTargetRedis()));
+        communicationClient.call(selectNode,new SelectTaskEvent(pipelineConfig.getId().intValue(),pipelineConfig.getSourceRedises(),pipelineConfig.getParallelism()));
+        communicationClient.call(loadNode,new LoadTaskEvent(pipelineConfig.getId().intValue(),pipelineConfig.getTargetRedis()));
 
         // 此时 同步任务可能在准备中 也可能在执行中; 但是都不允许再次启动
         pipelineConfig.start();
@@ -78,7 +77,6 @@ public class PipelineConfigServiceImpl extends ServiceImpl<PipelineConfigMapper,
         PipelineNodeInfo pipelineNodeInfo = new PipelineNodeInfo();
         pipelineNodeInfo.init(pipelineConfig.getId(),selectNode,loadNode);
         iPipelineNodeInfoService.save(pipelineNodeInfo);
-
 
     }
 

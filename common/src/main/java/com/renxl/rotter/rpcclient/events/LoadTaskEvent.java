@@ -10,15 +10,16 @@ import lombok.Data;
  */
 @Data
 public class LoadTaskEvent extends Event {
+    private Integer pipelineId;
     private String targetRedis;
 
     public LoadTaskEvent(){
         super(TaskEventType.loadTask);
     }
 
-    public LoadTaskEvent(String targetRedis) {
+    public LoadTaskEvent(Integer pipelineId,String targetRedis) {
         super(TaskEventType.loadTask);
-
+        this.pipelineId = pipelineId;
         this.targetRedis = targetRedis;
     }
 }

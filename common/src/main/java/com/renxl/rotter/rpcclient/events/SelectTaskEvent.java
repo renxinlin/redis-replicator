@@ -12,8 +12,9 @@ import lombok.NoArgsConstructor;
  * @create: 2020-12-25 23:03
  */
 @Data
-public class StartTaskEvent extends Event {
+public class SelectTaskEvent extends Event {
 
+    private Integer pipelineId;
     private String sourceRedises;
 
 
@@ -21,12 +22,13 @@ public class StartTaskEvent extends Event {
 
 
     private Integer parallelism;
-    public  StartTaskEvent(){
+    public SelectTaskEvent(){
         super(TaskEventType.startTask);
     }
 
-    public StartTaskEvent(String sourceRedises, Integer parallelism) {
+    public SelectTaskEvent(Integer pipelineId,String sourceRedises, Integer parallelism) {
         super(TaskEventType.startTask);
+        this.pipelineId = pipelineId;
         this.parallelism = parallelism;
         this.sourceRedises = sourceRedises;
 

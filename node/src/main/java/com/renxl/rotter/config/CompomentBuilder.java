@@ -7,6 +7,7 @@ import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.DefaultCommunicationClientImpl;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationEndpoint;
+import com.renxl.rotter.task.TaskServiceListener;
 
 /**
  * @description:
@@ -31,7 +32,7 @@ public class CompomentBuilder {
         instance.setCommunicationClient(communicationClient);
         instance.setDubboCommunicationConnectionFactory(communicationConnectionFactory);
 
-
+        TaskServiceListener taskServiceListener  = new TaskServiceListener();
         instance.setDubboCommunicationEndpoint(dubboCommunicationEndpoint);
         instance.setMetaManager(manager);
         return instance;
