@@ -62,7 +62,7 @@ public class GeneratorCodeConfig {
 
 
         strategy.setEntityLombokModel(true);
-        strategy.setInclude("pipeline_task_reading");
+        strategy.setInclude("pipeline_sync_info");
         strategy.setControllerMappingHyphenStyle(true);
         mpg.setStrategy(strategy);
         mpg.setTemplateEngine(new FreemarkerTemplateEngine());

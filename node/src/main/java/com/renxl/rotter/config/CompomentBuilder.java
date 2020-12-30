@@ -33,6 +33,7 @@ public class CompomentBuilder {
         instance.setDubboCommunicationConnectionFactory(communicationConnectionFactory);
 
         TaskServiceListener taskServiceListener  = new TaskServiceListener();
+        instance.setTaskServiceListener(taskServiceListener);
         instance.setDubboCommunicationEndpoint(dubboCommunicationEndpoint);
         instance.setMetaManager(manager);
         return instance;

@@ -45,10 +45,10 @@ public class MetaManagerWatcher {
                                     break;
 
                                 case CHILD_ADDED:
-                                    CompomentManager.getInstance().updateMeta(managerAddress);
+                                    CompomentManager.getInstance().onUpdateMeta(managerAddress);
                                     break;
                                 case CHILD_UPDATED:
-                                    CompomentManager.getInstance().updateMeta(managerAddress);
+                                    CompomentManager.getInstance().onUpdateMeta(managerAddress);
                                     break;
 
                                 case CHILD_REMOVED:

@@ -1,13 +1,13 @@
 package com.renxl.rotter.pipeline.listener;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.renxl.rotter.pipeline.domain.PipelineSyncInfo;
 import com.renxl.rotter.pipeline.domain.PipelineTaskReading;
 import com.renxl.rotter.pipeline.service.IPermitService;
+import com.renxl.rotter.pipeline.service.IPipelineSyncInfoService;
 import com.renxl.rotter.pipeline.service.IPipelineTaskReadingService;
 import com.renxl.rotter.rpcclient.CommunicationRegistry;
-import com.renxl.rotter.rpcclient.events.LoadReadingEvent;
-import com.renxl.rotter.rpcclient.events.SelectReadingEvent;
-import com.renxl.rotter.rpcclient.events.TaskEventType;
+import com.renxl.rotter.rpcclient.events.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +21,12 @@ public class RotterReadingEventListener {
 
     @Autowired
     private IPipelineTaskReadingService taskReadingService;
+
+
+
+
+    @Autowired
+    private IPipelineSyncInfoService syncInfoService;
 
 
     @Autowired
@@ -70,6 +76,27 @@ public class RotterReadingEventListener {
         }
         // 添加node上的的同步任务信息
     }
+
+    /**
+     * 获取当前同步进度
+     * @param event
+     * @return
+     */
+    public RelpInfoResponse onRelpInfo(RelpInfoEvent event) {
+        Integer pipelineId = event.getPipelineId();
+        PipelineSyncInfo syncInfo = syncInfoService.getOne(syncInfoService.lambdaQuery().eq(PipelineSyncInfo::getPipelineId, pipelineId).getWrapper());
+        RelpInfoResponse relpInfoResponse = new RelpInfoResponse();
+        if(syncInfo!=null){
+            relpInfoResponse.setOffset(syncInfo.getOffset());
+            relpInfoResponse.setPipelineId(syncInfo.getPipelineId());
+            relpInfoResponse.setReplid(syncInfo.getReplid());
+            relpInfoResponse.setReplJson(syncInfo.getReplJson());
+            relpInfoResponse.setOffset(syncInfo.getOffset());
+        }
+
+        return relpInfoResponse;
+    }
+
 
 
 }

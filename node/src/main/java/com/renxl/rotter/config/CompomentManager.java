@@ -7,6 +7,8 @@ import com.renxl.rotter.manager.MetaManager;
 import com.renxl.rotter.manager.MetaManagerWatcher;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.events.LoadReadingEvent;
+import com.renxl.rotter.rpcclient.events.RelpInfoEvent;
+import com.renxl.rotter.rpcclient.events.RelpInfoResponse;
 import com.renxl.rotter.rpcclient.events.SelectReadingEvent;
 import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationEndpoint;
@@ -57,6 +59,9 @@ public class CompomentManager implements LifeCycle {
      */
     private MetaManagerWatcher metaManagerWatcher;
 
+
+
+
     private CompomentManager() {
 
     }
@@ -90,7 +95,12 @@ public class CompomentManager implements LifeCycle {
         metaManagerWatcher.destory();
     }
 
-    public String getManagerAdress() {
+
+    /**
+     * 初始化获取manager信息 node启动时调用
+     * @return
+     */
+    public String callInitManagerAdress() {
         boolean nodeExist = ZKclient.instance.isNodeExist(managerMaster);
         if (nodeExist) {
             return ZKclient.instance.getNode(managerMaster);
@@ -98,22 +108,47 @@ public class CompomentManager implements LifeCycle {
         return null;
     }
 
-    public void updateMeta(String managerAddress) {
+    /**
+     * 更新node节点的manager master信息
+     * manager采用抢占式选举
+     * manager变更时调用
+     * @param managerAddress
+     */
+    public void onUpdateMeta(String managerAddress) {
         ManagerInfo managerInfo = new ManagerInfo();
         managerInfo.setManagerAddress(managerAddress);
         metaManager.setManager(managerInfo);
 
     }
 
+    /**
+     * 通知manager进行load授权许可
+     * @param pipelineId
+     */
     public void callLoadPermit(Integer pipelineId) {
         String managerAddress = metaManager.getManager().getManagerAddress();
         communicationClient.call(managerAddress, new LoadReadingEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
 
     }
 
+    /**
+     * 通知manager进行授权许可
+     * @param pipelineId
+     */
     public void callSelectPermit(Integer pipelineId) {
         String managerAddress = metaManager.getManager().getManagerAddress();
         communicationClient.call(managerAddress, new SelectReadingEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
 
+    }
+
+    /**
+     * 获取当前同步任务的同步进度相关信息
+     * @param pipelineId
+     * @return
+     */
+    public RelpInfoResponse callSyncInfo(Integer pipelineId) {
+        String managerAddress = metaManager.getManager().getManagerAddress();
+        RelpInfoResponse relpInfoResponse = (RelpInfoResponse) communicationClient.call(managerAddress,new RelpInfoEvent(pipelineId));
+        return relpInfoResponse;
     }
 }
