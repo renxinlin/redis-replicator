@@ -2,10 +2,7 @@ package com.renxl.rotter.task;
 
 import com.renxl.rotter.LoadTask;
 import com.renxl.rotter.rpcclient.CommunicationRegistry;
-import com.renxl.rotter.rpcclient.events.LoadTaskEvent;
-import com.renxl.rotter.rpcclient.events.RelpInfoResponse;
-import com.renxl.rotter.rpcclient.events.SelectTaskEvent;
-import com.renxl.rotter.rpcclient.events.TaskEventType;
+import com.renxl.rotter.rpcclient.events.*;
 import com.renxl.rotter.sel.SelectTask;
 
 import static com.renxl.rotter.config.CompomentManager.*;
@@ -34,7 +31,7 @@ public class TaskServiceListener {
         // 创建并启动 select task
         SelectTask selectTask = new SelectTask(sourceRedises,parallelism,relpInfoResponse);
         selectTask.setPipelineId(pipelineId);
-        selectTask.start();
+        selectTask.start(); // 阻塞等待selectPermit
         // 发送rpc ready 事件
         getInstance().callSelectPermit(pipelineId);
         // 添加到同步任务池
@@ -61,5 +58,54 @@ public class TaskServiceListener {
 
         getInstance().callLoadPermit(pipelineId);
         return true;
+    }
+
+
+
+    /**
+     * 收到manager节点的许可凭证
+     * @param event
+     * @return
+     */
+    public void onSelectPermit(SelectPermitEvent event) {
+        Integer pipelineId = event.getPipelineId();
+        SelectTask selectTask = getInstance().getMetaManager().getPipelineSelectTasks().get(pipelineId);
+        selectTask.permit();
+    }
+
+    /**
+     * 收到manager节点的许可凭证
+     * @param event
+     * @return
+     */
+    public void onLoadPermit(LoadPermitEvent event) {
+        Integer pipelineId = event.getPipelineId();
+        LoadTask loadTask = getInstance().getMetaManager().getPipelineLoadTasks().get(pipelineId);
+        loadTask.permit();
+    }
+
+
+
+
+    /**
+     * todo
+     * @param event
+     * @return
+     */
+    public void onSelectUnpermit(SelectPermitEvent event) {
+        Integer pipelineId = event.getPipelineId();
+        SelectTask selectTask = getInstance().getMetaManager().getPipelineSelectTasks().get(pipelineId);
+        selectTask.permit();
+    }
+
+    /**
+     * todo
+     * @param event
+     * @return
+     */
+    public void onLoadUnpermit(LoadPermitEvent event) {
+        Integer pipelineId = event.getPipelineId();
+        LoadTask loadTask = getInstance().getMetaManager().getPipelineLoadTasks().get(pipelineId);
+        loadTask.permit();
     }
 }

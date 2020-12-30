@@ -17,4 +17,9 @@ public class ExtractTask extends Task{
 
 
     }
+
+    @Override
+    boolean getPermit() {
+        return true;
+    }
 }

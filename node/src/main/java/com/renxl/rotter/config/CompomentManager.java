@@ -1,5 +1,6 @@
 package com.renxl.rotter.config;
 
+import com.alibaba.dubbo.common.utils.NamedThreadFactory;
 import com.renxl.rotter.LifeCycle;
 import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.manager.ManagerInfo;
@@ -16,6 +17,14 @@ import com.renxl.rotter.task.HeartbeatScheduler;
 import com.renxl.rotter.task.TaskServiceListener;
 import com.renxl.rotter.zookeeper.ZKclient;
 import lombok.Data;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import static com.renxl.rotter.config.HeartBeatConfig.EXCTRACT_DEFAULT_ACCEPT_COUNT;
+import static com.renxl.rotter.config.HeartBeatConfig.EXCTRACT_DEFAULT_POOL_SIZE;
 import static com.renxl.rotter.zookeeper.ZookeeperConfig.managerMaster;
 
 /**
@@ -59,7 +68,22 @@ public class CompomentManager implements LifeCycle {
      */
     private MetaManagerWatcher metaManagerWatcher;
 
+    /**
+     * 允许配置化池大小和队列量
+     */
 
+
+    private int poolSize = EXCTRACT_DEFAULT_POOL_SIZE;
+
+    private int acceptCount = EXCTRACT_DEFAULT_ACCEPT_COUNT;
+    private String name = "rotter-extract";
+
+    /**
+     * node节点配置的extracttask线程池的大小
+     */
+    private ExecutorService extractThreads = new ThreadPoolExecutor(poolSize, poolSize, 60, TimeUnit.SECONDS,
+            new ArrayBlockingQueue(acceptCount), new NamedThreadFactory(name),
+            new ThreadPoolExecutor.CallerRunsPolicy());
 
 
     private CompomentManager() {
@@ -98,6 +122,7 @@ public class CompomentManager implements LifeCycle {
 
     /**
      * 初始化获取manager信息 node启动时调用
+     *
      * @return
      */
     public String callInitManagerAdress() {
@@ -112,6 +137,7 @@ public class CompomentManager implements LifeCycle {
      * 更新node节点的manager master信息
      * manager采用抢占式选举
      * manager变更时调用
+     *
      * @param managerAddress
      */
     public void onUpdateMeta(String managerAddress) {
@@ -123,6 +149,7 @@ public class CompomentManager implements LifeCycle {
 
     /**
      * 通知manager进行load授权许可
+     *
      * @param pipelineId
      */
     public void callLoadPermit(Integer pipelineId) {
@@ -133,6 +160,7 @@ public class CompomentManager implements LifeCycle {
 
     /**
      * 通知manager进行授权许可
+     *
      * @param pipelineId
      */
     public void callSelectPermit(Integer pipelineId) {
@@ -143,12 +171,13 @@ public class CompomentManager implements LifeCycle {
 
     /**
      * 获取当前同步任务的同步进度相关信息
+     *
      * @param pipelineId
      * @return
      */
     public RelpInfoResponse callSyncInfo(Integer pipelineId) {
         String managerAddress = metaManager.getManager().getManagerAddress();
-        RelpInfoResponse relpInfoResponse = (RelpInfoResponse) communicationClient.call(managerAddress,new RelpInfoEvent(pipelineId));
+        RelpInfoResponse relpInfoResponse = (RelpInfoResponse) communicationClient.call(managerAddress, new RelpInfoEvent(pipelineId));
         return relpInfoResponse;
     }
 }

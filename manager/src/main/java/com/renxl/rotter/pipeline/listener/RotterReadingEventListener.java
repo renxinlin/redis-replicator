@@ -8,6 +8,7 @@ import com.renxl.rotter.pipeline.service.IPipelineSyncInfoService;
 import com.renxl.rotter.pipeline.service.IPipelineTaskReadingService;
 import com.renxl.rotter.rpcclient.CommunicationRegistry;
 import com.renxl.rotter.rpcclient.events.*;
+import com.renxl.rotter.zookeeper.ZKclient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -96,6 +97,7 @@ public class RotterReadingEventListener {
 
         return relpInfoResponse;
     }
+
 
 
 

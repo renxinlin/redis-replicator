@@ -7,13 +7,18 @@ import com.renxl.rotter.rpcclient.events.RelpInfoResponse;
  * @author: renxl
  * @create: 2020-12-28 20:02
  */
-public class SelectTask  extends Task{
+public class SelectTask extends Task {
     public SelectTask(String sourceRedises, Integer parallelism, RelpInfoResponse relpInfoResponse) {
 
     }
 
-    public void start( ) {
+    public void start() {
 
 
+    }
+
+    @Override
+    boolean getPermit() {
+        return permit;
     }
 }

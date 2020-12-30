@@ -5,7 +5,7 @@ package com.renxl.rotter.config;
  * @author: renxl
  * @create: 2020-12-28 21:59
  */
-public class HeartBeatConfig{
+public class HeartBeatConfig {
     /**
      * 心跳上报时间
      */
@@ -21,4 +21,9 @@ public class HeartBeatConfig{
      */
     @Deprecated
     public static Long heartBeatCheckTime = 30 * 1000L;
+
+
+    public static int EXCTRACT_DEFAULT_POOL_SIZE = 50;
+
+    public static int EXCTRACT_DEFAULT_ACCEPT_COUNT = 100;
 }
