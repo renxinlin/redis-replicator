@@ -174,42 +174,7 @@ public abstract class Selector {
      * 3. Use Jedis RESTORE command to restore that dump format to target redis.
      * 4. Get aof stream from source redis and sync to target redis.
      */
-    public void sync(String sourceUri) throws IOException, URISyntaxException {
-        RedisURI suri = new RedisURI(sourceUri);
-        Replicator r = dress(new RedisReplicator(suri));
 
-        r.addEventListener(new EventListener() {
-            @Override
-            public void onEvent(Replicator replicator, Event event) {
-
-                if (event instanceof PreRdbSyncEvent) {
-                    log.info("start rdb==>");
-                }
-                if (event instanceof DumpKeyValuePair) {
-                    DumpKeyValuePair dkv = (DumpKeyValuePair) event;
-                    rdb((DumpKeyValuePair) event);
-                }
-                if (event instanceof PostRdbSyncEvent) {
-                    log.info("end rdb==>");
-                }
-                if (event instanceof PreCommandSyncEvent) {
-                    log.info("start aof==>");
-
-                }
-                if (event instanceof DefaultCommand) {
-                    aof((DefaultCommand) event);
-                }
-
-                if (event instanceof PostCommandSyncEvent) {
-                    log.info("end aof==>");
-
-                }
-            }
-        });
-
-
-        r.open();
-    }
 
     public abstract void aof(DefaultCommand event);
 
