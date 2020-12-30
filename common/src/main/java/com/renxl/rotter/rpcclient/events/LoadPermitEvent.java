@@ -10,9 +10,14 @@ import lombok.Data;
  * @create: 2020-12-28 15:51
  */
 @Data
-@AllArgsConstructor
 public class LoadPermitEvent extends Event {
     private Integer pipelineId;
     private String nodeIp;
 
+
+    public LoadPermitEvent(Integer pipelineId,String nodeIp) {
+        super(TaskEventType.loadPermit);
+        this.pipelineId = pipelineId;
+        this.nodeIp = nodeIp;
+    }
 }

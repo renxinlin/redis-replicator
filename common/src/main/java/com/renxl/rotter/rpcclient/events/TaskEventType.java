@@ -11,13 +11,14 @@ public enum TaskEventType implements EventType {
     /**
      * 通知node准备select
      */
-    startTask,
-
+    selectTask,
     /**
      * 通知node 准备load
      */
     loadTask,
     ping,
     selectReading,
-    loadReading;
+    loadReading,
+
+    permitEvent, selectPermit, loadPermit, relpInfo;
 }

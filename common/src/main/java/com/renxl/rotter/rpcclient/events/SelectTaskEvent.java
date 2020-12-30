@@ -23,11 +23,11 @@ public class SelectTaskEvent extends Event {
 
     private Integer parallelism;
     public SelectTaskEvent(){
-        super(TaskEventType.startTask);
+        super(TaskEventType.selectTask);
     }
 
     public SelectTaskEvent(Integer pipelineId,String sourceRedises, Integer parallelism) {
-        super(TaskEventType.startTask);
+        super(TaskEventType.selectTask);
         this.pipelineId = pipelineId;
         this.parallelism = parallelism;
         this.sourceRedises = sourceRedises;

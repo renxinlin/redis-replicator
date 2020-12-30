@@ -13,9 +13,7 @@ public class LoadTaskEvent extends Event {
     private Integer pipelineId;
     private String targetRedis;
 
-    public LoadTaskEvent(){
-        super(TaskEventType.loadTask);
-    }
+
 
     public LoadTaskEvent(Integer pipelineId,String targetRedis) {
         super(TaskEventType.loadTask);

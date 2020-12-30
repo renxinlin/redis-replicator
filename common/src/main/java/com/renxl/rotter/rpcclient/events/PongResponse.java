@@ -1,7 +1,8 @@
 package com.renxl.rotter.rpcclient.events;
 
-import com.renxl.rotter.rpcclient.Event;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * @description:
@@ -9,8 +10,8 @@ import lombok.Data;
  * @create: 2020-12-25 23:03
  */
 @Data
-public class PongResponse     {
+public class PongResponse implements Serializable {
 
-
+    private static final long serialVersionUID = 208038167977229245L;
 
 }

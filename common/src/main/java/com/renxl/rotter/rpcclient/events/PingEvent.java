@@ -11,7 +11,6 @@ import lombok.Data;
 @Data
 public class PingEvent extends Event {
 
-    private String sourceRedises;
 
     public PingEvent(){
         super(TaskEventType.ping);
