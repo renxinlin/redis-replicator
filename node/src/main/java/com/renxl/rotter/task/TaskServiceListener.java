@@ -1,8 +1,8 @@
 package com.renxl.rotter.task;
 
-import com.renxl.rotter.LoadTask;
-import com.renxl.rotter.rpcclient.CommunicationRegistry;
 import com.renxl.rotter.rpcclient.events.*;
+import com.renxl.rotter.sel.LoadTask;
+import com.renxl.rotter.rpcclient.CommunicationRegistry;
 import com.renxl.rotter.sel.SelectTask;
 
 import static com.renxl.rotter.config.CompomentManager.*;
@@ -29,7 +29,7 @@ public class TaskServiceListener {
         // 获取pipelineId的复制进度
         RelpInfoResponse relpInfoResponse = getInstance().callSyncInfo(pipelineId);
         // 创建并启动 select task
-        SelectTask selectTask = new SelectTask(sourceRedises,parallelism,relpInfoResponse);
+        SelectTask selectTask = new SelectTask(pipelineId,sourceRedises,parallelism,relpInfoResponse);
         selectTask.setPipelineId(pipelineId);
         selectTask.start(); // 阻塞等待selectPermit
         // 发送rpc ready 事件
@@ -52,7 +52,7 @@ public class TaskServiceListener {
         String targetRedis = loadTaskEvent.getTargetRedis();
         // 发送rpc ready 事件
 
-        LoadTask loadTask = new LoadTask(targetRedis);
+        LoadTask loadTask = new LoadTask(pipelineId,targetRedis);
         loadTask.setPipelineId(pipelineId);
         getInstance().getMetaManager().addTask(loadTask);
 

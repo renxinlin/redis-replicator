@@ -8,7 +8,7 @@ import lombok.Data;
  * @create: 2020-12-30 04:12
  */
 @Data
-public abstract class Task {
+public abstract class Task extends Thread{
     private Integer pipelineId;
 
     /**

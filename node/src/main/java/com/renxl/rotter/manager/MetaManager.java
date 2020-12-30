@@ -1,6 +1,6 @@
 package com.renxl.rotter.manager;
 
-import com.renxl.rotter.LoadTask;
+import com.renxl.rotter.sel.LoadTask;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.sel.SelectTask;
 import com.renxl.rotter.sel.Task;

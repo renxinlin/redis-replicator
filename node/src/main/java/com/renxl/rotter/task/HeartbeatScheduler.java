@@ -1,18 +1,14 @@
 package com.renxl.rotter.task;
 
-import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.config.HeartBeatConfig;
 import com.renxl.rotter.rpcclient.CommunicationClient;
-import com.renxl.rotter.rpcclient.HeartEvent;
 import com.renxl.rotter.rpcclient.NodeHeartEvent;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;

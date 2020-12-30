@@ -14,7 +14,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.renxl.rotter.constans.Constant.IP_PORT_SPLIT;

@@ -11,7 +11,6 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 import static com.renxl.rotter.zookeeper.ZookeeperConfig.managerMasterParent;

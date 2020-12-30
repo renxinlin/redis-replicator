@@ -1,9 +1,7 @@
 package com.renxl.rotter.rpcclient.events;
 
 import com.renxl.rotter.rpcclient.Event;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @description:

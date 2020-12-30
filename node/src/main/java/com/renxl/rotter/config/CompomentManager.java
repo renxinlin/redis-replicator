@@ -6,6 +6,7 @@ import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.manager.ManagerInfo;
 import com.renxl.rotter.manager.MetaManager;
 import com.renxl.rotter.manager.MetaManagerWatcher;
+import com.renxl.rotter.manager.WindowManager;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.events.LoadReadingEvent;
 import com.renxl.rotter.rpcclient.events.RelpInfoEvent;
@@ -68,10 +69,7 @@ public class CompomentManager implements LifeCycle {
      */
     private MetaManagerWatcher metaManagerWatcher;
 
-    /**
-     * 允许配置化池大小和队列量
-     */
-
+    private  WindowManager windowManager;
 
     private int poolSize = EXCTRACT_DEFAULT_POOL_SIZE;
 
