@@ -2,6 +2,8 @@ package com.renxl.rotter.config;
 
 import com.renxl.rotter.manager.MetaManager;
 import com.renxl.rotter.manager.MetaManagerWatcher;
+import com.renxl.rotter.manager.WindowManager;
+import com.renxl.rotter.manager.WindowManagerWatcher;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.DefaultCommunicationClientImpl;
@@ -36,6 +38,12 @@ public class CompomentBuilder {
         instance.setTaskServiceListener(taskServiceListener);
         instance.setDubboCommunicationEndpoint(dubboCommunicationEndpoint);
         instance.setMetaManager(manager);
+
+
+        WindowManagerWatcher windowManagerWatcher   = new WindowManagerWatcher();
+        WindowManager windowManager = new WindowManager();
+        instance.setWindowManager(windowManager);
+        instance.setWindowManagerWatcher(windowManagerWatcher);
         return instance;
     }
 }

@@ -28,6 +28,7 @@ import com.moilioncircle.redis.replicator.event.*;
 import com.moilioncircle.redis.replicator.rdb.dump.DumpRdbVisitor;
 import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
 import com.moilioncircle.redis.replicator.util.Strings;
+import com.renxl.rotter.manager.WindowManagerWatcher;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Client;
 import redis.clients.jedis.Protocol;

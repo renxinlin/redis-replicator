@@ -44,8 +44,8 @@ import static redis.clients.jedis.Protocol.toByteArray;
  */
 @Slf4j
 public abstract class SelectorFactory {
-public static Selector  buildSelector(Selector param){
-     Selector selector = new DefaultSelector();
+public static Selector  buildSelector(SelectorParam param){
+     Selector selector = new DefaultSelector(param);
      return selector;
  }
 }

@@ -8,6 +8,8 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 /**
  *
  **/
@@ -144,4 +146,42 @@ public class ZKclient {
         return null;
     }
 
+    public String createNodeSel(String srcpath, String data) {
+        byte[] payload = null;
+        try {
+            if (!StringUtils.isEmpty(data)) {
+
+                payload = data.getBytes("UTF-8");
+            }
+            // 创建一个 ZNode 节点
+            String path = client.create()
+                    .creatingParentsIfNeeded()
+                    .withMode(CreateMode.PERSISTENT_SEQUENTIAL)
+                    .forPath(srcpath, payload);
+            return path;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void deleteChild(String pipelineWindowIdFormat) {
+        // todo 测试
+        try {
+            List<String> path = client.getChildren().forPath(pipelineWindowIdFormat);
+            if(path!=null && path.size()>0){
+                path.forEach(p-> {
+                    try {
+                        client.delete().forPath(p);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

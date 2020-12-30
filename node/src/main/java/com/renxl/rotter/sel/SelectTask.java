@@ -24,7 +24,7 @@ public class SelectTask extends Task {
     @Override
     public void run() {
 
-        SelectorFactory.buildSelector(null);
+        Selector selector = SelectorFactory.buildSelector(new SelectorParam(getPipelineId(),sourceRedises,parallelism,relpInfoResponse));
 
     }
 

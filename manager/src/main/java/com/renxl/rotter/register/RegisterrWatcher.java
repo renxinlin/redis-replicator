@@ -28,7 +28,7 @@ public class RegisterrWatcher {
         final String hostAddress = AddressUtils.getHostAddress().getHostAddress();
         log.info("start register manager master [{}]", hostAddress);
         try {
-            if (ZKclient.instance.isNodeExist(managerMasterParent)) {
+            if (!ZKclient.instance.isNodeExist(managerMasterParent)) {
                 ZKclient.instance.createNode(managerMasterParent, null);
             }
             ZKclient.instance.createEphemeral(ZookeeperConfig.managerMaster, hostAddress);

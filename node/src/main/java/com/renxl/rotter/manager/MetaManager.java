@@ -1,5 +1,6 @@
 package com.renxl.rotter.manager;
 
+import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.sel.LoadTask;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.sel.SelectTask;
@@ -22,6 +23,7 @@ public class MetaManager {
      * manager master节点信息
      */
     private ManagerInfo manager;
+    private String nodeIp = AddressUtils.getHostAddress().getHostAddress();
 
     /**
      * pipelineid task
