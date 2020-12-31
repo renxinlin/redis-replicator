@@ -1,6 +1,9 @@
 package com.renxl.rotter.sel.window.buffer;
 
 /**
+ *
+ * // 滑动窗口队列
+ *
  * @description:
  * @author: renxl
  * @create: 2020-12-30 20:07
