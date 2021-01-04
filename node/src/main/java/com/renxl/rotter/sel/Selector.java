@@ -39,7 +39,7 @@ import static redis.clients.jedis.Protocol.toByteArray;
  * @since 2.5.0
  */
 @Slf4j
-public abstract class Selector  extends Thread{
+public abstract class Selector     {
 
 
 //    public static void main(String[] args) throws IOException, URISyntaxException {

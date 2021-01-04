@@ -14,17 +14,18 @@ import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.constants.Constants;
 import com.renxl.rotter.rpcclient.events.RelpInfoResponse;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static com.renxl.rotter.config.CompomentManager.getInstance;
-import static org.apache.commons.lang.StringUtils.split;
 
 /**
  * @description:
@@ -35,41 +36,57 @@ import static org.apache.commons.lang.StringUtils.split;
 public class DefaultSelector extends Selector {
 
 
-
-
     SelectorParam param;
     Replicator r;
     int retry = 0;
+    ThreadPoolExecutor executor;
     /**
      * 承接redisio线程
      */
-    RingBuffer<SelectorEvent> ringBuffer ;
+    RingBuffer<SelectorEvent> ringBuffer;
+
     public DefaultSelector(SelectorParam param) {
+        this.param = param;
         this.param = param;
         // 根据并行数创建滑动窗口大小
         CompomentManager.getInstance().getWindowManagerWatcher().initPipelined(param.getPipelineId(), param.getParallelism());
-
+        executor = new ThreadPoolExecutor(1, 1, 300, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(0),
+                new DefaultThreadFactory("selector-pipelineId-" + param.getPipelineId()),
+                new ThreadPoolExecutor.CallerRunsPolicy());
 
 
     }
 
+    private static String buildMasterAddress(String redisUrl, Jedis jedis) {
+        String replicationInfo = jedis.info("replication");
+        String[] redisInfo = replicationInfo.split("\r\n");
+        String roleInfo = redisInfo[1].split(":")[1];
+        String master = roleInfo.equals("master") ? null : redisInfo[2].split(":")[1];
+        master = master == null ? redisUrl : master;
+        return master;
+    }
+
     @Override
-    public void open() throws IOException {
-        retry = 0;
-        int retriesFromRedisServerInfo = r.getConfiguration().getRetriesFromRedisServerInfo();
-        while (retry < retriesFromRedisServerInfo) {
-            try {
-                retry++;
-                // TODO 同步检查
-                r.open();
-                log.info("open times "+retry);
-            } catch (IOException e) {
-                // 构建同步信息
-                sync();
-                // 开始aof rdb 复制
-                open();
+    public void open()     {
+        executor.execute(()->{
+            retry = 0;
+            int retriesFromRedisServerInfo = r.getConfiguration().getRetriesFromRedisServerInfo();
+            while (retry < retriesFromRedisServerInfo) {
+                try {
+                    retry++;
+                    // TODO 同步检查
+                    r.open();
+                    log.info("open times " + retry);
+                } catch (IOException e) {
+                    // 构建同步信息
+                    sync();
+                    // 开始aof rdb 复制
+                    open();
+                }
             }
-        }
+        });
+
 
 
     }
@@ -93,18 +110,16 @@ public class DefaultSelector extends Selector {
         ringBuffer = disruptor.getRingBuffer();
 
 
-
-
         // 获取新的主从配置信息
         String sourceUri = param.getSourceRedises();
-        String redisUrl= sourceUri.split(Constants.MULT_NODE_SPLIT)[0];
-        Jedis jedis  = new Jedis(sourceUri);
+        String redisUrl = sourceUri.split(Constants.MULT_NODE_SPLIT)[0];
+        Jedis jedis = new Jedis(sourceUri);
         String master = buildMasterAddress(redisUrl, jedis);
         jedis.close();
 
         // 通过manager获取复制进度信息
         RelpInfoResponse relpInfoResponse = getInstance().callSyncInfo(param.getPipelineId());
-        sourceUri =  "redis://"+master+""+6379+"?verbose=yes&retries=10&replId=" + relpInfoResponse.getReplid() + "&replOffset=" + relpInfoResponse.getOffset();
+        sourceUri = "redis://" + master + "" + 6379 + "?verbose=yes&retries=10&replId=" + relpInfoResponse.getReplid() + "&replOffset=" + relpInfoResponse.getOffset();
         RedisURI suri = null;
         try {
             suri = new RedisURI(sourceUri);
@@ -120,6 +135,12 @@ public class DefaultSelector extends Selector {
         }
 
         r.addEventListener(new EventListener() {
+            /**
+             *
+             * ringbuffer 满了之后当前线程会阻塞
+             * @param replicator
+             * @param event
+             */
             @Override
             public void onEvent(Replicator replicator, Event event) {
 
@@ -150,7 +171,6 @@ public class DefaultSelector extends Selector {
 
     }
 
-
     @Override
     public void aof(DefaultCommand event) {
         // disruptor 生产
@@ -175,20 +195,6 @@ public class DefaultSelector extends Selector {
             ringBuffer.publish(sequence);
         }
     }
-
-
-
-
-    private static String buildMasterAddress(String redisUrl, Jedis jedis) {
-        String replicationInfo = jedis.info("replication");
-        String[] redisInfo = replicationInfo.split("\r\n");
-        String roleInfo = redisInfo[1].split(":")[1];
-        String master = roleInfo.equals("master") ? null : redisInfo[2].split(":")[1];
-        master = master == null ? redisUrl : master;
-        return master;
-    }
-
-
 
 
 }

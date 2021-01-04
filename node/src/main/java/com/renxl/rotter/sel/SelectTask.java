@@ -47,8 +47,8 @@ public class SelectTask extends Task {
 
         // 消费redis replicator 如果读不到数据还是要发送心跳 消费端不可以阻塞 否则会造成manager看到假死现象导致同步任务被转移
         while (true) {
-            if (permit) {
-
+            if (!permit) {
+                // TODO 准备停止
             }
             WindowBuffer selectBuffer = CompomentManager.getInstance().getWindowManager().getSelectBuffer(getPipelineId());
             // 阻塞式buffer 等到ack完毕会被添回来从而保障滑动窗口 batchid是递增趋势 从而保障滑动窗口确认序列号按顺序的特点
