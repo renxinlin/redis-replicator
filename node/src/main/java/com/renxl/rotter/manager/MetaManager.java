@@ -36,7 +36,7 @@ public class MetaManager {
     /**
      * 批量消费后的buffer
      */
-    private ConcurrentMap<Integer, ArrayBlockingQueue<SelectorEvent>> batchBuffer = new ConcurrentHashMap<>();
+    private ConcurrentMap<Integer, ArrayBlockingQueue<SelectorBatchEvent>> batchBuffer = new ConcurrentHashMap<>();
 
 
     public void init() {
@@ -50,8 +50,8 @@ public class MetaManager {
 
     }
 
-    public void addEvent(Integer pipelineId, SelectorEvent task) {
-        ArrayBlockingQueue arrayBlockingQueue = batchBuffer.getOrDefault(pipelineId,new ArrayBlockingQueue<SelectorEvent>(1024*1024));
+    public void addEvent(Integer pipelineId, SelectorBatchEvent task) {
+        ArrayBlockingQueue arrayBlockingQueue = batchBuffer.getOrDefault(pipelineId,new ArrayBlockingQueue<SelectorBatchEvent>(1024*1024));
         arrayBlockingQueue.add(task);
     }
 

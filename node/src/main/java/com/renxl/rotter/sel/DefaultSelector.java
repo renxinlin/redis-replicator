@@ -1,5 +1,6 @@
 package com.renxl.rotter.sel;
 
+import com.google.common.collect.Queues;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.YieldingWaitStrategy;
@@ -20,10 +21,10 @@ import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.*;
 
 import static com.renxl.rotter.config.CompomentManager.getInstance;
 
@@ -204,10 +205,27 @@ public class DefaultSelector extends Selector {
 
     @Slf4j
     class RotterSelectorEventHandler implements EventHandler<SelectorEvent> {
+        ArrayBlockingQueue<SelectorEvent> arrayBlockingQueue = new ArrayBlockingQueue(1024*1024);
+        List buffer = new CopyOnWriteArrayList<>();
         @Override
         public void onEvent(SelectorEvent event, long sequence, boolean endOfBatch) {
+            arrayBlockingQueue.add(event);
             // disputor 消费 批量发送到[多线程的]extractTask的batch buffer
-            CompomentManager.getInstance().getMetaManager().addEvent(param.getPipelineId(),event);
+            try {
+                Queues.drain(arrayBlockingQueue, buffer, 10, 500, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                log.error(" thread interrupted");
+                e.printStackTrace();
+            }
+            if(!buffer.isEmpty()){
+                SelectorBatchEvent selectorBatchEvent = new SelectorBatchEvent();
+                selectorBatchEvent.setSelectorEvent(buffer);
+                // todo 设置滑动窗口递增序列号保障顺序
+                selectorBatchEvent.setBatchId(-1L);
+                CompomentManager.getInstance().getMetaManager().addEvent(param.getPipelineId(),selectorBatchEvent);
+                buffer.clear();
+
+            }
         }
 
     }
