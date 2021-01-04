@@ -197,18 +197,19 @@ public class DefaultSelector extends Selector {
     }
 
 
-}
 
-/**
- * redis - disruptor 复制消费者
- */
+    /**
+     * redis - disruptor 复制消费者
+     */
 
-@Slf4j
-class RotterSelectorEventHandler implements EventHandler<Object> {
-    @Override
-    public void onEvent(Object event, long sequence, boolean endOfBatch) {
-        // disputor 消费
-        log.info("event: {}, sequence: {}, endOfBatch: {}", event, sequence, endOfBatch);
+    @Slf4j
+    class RotterSelectorEventHandler implements EventHandler<SelectorEvent> {
+        @Override
+        public void onEvent(SelectorEvent event, long sequence, boolean endOfBatch) {
+            // disputor 消费 批量发送到[多线程的]extractTask的batch buffer
+            CompomentManager.getInstance().getMetaManager().addEvent(param.getPipelineId(),event);
+        }
+
     }
 
 }

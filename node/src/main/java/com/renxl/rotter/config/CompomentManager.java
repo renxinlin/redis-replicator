@@ -116,8 +116,9 @@ public class CompomentManager implements LifeCycle {
 
     @Override
     public void stop() {
-        dubboCommunicationEndpoint.destory();
         communicationClient.destory();
+        dubboCommunicationEndpoint.destory();
+        metaManager.destory();
         metaManagerWatcher.destory();
         windowManagerWatcher.destory();
     }
