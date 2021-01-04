@@ -26,6 +26,7 @@ import com.moilioncircle.redis.replicator.rdb.datatype.EvictType;
 import com.moilioncircle.redis.replicator.rdb.datatype.ExpiredType;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.util.Strings;
+import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.io.IOException;

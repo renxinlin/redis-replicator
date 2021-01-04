@@ -24,6 +24,7 @@ import com.moilioncircle.redis.replicator.event.PostRdbSyncEvent;
 import com.moilioncircle.redis.replicator.rdb.datatype.AuxField;
 import com.moilioncircle.redis.replicator.util.Strings;
 import org.junit.Test;
+import org.testng.Assert;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
@@ -35,13 +36,26 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Leon Chen
  * @since 2.1.0
  */
 public class PsyncTest {
+
+    private static void close(Replicator replicator) {
+        try {
+            ((TestRedisSocketReplicator) replicator).getOutputStream().close();
+        } catch (IOException e) {
+        }
+        try {
+            ((TestRedisSocketReplicator) replicator).getInputStream().close();
+        } catch (IOException e) {
+        }
+        try {
+            ((TestRedisSocketReplicator) replicator).getSocket().close();
+        } catch (IOException e) {
+        }
+    }
 
     @Test
     public void psync() throws IOException {
@@ -103,21 +117,6 @@ public class PsyncTest {
         });
         replicator.open();
         Assert.assertEquals(1500, acc.get());
-    }
-
-    private static void close(Replicator replicator) {
-        try {
-            ((TestRedisSocketReplicator) replicator).getOutputStream().close();
-        } catch (IOException e) {
-        }
-        try {
-            ((TestRedisSocketReplicator) replicator).getInputStream().close();
-        } catch (IOException e) {
-        }
-        try {
-            ((TestRedisSocketReplicator) replicator).getSocket().close();
-        } catch (IOException e) {
-        }
     }
 
     private static class JRun implements Runnable {

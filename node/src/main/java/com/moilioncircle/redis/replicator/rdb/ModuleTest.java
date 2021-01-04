@@ -36,6 +36,7 @@ import com.moilioncircle.redis.replicator.rdb.module.ModuleParser;
 import com.moilioncircle.redis.replicator.rdb.skip.SkipRdbVisitor;
 import com.moilioncircle.redis.replicator.util.Strings;
 import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -71,7 +71,7 @@ public class MigrationExample {
         final ExampleClient target = new ExampleClient(turi.getHost(), turi.getPort());
         Configuration tconfig = Configuration.valueOf(turi);
         if (tconfig.getAuthPassword() != null) {
-            Object auth = target.send(Command.AUTH, tconfig.getAuthPassword().getBytes());
+            Object auth = target.send(Protocol.Command.AUTH, tconfig.getAuthPassword().getBytes());
             System.out.println("AUTH:" + auth);
         }
         final AtomicInteger dbnum = new AtomicInteger(-1);
@@ -86,7 +86,7 @@ public class MigrationExample {
                     DB db = dkv.getDb();
                     int index;
                     if (db != null && (index = (int) db.getDbNumber()) != dbnum.get()) {
-                        target.send(Command.SELECT, Protocol.toByteArray(index));
+                        target.send(Protocol.Command.SELECT, Protocol.toByteArray(index));
                         dbnum.set(index);
                         System.out.println("SELECT:" + index);
                     }
@@ -241,9 +241,9 @@ public class MigrationExample {
 
         public Object restore(byte[] key, long expired, byte[] dumped, boolean replace) {
             if (!replace) {
-                return send(Command.RESTORE, key, Protocol.toByteArray(expired), dumped);
+                return send(Protocol.Command.RESTORE, key, Protocol.toByteArray(expired), dumped);
             } else {
-                return send(Command.RESTORE, key, Protocol.toByteArray(expired), dumped, "REPLACE".getBytes());
+                return send(Protocol.Command.RESTORE, key, Protocol.toByteArray(expired), dumped, "REPLACE".getBytes());
             }
         }
     }

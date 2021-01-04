@@ -16,9 +16,17 @@
 
 package com.moilioncircle.redis.replicator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import com.moilioncircle.redis.replicator.cmd.impl.*;
+import com.moilioncircle.redis.replicator.event.Event;
+import com.moilioncircle.redis.replicator.event.EventListener;
+import com.moilioncircle.redis.replicator.event.PostRdbSyncEvent;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
+import com.moilioncircle.redis.replicator.util.Strings;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ZParams;
+import redis.clients.jedis.params.sortedset.ZAddParams;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,23 +34,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.junit.Test;
-
-import com.moilioncircle.redis.replicator.cmd.impl.AggregateType;
-import com.moilioncircle.redis.replicator.cmd.impl.ExistType;
-import com.moilioncircle.redis.replicator.cmd.impl.SetCommand;
-import com.moilioncircle.redis.replicator.cmd.impl.ZAddCommand;
-import com.moilioncircle.redis.replicator.cmd.impl.ZInterStoreCommand;
-import com.moilioncircle.redis.replicator.cmd.impl.ZUnionStoreCommand;
-import com.moilioncircle.redis.replicator.event.Event;
-import com.moilioncircle.redis.replicator.event.EventListener;
-import com.moilioncircle.redis.replicator.event.PostRdbSyncEvent;
-import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
-import com.moilioncircle.redis.replicator.util.Strings;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.ZParams;
-import redis.clients.jedis.params.ZAddParams;
+import static org.testng.AssertJUnit.assertEquals;
 
 /**
  * @author Leon Chen
@@ -172,21 +164,25 @@ public class RedisSocketReplicatorTest {
 
     @Test
     public void testCloseListener() {
+
         final AtomicInteger acc = new AtomicInteger(0);
-        Replicator replicator = new RedisReplicator("127.0.0.1", 6666, Configuration.defaultSetting().setUseDefaultExceptionListener(false));
+        Replicator replicator = new RedisReplicator("daily.redis.mockuai.com", 6379, Configuration.defaultSetting().setUseDefaultExceptionListener(false));
         replicator.addCloseListener(new CloseListener() {
             @Override
             public void handle(Replicator replicator) {
-                acc.incrementAndGet();
+                System.out.println(2345);
+
             }
         });
         try {
             replicator.open();
-            Assert.fail();
         } catch (IOException e) {
+            System.out.println(234);
+
         }
 
-        Assert.assertEquals(1, acc.get());
+        System.out.println(1);
+
     }
 
     @Test

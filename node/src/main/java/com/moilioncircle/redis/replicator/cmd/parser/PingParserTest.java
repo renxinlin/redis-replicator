@@ -46,6 +46,7 @@ import com.moilioncircle.redis.replicator.cmd.impl.SetRangeCommand;
 import com.moilioncircle.redis.replicator.cmd.impl.ZInterStoreCommand;
 import com.moilioncircle.redis.replicator.cmd.impl.ZUnionStoreCommand;
 import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static com.moilioncircle.redis.replicator.rdb.datatype.EvictType.LFU;

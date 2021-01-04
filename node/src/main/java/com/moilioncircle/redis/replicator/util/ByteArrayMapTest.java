@@ -17,6 +17,7 @@
 package com.moilioncircle.redis.replicator.util;
 
 import org.junit.Test;
+import org.testng.Assert;
 
 import java.io.File;
 import java.io.FileInputStream;

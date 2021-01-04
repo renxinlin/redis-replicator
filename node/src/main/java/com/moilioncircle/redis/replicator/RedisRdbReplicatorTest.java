@@ -24,14 +24,13 @@ import com.moilioncircle.redis.replicator.rdb.datatype.AuxField;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.util.Strings;
 import org.junit.Test;
+import org.testng.Assert;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Leon Chen
@@ -61,7 +60,7 @@ public class RedisRdbReplicatorTest {
         Assert.assertEquals(19, acc.get());
         Assert.assertEquals(6576517133597126869L, atomicChecksum.get());
     }
-    
+
     @Test
     public void testChecksumV6() throws IOException {
         Replicator redisReplicator = new RedisReplicator(
@@ -84,7 +83,7 @@ public class RedisRdbReplicatorTest {
         Assert.assertEquals(132, acc.get());
         Assert.assertEquals(-3409494954737929802L, atomicChecksum.get());
     }
-    
+
     @Test
     public void testCloseListener1() throws IOException {
         final AtomicInteger acc = new AtomicInteger(0);
@@ -100,7 +99,7 @@ public class RedisRdbReplicatorTest {
         replicator.open();
         Assert.assertEquals(1, acc.get());
     }
-    
+
     @Test
     public void testFileV7() throws IOException {
         Replicator redisReplicator = new RedisReplicator(
@@ -131,7 +130,7 @@ public class RedisRdbReplicatorTest {
             }
         }
     }
-    
+
     @Test
     public void testFilter() throws IOException {
         Replicator redisReplicator = new RedisReplicator(
@@ -151,7 +150,7 @@ public class RedisRdbReplicatorTest {
         redisReplicator.open();
         Assert.assertEquals(13, acc.get());
     }
-    
+
     @Test
     public void testFileV6() throws IOException {
         Replicator redisReplicator = new RedisReplicator(
@@ -169,7 +168,7 @@ public class RedisRdbReplicatorTest {
         redisReplicator.open();
         Assert.assertEquals(132, acc.get());
     }
-    
+
     @Test
     public void testFileV8() throws IOException {
         Replicator redisReplicator = new RedisReplicator(
@@ -192,5 +191,5 @@ public class RedisRdbReplicatorTest {
         Assert.assertEquals(92499, acc.get());
         Assert.assertEquals(7, acc1.get());
     }
-    
+
 }

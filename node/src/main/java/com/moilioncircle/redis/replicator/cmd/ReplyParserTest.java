@@ -17,6 +17,7 @@
 package com.moilioncircle.redis.replicator.cmd;
 
 import com.moilioncircle.redis.replicator.io.RedisInputStream;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

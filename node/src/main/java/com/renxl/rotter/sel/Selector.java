@@ -16,25 +16,20 @@
 
 package com.renxl.rotter.sel;
 
-import com.moilioncircle.redis.replicator.RedisReplicator;
-import com.moilioncircle.redis.replicator.RedisURI;
 import com.moilioncircle.redis.replicator.Replicator;
 import com.moilioncircle.redis.replicator.cmd.CommandName;
 import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
 import com.moilioncircle.redis.replicator.cmd.parser.DefaultCommandParser;
 import com.moilioncircle.redis.replicator.cmd.parser.PingParser;
 import com.moilioncircle.redis.replicator.cmd.parser.ReplConfParser;
-import com.moilioncircle.redis.replicator.event.*;
 import com.moilioncircle.redis.replicator.rdb.dump.DumpRdbVisitor;
 import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
 import com.moilioncircle.redis.replicator.util.Strings;
-import com.renxl.rotter.manager.WindowManagerWatcher;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Client;
 import redis.clients.jedis.Protocol;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import static redis.clients.jedis.Protocol.Command.RESTORE;
 import static redis.clients.jedis.Protocol.toByteArray;
@@ -44,7 +39,7 @@ import static redis.clients.jedis.Protocol.toByteArray;
  * @since 2.5.0
  */
 @Slf4j
-public abstract class Selector {
+public abstract class Selector  extends Thread{
 
 
 //    public static void main(String[] args) throws IOException, URISyntaxException {
@@ -52,7 +47,7 @@ public abstract class Selector {
 //    }
 
     /**
-     * 添加协议解析器
+     * 添加协议解析器 TODO 参考redis命令集合 检查需要检测的命令是否齐全了
      * 允许自定义解析器
      *
      * @param r
@@ -175,6 +170,10 @@ public abstract class Selector {
      * 4. Get aof stream from source redis and sync to target redis.
      */
 
+
+    public abstract void open() throws IOException;
+
+    public abstract void sync();
 
     public abstract void aof(DefaultCommand event);
 

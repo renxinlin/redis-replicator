@@ -16,8 +16,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.renxl.rotter.constans.Constant.IP_PORT_SPLIT;
-import static com.renxl.rotter.constans.Constant.MULT_NODE_SPLIT;
+import static com.renxl.rotter.constants.Constants.IP_PORT_SPLIT;
+import static com.renxl.rotter.constants.Constants.MULT_NODE_SPLIT;
 
 /**
  * <p>

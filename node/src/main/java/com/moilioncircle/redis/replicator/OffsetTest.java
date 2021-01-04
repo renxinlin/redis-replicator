@@ -16,29 +16,22 @@
 
 package com.moilioncircle.redis.replicator;
 
-import static junit.framework.TestCase.assertEquals;
-
-import java.io.IOException;
-import org.junit.Test;
-
 import com.moilioncircle.redis.replicator.cmd.impl.SetCommand;
-import com.moilioncircle.redis.replicator.event.AbstractEvent;
-import com.moilioncircle.redis.replicator.event.Event;
-import com.moilioncircle.redis.replicator.event.EventListener;
-import com.moilioncircle.redis.replicator.event.PostCommandSyncEvent;
-import com.moilioncircle.redis.replicator.event.PostRdbSyncEvent;
-import com.moilioncircle.redis.replicator.event.PreCommandSyncEvent;
-import com.moilioncircle.redis.replicator.event.PreRdbSyncEvent;
+import com.moilioncircle.redis.replicator.event.*;
 import com.moilioncircle.redis.replicator.io.RateLimitInputStream;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.util.type.Tuple2;
+import junit.framework.TestCase;
+import org.junit.Test;
+
+import java.io.IOException;
 
 /**
  * @author Leon Chen
  * @since 3.3.0
  */
 public class OffsetTest {
-    
+
     @Test
     public void test() throws IOException {
         Replicator r = new RedisReplicator(OffsetTest.class.getClassLoader().getResourceAsStream("appendonly1.aof"), FileType.AOF, Configuration.defaultSetting());
@@ -74,10 +67,10 @@ public class OffsetTest {
             public void onEvent(Replicator replicator, Event event) {
                 AbstractEvent ae = (AbstractEvent) event;
                 Tuple2<Long, Long> offset = ae.getContext().getOffsets();
-                
+
                 if (ae instanceof KeyValuePair<?, ?>) {
-                    KeyValuePair<?, ?> kv = (KeyValuePair<?, ?>)ae;
-                    String key = new String((byte[])kv.getKey());
+                    KeyValuePair<?, ?> kv = (KeyValuePair<?, ?>) ae;
+                    String key = new String((byte[]) kv.getKey());
                     if (key.equals("hll3")) {
                         TestCase.assertEquals(72L, offset.getV1().longValue());
                         TestCase.assertEquals(256L, offset.getV2().longValue());

@@ -16,23 +16,19 @@
 
 package com.moilioncircle.redis.replicator;
 
-import static com.moilioncircle.redis.replicator.Status.DISCONNECTED;
-import static org.junit.Assert.assertEquals;
+import com.moilioncircle.redis.replicator.cmd.Command;
+import com.moilioncircle.redis.replicator.event.*;
+import com.moilioncircle.redis.replicator.io.RateLimitInputStream;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Test;
-
-import com.moilioncircle.redis.replicator.cmd.Command;
-import com.moilioncircle.redis.replicator.event.Event;
-import com.moilioncircle.redis.replicator.event.EventListener;
-import com.moilioncircle.redis.replicator.event.PostCommandSyncEvent;
-import com.moilioncircle.redis.replicator.event.PostRdbSyncEvent;
-import com.moilioncircle.redis.replicator.event.PreCommandSyncEvent;
-import com.moilioncircle.redis.replicator.io.RateLimitInputStream;
-import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
+import static com.moilioncircle.redis.replicator.Status.DISCONNECTED;
+import static org.testng.AssertJUnit.assertEquals;
 
 /**
  * @author Leon Chen
@@ -64,7 +60,7 @@ public class CloseTest {
         r.open();
         Assert.assertEquals(10, acc.get());
     }
-    
+
     @Test
     @SuppressWarnings("resource")
     public void testAofClose() throws IOException {
@@ -89,7 +85,7 @@ public class CloseTest {
         r.open();
         Assert.assertEquals(30, acc.get());
     }
-    
+
     @Test
     @SuppressWarnings("resource")
     public void testMixClose1() throws IOException {
@@ -120,7 +116,7 @@ public class CloseTest {
         Assert.assertEquals(100, acc.get());
         Assert.assertEquals(0, acc1.get());
     }
-    
+
     @Test
     @SuppressWarnings("resource")
     public void testMixClose2() throws IOException {
@@ -147,12 +143,12 @@ public class CloseTest {
                 }
             }
         });
-        
+
         replicator.open();
         Assert.assertEquals(244653, acc.get());
         Assert.assertEquals(100, acc1.get());
     }
-    
+
     @Test
     public void testMixClose3() throws IOException, InterruptedException {
         final Replicator replicator = new RedisReplicator(
@@ -175,14 +171,14 @@ public class CloseTest {
                 }
             }
         }.start();
-    
+
         Thread.sleep(2000);
         replicator.close();
         Thread.sleep(2000);
         Assert.assertEquals(1, acc.get());
         assertEquals(DISCONNECTED, replicator.getStatus());
     }
-    
+
     @Test
     public void testMixClose4() throws IOException, InterruptedException {
         final Replicator replicator = new RedisReplicator(
@@ -209,14 +205,14 @@ public class CloseTest {
                 }
             }
         }.start();
-    
+
         Thread.sleep(2000);
         replicator.close();
         Thread.sleep(2000);
         Assert.assertEquals(0, acc.get());
         assertEquals(DISCONNECTED, replicator.getStatus());
     }
-    
+
     @Test
     public void testMixClose5() throws IOException {
         @SuppressWarnings("resource") final Replicator replicator = new RedisReplicator(
@@ -244,7 +240,7 @@ public class CloseTest {
         Assert.assertEquals(0, acc.get());
         assertEquals(DISCONNECTED, replicator.getStatus());
     }
-    
+
     @SuppressWarnings("resource")
     @Test
     public void testMixClose6() throws IOException {
@@ -267,7 +263,7 @@ public class CloseTest {
         Assert.assertEquals(2, acc.get());
         assertEquals(DISCONNECTED, replicator.getStatus());
     }
-    
+
     @SuppressWarnings("resource")
     @Test
     public void testMixClose7() throws IOException {
@@ -293,7 +289,7 @@ public class CloseTest {
         Assert.assertEquals(0, acc.get());
         assertEquals(DISCONNECTED, replicator.getStatus());
     }
-    
+
     @SuppressWarnings("resource")
     @Test
     public void testMixClose8() throws IOException, URISyntaxException {
@@ -317,7 +313,7 @@ public class CloseTest {
         Assert.assertEquals(0, acc.get());
         assertEquals(DISCONNECTED, replicator.getStatus());
     }
-    
+
     @SuppressWarnings("resource")
     @Test
     public void testMixClose9() throws IOException, URISyntaxException {
@@ -344,7 +340,7 @@ public class CloseTest {
         Assert.assertEquals(0, acc.get());
         assertEquals(DISCONNECTED, replicator.getStatus());
     }
-    
+
     @Test
     public void testMixClose10() throws IOException, URISyntaxException, InterruptedException {
         final Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
@@ -397,7 +393,7 @@ public class CloseTest {
         Assert.assertEquals(2, acc.get());
         assertEquals(DISCONNECTED, replicator.getStatus());
     }
-    
+
     @Test
     public void testMixClose12() throws IOException {
         @SuppressWarnings("resource") final Replicator replicator = new RedisReplicator(

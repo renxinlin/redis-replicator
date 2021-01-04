@@ -32,6 +32,7 @@ import com.moilioncircle.redis.replicator.rdb.iterable.ValueIterableRdbVisitor;
 import com.moilioncircle.redis.replicator.rdb.iterable.datatype.KeyStringValueByteArrayIterator;
 import com.moilioncircle.redis.replicator.rdb.iterable.datatype.KeyStringValueMapEntryIterator;
 import com.moilioncircle.redis.replicator.rdb.iterable.datatype.KeyStringValueZSetEntryIterator;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Iterator;

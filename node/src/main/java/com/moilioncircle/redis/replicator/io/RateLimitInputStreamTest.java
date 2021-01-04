@@ -17,6 +17,7 @@
 package com.moilioncircle.redis.replicator.io;
 
 import com.moilioncircle.redis.replicator.util.ByteArray;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;

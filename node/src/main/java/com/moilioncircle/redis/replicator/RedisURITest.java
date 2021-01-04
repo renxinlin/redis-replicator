@@ -24,6 +24,7 @@ import com.moilioncircle.redis.replicator.event.PostRdbSyncEvent;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.util.Strings;
 import org.junit.Test;
+import org.testng.Assert;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;

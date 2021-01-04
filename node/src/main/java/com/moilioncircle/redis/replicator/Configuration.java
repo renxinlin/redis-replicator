@@ -110,10 +110,17 @@ public class Configuration {
 
     /**
      * connection retry times. if retries <= 0 then always retry
+     * 链接失败重试次数
      */
     private int retries = 5;
 
     /**
+     *  重新获取redis相关信息进行重新处理
+     */
+    private int retriesFromRedisServerInfo= 5;
+
+    /**
+     * 链接失败重试时间
      * retry time interval
      */
     private int retryTimeInterval = 1000;
@@ -535,6 +542,14 @@ public class Configuration {
         }
     }
 
+    public int getRetriesFromRedisServerInfo() {
+        return retriesFromRedisServerInfo;
+    }
+
+    public void setRetriesFromRedisServerInfo(int retriesFromRedisServerInfo) {
+        this.retriesFromRedisServerInfo = retriesFromRedisServerInfo;
+    }
+
     @Override
     public String toString() {
         return "Configuration{" +
@@ -543,6 +558,7 @@ public class Configuration {
                 ", receiveBufferSize=" + receiveBufferSize +
                 ", sendBufferSize=" + sendBufferSize +
                 ", retries=" + retries +
+                ", retriesFromRedisServerInfo=" + retriesFromRedisServerInfo +
                 ", retryTimeInterval=" + retryTimeInterval +
                 ", bufferSize=" + bufferSize +
                 ", authUser='" + authUser + '\'' +

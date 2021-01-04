@@ -28,6 +28,7 @@ import com.moilioncircle.redis.replicator.event.Event;
 import com.moilioncircle.redis.replicator.event.EventListener;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.util.Strings;
+import org.junit.Assert;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -31,6 +31,7 @@ import com.moilioncircle.redis.replicator.rdb.datatype.ZSetEntry;
 import com.moilioncircle.redis.replicator.util.ByteArrayList;
 import com.moilioncircle.redis.replicator.util.ByteArrayMap;
 import com.moilioncircle.redis.replicator.util.Strings;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;

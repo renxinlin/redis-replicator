@@ -97,7 +97,7 @@ public class DefaultSentinel implements Sentinel {
 
     protected void pulse() {
         for (HostAndPort sentinel : hosts) {
-            try (final Jedis jedis = new Jedis(sentinel)) {
+            try (final Jedis jedis = new Jedis(sentinel.getHost())) {
                 List<String> list = jedis.sentinelGetMasterAddrByName(masterName);
                 if (list == null || list.size() != 2) {
                     throw new JedisException("host: " + list);

@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @NoArgsConstructor
 @AllArgsConstructor
-public class ZookeeperConfig  implements ApplicationContextAware {
+public class ZookeeperConfig  {//implements ApplicationContextAware {
 
 
 
@@ -57,10 +57,10 @@ public class ZookeeperConfig  implements ApplicationContextAware {
         return zookeeperConfig;
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        zookeeperConfig = applicationContext.getBean(ZookeeperConfig.class);
-
-    }
+//    @Override
+//    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+//        zookeeperConfig = applicationContext.getBean(ZookeeperConfig.class);
+//
+//    }
 
 }

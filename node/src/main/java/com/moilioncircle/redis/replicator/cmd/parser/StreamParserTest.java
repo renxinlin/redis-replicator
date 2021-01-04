@@ -27,6 +27,7 @@ import com.moilioncircle.redis.replicator.cmd.impl.XGroupDestroyCommand;
 import com.moilioncircle.redis.replicator.cmd.impl.XGroupSetIdCommand;
 import com.moilioncircle.redis.replicator.cmd.impl.XSetIdCommand;
 import com.moilioncircle.redis.replicator.cmd.impl.XTrimCommand;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

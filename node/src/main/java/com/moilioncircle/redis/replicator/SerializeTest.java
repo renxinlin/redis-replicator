@@ -16,24 +16,23 @@
 
 package com.moilioncircle.redis.replicator;
 
-import static com.moilioncircle.redis.replicator.util.Tuples.of;
-import static junit.framework.TestCase.assertEquals;
+import com.moilioncircle.redis.replicator.cmd.impl.SetCommand;
+import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.junit.Test;
-
-import com.moilioncircle.redis.replicator.cmd.impl.SetCommand;
+import static com.moilioncircle.redis.replicator.util.Tuples.of;
 
 /**
  * @author Leon Chen
  * @since 3.3.0
  */
 public class SerializeTest {
-    
+
     @Test
     public void test() throws Exception {
         SetCommand command = new SetCommand();
@@ -46,7 +45,7 @@ public class SerializeTest {
         os.close();
         byte[] serialized = o.toByteArray();
         ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(serialized));
-        SetCommand command1 = (SetCommand)is.readObject();
+        SetCommand command1 = (SetCommand) is.readObject();
         is.close();
         TestCase.assertEquals("key", new String(command1.getKey()));
         TestCase.assertEquals("value", new String(command1.getValue()));

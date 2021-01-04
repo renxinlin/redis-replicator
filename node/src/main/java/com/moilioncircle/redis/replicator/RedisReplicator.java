@@ -130,6 +130,7 @@ public class RedisReplicator implements Replicator {
         Objects.requireNonNull(uri);
         Configuration configuration = Configuration.valueOf(uri).merge(sslConfiguration);
         if (uri.getFileType() != null) {
+            // uri.toURL().openStream() 链接建立
             PeekableInputStream in = new PeekableInputStream(uri.toURL().openStream());
             switch (uri.getFileType()) {
                 case AOF:

@@ -5,7 +5,7 @@ package com.renxl.rotter.constants;
  * @author: renxl
  * @create: 2020-12-28 13:58
  */
-public interface Constant {
+public interface Constants {
 
 
     String MULT_NODE_SPLIT = ";";

@@ -28,6 +28,7 @@ import com.moilioncircle.redis.replicator.io.RawByteListener;
 import com.moilioncircle.redis.replicator.rdb.ModuleTest;
 import com.moilioncircle.redis.replicator.rdb.ValueIterableRdbParserTest;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
