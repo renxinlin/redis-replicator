@@ -82,3 +82,82 @@ zookeeper信息
 滑动窗口信息
 zookeepr
 /rotter/window/{pipelined}/[{},{},{}]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+redis aof 
+
+
+
+
+
+
+
+
+
+
+对redis Command 的划分
+
+1  存在key SetCommand
+2  存在keys[PFMergeCommand]
+3  特殊的key特殊处理[MSetCommand]
+4 不需要处理的key[ReplConfCommand]
+5 生产禁止的command[FlushAllCommand]
+private byte[][] keys;
+BitOpCommand
+DelCommand
+PFCountCommand
+PFMergeCommand
+SDiffStoreCommand
+SInterStoreCommand
+SUnionStoreCommand
+UnLinkCommand
+
+==
+SelectCommand
+==
+
+
+
+
+
+MSetCommand
+MSetNxCommand
+
+SMoveCommand
+
+EvalCommand
+EvalShaCommand
+PublishCommand
+
+ReplConfCommand
+ReplConfGetAckCommand
+ScriptCommand
+ScriptFlushCommand
+ScriptLoadCommand
+ZUnionStoreCommand
+
+ExecCommand
+
+
+BRPopLPushCommand
+
+PingCommand
+
+MultiCommand【标记一个事务】
+FlushAllCommand
+FlushDBCommand
+SwapDBCommand
