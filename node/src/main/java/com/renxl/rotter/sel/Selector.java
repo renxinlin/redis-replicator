@@ -174,6 +174,7 @@ public abstract class Selector     {
     public abstract void open() throws IOException;
 
     public abstract void sync();
+    public abstract void close();
 
     public abstract void aof(DefaultCommand event);
 

@@ -34,7 +34,21 @@ public class MetaManager {
     private Map<Integer, LoadTask> pipelineLoadTasks = new HashMap<>();
 
     /**
-     * 批量消费后的buffer
+     *
+     *
+     *
+     *                      zkclient--[add batchId]
+     *                       |
+     *                  ------------
+     *                 |            |
+     *                 |            batchId [remove batchId]
+     *                 |            |
+     *             batchId          --> ExtractTask    --->
+     * selectTask --> batchBuffer   --> ExtractTask    ----> ---->
+     *                               --> ExtractTask   ---->
+     *
+     * @param Integer pipelineId
+     * @param ArrayBlockingQueue rdb aof
      */
     private ConcurrentMap<Integer, ArrayBlockingQueue<SelectorBatchEvent>> batchBuffer = new ConcurrentHashMap<>();
 
@@ -55,20 +69,14 @@ public class MetaManager {
         arrayBlockingQueue.add(task);
     }
 
-    public void onAddSelectTask(String pipelineId, SelectTask task) {
 
-    }
-
-    public void removeTask() {
-
-    }
 
     public void addTask(Task task) {
         if (task instanceof SelectTask) {
             pipelineSelectTasks.put(task.getPipelineId(), (SelectTask) task);
         }
-        if (task instanceof LoadTask) {
-            pipelineLoadTasks.put(task.getPipelineId(), (LoadTask) task);
+        if (task instanceof ExtractTask) {
+            pipelineExctractTasks.put(task.getPipelineId(), (ExtractTask) task);
         }
 
         if (task instanceof LoadTask) {
@@ -85,6 +93,12 @@ public class MetaManager {
         pipelineLoadTasks.clear();
         manager = null;
         batchBuffer.clear();
+
+    }
+
+    public Boolean isPermit(Integer pipelineId) {
+        SelectTask selectTask = pipelineSelectTasks.get(pipelineId);
+        return selectTask.getPermit();
 
     }
 }

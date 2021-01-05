@@ -1,6 +1,7 @@
 package com.renxl.rotter.task;
 
 import com.renxl.rotter.rpcclient.events.*;
+import com.renxl.rotter.sel.ExtractTask;
 import com.renxl.rotter.sel.LoadTask;
 import com.renxl.rotter.rpcclient.CommunicationRegistry;
 import com.renxl.rotter.sel.SelectTask;
@@ -20,6 +21,12 @@ public class TaskServiceListener {
         CommunicationRegistry.regist(TaskEventType.selectTask, this);
         CommunicationRegistry.regist(TaskEventType.loadTask, this);
     }
+
+    /**
+     * selectTask 和extract task 同时构建
+     * @param selectTaskEvent
+     * @return
+     */
     public boolean onSelectTask(SelectTaskEvent selectTaskEvent){
         Integer pipelineId = selectTaskEvent.getPipelineId();
         // 获取sel 中e的并行度 类似otter的滑动窗口
@@ -32,8 +39,7 @@ public class TaskServiceListener {
         SelectTask selectTask = new SelectTask(pipelineId,sourceRedises,parallelism,relpInfoResponse);
         selectTask.setPipelineId(pipelineId);
         selectTask.start(); // 阻塞等待selectPermit
-        // 发送rpc ready 事件
-        getInstance().callSelectPermit(pipelineId);
+
         // 添加到同步任务池
         getInstance().getMetaManager().addTask(selectTask);
 
@@ -41,7 +47,15 @@ public class TaskServiceListener {
         // extract task
         // extract task 和 select task 于同一台机器上
 
+        ExtractTask extractTask = new ExtractTask(pipelineId,parallelism);
+        extractTask.start();
 
+
+        // **********************************************************完成任务初始化等待manager授权
+
+
+        // 发送rpc ready 事件
+        getInstance().callSelectPermit(pipelineId);
         return true;
     }
 

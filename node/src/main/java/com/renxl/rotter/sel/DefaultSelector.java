@@ -15,16 +15,16 @@ import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.constants.Constants;
 import com.renxl.rotter.rpcclient.events.RelpInfoResponse;
+import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.LockSupport;
 
 import static com.renxl.rotter.config.CompomentManager.getInstance;
 
@@ -144,7 +144,14 @@ public class DefaultSelector extends Selector {
              */
             @Override
             public void onEvent(Replicator replicator, Event event) {
-
+                Boolean permit = getInstance().getMetaManager().isPermit(param.getPipelineId());
+                while (!permit){
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        log.warn("wait for manager  permit ");
+                    }
+                }
                 if (event instanceof PreRdbSyncEvent) {
                     log.info("start rdb==>");
                 }
@@ -170,6 +177,15 @@ public class DefaultSelector extends Selector {
             }
         });
 
+    }
+
+    @Override
+    public void close() {
+        try {
+            r.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -212,18 +228,26 @@ public class DefaultSelector extends Selector {
             arrayBlockingQueue.add(event);
             // disputor 消费 批量发送到[多线程的]extractTask的batch buffer
             try {
+                // todo 参数配置化
                 Queues.drain(arrayBlockingQueue, buffer, 10, 500, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                log.error(" thread interrupted");
-                e.printStackTrace();
+                // todo 堆栈打印指定行数工具
+                log.error(" thread interrupted",e);
             }
             if(!buffer.isEmpty()){
+                Integer pipelineId = param.getPipelineId();
+                WindowBuffer selectBuffer = getInstance().getWindowManager().getSelectBuffer(pipelineId);
                 SelectorBatchEvent selectorBatchEvent = new SelectorBatchEvent();
                 selectorBatchEvent.setSelectorEvent(buffer);
-                // todo 设置滑动窗口递增序列号保障顺序
-                selectorBatchEvent.setBatchId(-1L);
-                CompomentManager.getInstance().getMetaManager().addEvent(param.getPipelineId(),selectorBatchEvent);
+                //  设置滑动窗口单调递增序列号保障顺序
+                long batchId = selectBuffer.get();
+                selectorBatchEvent.setBatchId(batchId);
+                CompomentManager.getInstance().getMetaManager().addEvent(pipelineId,selectorBatchEvent);
                 buffer.clear();
+
+                // 滑动窗口向下传递到Extract Task 通知e task 工作  etask 是核心 消费较慢  允许多线程 同时在load阶段通过滑动窗口序列号保障顺序性
+                getInstance().getWindowManager().singleExtract(pipelineId);
+
 
             }
         }

@@ -21,7 +21,7 @@ import com.renxl.rotter.config.CompomentManager;
 public class Launcher {
     public static void main(String[] args) {
         //
-        CompomentManager manager = CompomentBuilder.bulid();
+        CompomentManager manager = CompomentManager.getInstance();
         manager.start();
 
         // 关闭处理

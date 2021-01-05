@@ -9,6 +9,7 @@ import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.DefaultCommunicationClientImpl;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationEndpoint;
+import com.renxl.rotter.sel.window.WindowSeqGenerator;
 import com.renxl.rotter.task.TaskServiceListener;
 
 /**
@@ -44,6 +45,9 @@ public class CompomentBuilder {
         WindowManager windowManager = new WindowManager();
         instance.setWindowManager(windowManager);
         instance.setWindowManagerWatcher(windowManagerWatcher);
+
+        WindowSeqGenerator windowSeqGenerator = new WindowSeqGenerator();
+        instance.setWindowSeqGenerator(windowSeqGenerator);
         return instance;
     }
 }

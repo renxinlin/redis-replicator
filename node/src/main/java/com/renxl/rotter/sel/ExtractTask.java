@@ -1,8 +1,11 @@
 package com.renxl.rotter.sel;
 
-import com.renxl.rotter.config.CompomentManager;
+import com.alibaba.dubbo.common.utils.NamedThreadFactory;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description:
@@ -11,11 +14,18 @@ import java.util.concurrent.ExecutorService;
  */
 public class ExtractTask extends Task {
 
-    private ExecutorService executorService;
+    private ExecutorService extractThreads;
 
-    public ExtractTask(Integer pipelineId) {
+
+    public ExtractTask(Integer pipelineId, Integer parallelism) {
         this.setPipelineId(pipelineId);
-        executorService = CompomentManager.getInstance().getExtractThreads();
+        /**
+         * node节点配置的extracttask线程池的大小
+         */
+        extractThreads = new ThreadPoolExecutor(parallelism, parallelism, 60, TimeUnit.SECONDS,
+                new ArrayBlockingQueue(0), new NamedThreadFactory("extract-pipelineId-" + pipelineId),
+                new ThreadPoolExecutor.CallerRunsPolicy());
+
 
     }
 
@@ -26,6 +36,8 @@ public class ExtractTask extends Task {
     }
 
     public void run() {
+
+
 
     }
 

@@ -13,6 +13,7 @@ import com.renxl.rotter.rpcclient.events.SelectReadingEvent;
 import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationEndpoint;
 import com.renxl.rotter.sel.window.WindowData;
+import com.renxl.rotter.sel.window.WindowSeqGenerator;
 import com.renxl.rotter.sel.window.WindowType;
 import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 import com.renxl.rotter.task.HeartbeatScheduler;
@@ -42,7 +43,7 @@ public class CompomentManager implements LifeCycle {
      */
     private static volatile CompomentManager INSTANCE;
     /**
-     * 接收manager的 同步调度任务
+     * 接收manager的 同步调度任务 负责manager和node之间的任务拓扑建立核心类
      */
     TaskServiceListener taskServiceListener;
     /**
@@ -61,6 +62,7 @@ public class CompomentManager implements LifeCycle {
      * node 心跳
      */
     private HeartbeatScheduler hearbeatScheduler;
+
     /**
      * manager master
      */
@@ -71,20 +73,28 @@ public class CompomentManager implements LifeCycle {
      */
     private MetaManagerWatcher metaManagerWatcher;
 
+
+    /**
+     * 滑动窗口【window】尾推进
+     */
     private WindowManager windowManager;
+
+    /**
+     * 滑动窗口滑动头推进
+     */
     private WindowManagerWatcher windowManagerWatcher;
+
+    /**
+     * 滑动窗口序列号生成器
+     */
+    private WindowSeqGenerator windowSeqGenerator;
+
     private int poolSize = EXCTRACT_DEFAULT_POOL_SIZE;
 
     private int acceptCount = EXCTRACT_DEFAULT_ACCEPT_COUNT;
     private String name = "rotter-extract";
 
     private IdWorker idWorker = new IdWorker();
-    /**
-     * node节点配置的extracttask线程池的大小
-     */
-    private ExecutorService extractThreads = new ThreadPoolExecutor(poolSize, poolSize, 60, TimeUnit.SECONDS,
-            new ArrayBlockingQueue(acceptCount), new NamedThreadFactory(name),
-            new ThreadPoolExecutor.CallerRunsPolicy());
 
 
     private CompomentManager() {
@@ -96,7 +106,7 @@ public class CompomentManager implements LifeCycle {
         if (INSTANCE == null) {
             synchronized (CompomentManager.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = new CompomentManager();
+                    INSTANCE = CompomentBuilder.bulid();
                 }
             }
         }
@@ -111,6 +121,7 @@ public class CompomentManager implements LifeCycle {
         metaManager.init();
         metaManagerWatcher.init();
         windowManagerWatcher.init();
+        windowSeqGenerator.init();
 
     }
 
@@ -121,6 +132,7 @@ public class CompomentManager implements LifeCycle {
         metaManager.destory();
         metaManagerWatcher.destory();
         windowManagerWatcher.destory();
+        windowSeqGenerator.destory();
     }
 
 

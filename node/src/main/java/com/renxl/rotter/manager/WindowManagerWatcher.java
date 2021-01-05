@@ -30,7 +30,9 @@ import static com.renxl.rotter.zookeeper.ZookeeperConfig.*;
 @Slf4j
 public class WindowManagerWatcher {
 
-
+    /**
+     * 每一个pipelineId对应的滑动窗口变更监视器
+     */
     public Map<Integer, PathChildrenCache> pipelinedWatcher = new HashMap<>();
 
 
@@ -74,7 +76,7 @@ public class WindowManagerWatcher {
                 while (i<parallel) {
                     i++;
                     // 滑动窗口递增值
-                    long batchId = CompomentManager.getInstance().getIdWorker().nextId();
+                    long batchId = CompomentManager.getInstance().getWindowSeqGenerator().gene(pipelineId);
 
                     String windowData = JSON.json(new WindowData(pipelineId, WindowType.s, AddressUtils.getHostAddress().getHostAddress(),batchId));
 
@@ -144,9 +146,9 @@ public class WindowManagerWatcher {
 
     public void destory() {
 
-        for (PathChildrenCache integerPathChildrenCacheEntry : pipelinedWatcher.values()) {
+        for (PathChildrenCache everyPipelinedWatcher : pipelinedWatcher.values()) {
             try {
-                integerPathChildrenCacheEntry.close();
+                everyPipelinedWatcher.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
