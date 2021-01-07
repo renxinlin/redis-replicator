@@ -161,3 +161,41 @@ MultiCommand【标记一个事务】
 FlushAllCommand
 FlushDBCommand
 SwapDBCommand
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+第一步:
+基本版redis双向同步工具完毕
+
+
+第二步: 重试
+增加滑动窗口重试
+和滑动窗口幂等处理
+
+第三步: ha
+完成node故障转移
+
+第四步: 接入prometheus 不考虑skywalking插件开发
+
+第五步: 部署细化到端口级别  [目前一台机器只能部署一个rotter 不然会造成元数据混乱]
+
+第六步: 采用之前搞得那套layUi开发web管控台
+
+
+
+
+
+
+
+

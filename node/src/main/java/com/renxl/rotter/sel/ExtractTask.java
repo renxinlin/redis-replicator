@@ -46,7 +46,10 @@ import static com.renxl.rotter.config.CompomentManager.getInstance;
 public class ExtractTask extends Task {
 
     private ExecutorService extractThreads;
-
+    /**
+     * todo 添加个headfilter
+     * 在添加个tailfilter
+     */
     private Filter filter ;
 
 
@@ -91,7 +94,7 @@ public class ExtractTask extends Task {
 
             extractThreads.execute(()->{
                 SelectorBatchEvent selectorBatchEvent = CompomentManager.getInstance().getMetaManager().takeEvent(getPipelineId(), seqNumber);
-                // 开始过滤
+                // 开始过滤 aof rdb 的 核心
                 filter.filter(selectorBatchEvent);
                 SelectAndLoadIp selectAndLoadIp = getInstance().getMetaManager().getPipelineTaskIps().get(getPipelineId());
                 // 通知load 进行加载 添加到缓存区等待 load读取
