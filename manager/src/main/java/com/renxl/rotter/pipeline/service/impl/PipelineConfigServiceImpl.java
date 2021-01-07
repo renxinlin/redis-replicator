@@ -69,7 +69,7 @@ public class PipelineConfigServiceImpl extends ServiceImpl<PipelineConfigMapper,
 
         // 通知node节点启动准备资源
         communicationClient.call(selectNode,new SelectTaskEvent(pipelineConfig.getId().intValue(),pipelineConfig.getSourceRedises(),pipelineConfig.getParallelism()));
-        communicationClient.call(loadNode,new LoadTaskEvent(pipelineConfig.getId().intValue(),pipelineConfig.getTargetRedis()));
+        communicationClient.call(loadNode,new LoadTaskEvent(pipelineConfig.getId().intValue(),pipelineConfig.getParallelism(),pipelineConfig.getTargetRedis()));
 
         // 此时 同步任务可能在准备中 也可能在执行中; 但是都不允许再次启动
         pipelineConfig.start();

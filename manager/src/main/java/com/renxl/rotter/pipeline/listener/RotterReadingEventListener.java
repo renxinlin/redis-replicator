@@ -6,6 +6,7 @@ import com.renxl.rotter.pipeline.domain.PipelineTaskReading;
 import com.renxl.rotter.pipeline.service.IPermitService;
 import com.renxl.rotter.pipeline.service.IPipelineSyncInfoService;
 import com.renxl.rotter.pipeline.service.IPipelineTaskReadingService;
+import com.renxl.rotter.pipeline.service.ISelectAndLoadNodeSendService;
 import com.renxl.rotter.rpcclient.CommunicationRegistry;
 import com.renxl.rotter.rpcclient.events.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class RotterReadingEventListener {
     @Autowired
     private IPermitService permitService;
 
+    @Autowired
+    ISelectAndLoadNodeSendService selectAndLoadNodeSendService;
+
     RotterReadingEventListener() {
         CommunicationRegistry.regist(TaskEventType.selectReading, this);
         CommunicationRegistry.regist(TaskEventType.loadReading, this);
@@ -49,6 +53,8 @@ public class RotterReadingEventListener {
         taskReadingService.updateById(pipelineTaskReading);
         // 准备完毕则许可node节点进行工作
         boolean loadReading = pipelineTaskReading.isLoadReading();
+        // 更新节点相关信息
+        selectAndLoadNodeSendService.sendWhenSelectorReady(event.getPipelineId());
         if (loadReading) {
             permitService.permit(event.getPipelineId());
             taskReadingService.getBaseMapper().deleteById(pipelineTaskReading.getId());
@@ -68,6 +74,8 @@ public class RotterReadingEventListener {
             return;
         }
         taskReadingService.updateById(pipelineTaskReading);
+        // 更新节点相关信息
+        selectAndLoadNodeSendService.sendWhenLoadReady(event.getPipelineId());
         // 准备完毕则许可node节点进行工作
         boolean selectReading = pipelineTaskReading.isselectReading();
         if (selectReading) {

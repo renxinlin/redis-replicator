@@ -20,5 +20,5 @@ public enum TaskEventType implements EventType {
     selectReading,
     loadReading,
 
-    permitEvent, selectPermit, loadPermit, relpInfo;
+    permitEvent, selectPermit, loadPermit, relpInfo, selectAndLoadIpEvent;
 }

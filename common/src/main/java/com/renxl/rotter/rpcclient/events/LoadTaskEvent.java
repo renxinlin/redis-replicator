@@ -13,11 +13,12 @@ public class LoadTaskEvent extends Event {
     private Integer pipelineId;
     private String targetRedis;
 
+    private Integer parallelism;
 
-
-    public LoadTaskEvent(Integer pipelineId,String targetRedis) {
+    public LoadTaskEvent(Integer pipelineId,Integer parallelism,String targetRedis) {
         super(TaskEventType.loadTask);
         this.pipelineId = pipelineId;
+        this.parallelism = parallelism;
         this.targetRedis = targetRedis;
     }
 }
