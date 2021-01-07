@@ -102,10 +102,9 @@ public class MetaManager {
         Map<Long, SelectorBatchEvent> seqNumberAndEventBuffer = batchExtractBuffer.getOrDefault(pipelineId, new ConcurrentHashMap<>());
         seqNumberAndEventBuffer.put(task.getBatchId(),task);
     }
-
-    public void takeExtractEvent(Integer pipelineId, SelectorBatchEvent task) {
-        Map<Long, SelectorBatchEvent> seqNumberAndEventBuffer = batchExtractBuffer.getOrDefault(pipelineId, new ConcurrentHashMap<>());
-        seqNumberAndEventBuffer.put(task.getBatchId(),task);
+    public SelectorBatchEvent takeExtractEvent(Integer pipelineId, Long seqNumber) {
+        Map<Long, SelectorBatchEvent> seqNumberAndEventBuffer = batchExtractBuffer.get(pipelineId);
+        return seqNumberAndEventBuffer.remove(seqNumber);
     }
 
 

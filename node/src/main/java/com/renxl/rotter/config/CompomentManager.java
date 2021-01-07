@@ -12,6 +12,7 @@ import com.renxl.rotter.rpcclient.events.RelpInfoResponse;
 import com.renxl.rotter.rpcclient.events.SelectReadingEvent;
 import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationEndpoint;
+import com.renxl.rotter.sel.Pipe;
 import com.renxl.rotter.sel.window.WindowData;
 import com.renxl.rotter.sel.window.WindowSeqGenerator;
 import com.renxl.rotter.sel.window.WindowType;
@@ -88,6 +89,14 @@ public class CompomentManager implements LifeCycle {
      * 滑动窗口序列号生成器
      */
     private WindowSeqGenerator windowSeqGenerator;
+
+    /**
+     * 数据传输管道
+     * zk只负责滑动窗口协议 监听
+     * 不做具体的数据传递
+     *
+     */
+    private Pipe pipe;
 
     private int poolSize = EXCTRACT_DEFAULT_POOL_SIZE;
 

@@ -1,10 +1,17 @@
 package com.renxl.rotter.sel;
 
+import com.alibaba.dubbo.common.utils.CollectionUtils;
+import com.alibaba.dubbo.common.utils.NamedThreadFactory;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -14,41 +21,101 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class LoadTask extends Task {
 
-    private String  targetRedis ;
+
+
+    private String targetRedis;
 
     /**
-     * 按照滑动窗口顺序阻塞等待 先发出后到达的 aof rdb
+     * 按照滑动窗口wait队列 有序队列 顺序保障
      */
-    private ArrayList<Long> currentWaitSeqNum ;
+    private TreeSet<Long> currentWaitSeqNum;
+
 
     /**
-     * 初始的滑动窗口序列号
+     * 滑动窗口就绪队列 先进先出
+     */
+    private ArrayBlockingQueue<Long> currentReadySeqNum;
+
+
+
+    private ExecutorService waitSeqProcessor;
+    private ExecutorService readySeqProcessor;
+
+    /**
+     * 滑动窗口确认序列号 递增确认
      */
     private AtomicLong currentSeqNum = new AtomicLong(0L);
 
     public LoadTask(Integer pipelineId, String targetRedis, int parallelism) {
-        currentWaitSeqNum = new ArrayList(parallelism);
+        currentWaitSeqNum = new TreeSet();
+        currentReadySeqNum = new ArrayBlockingQueue(parallelism);
         this.setPipelineId(pipelineId);
         this.targetRedis = targetRedis;
+        waitSeqProcessor = new ThreadPoolExecutor(1, 1, 60, TimeUnit.SECONDS,
+                new ArrayBlockingQueue(0), new NamedThreadFactory("load-pipelineId-" + pipelineId),
+                new ThreadPoolExecutor.CallerRunsPolicy());
+
+        readySeqProcessor = new ThreadPoolExecutor(1, 1, 60, TimeUnit.SECONDS,
+                new ArrayBlockingQueue(0), new NamedThreadFactory("load-pipelineId-" + pipelineId),
+                new ThreadPoolExecutor.CallerRunsPolicy());
 
     }
+
+
+
     @Override
     boolean getPermit() {
         return permit;
     }
 
-
-     public void run() {
-        // load 阶段单线程处理 pipeline发送 增加速度
-        while (true){
+    public void run() {
+        // 滑动窗口处理
+        waitSeqProcessor.execute(()->{
             WindowBuffer loadBuffer = CompomentManager.getInstance().getWindowManager().getLoadBuffer(getPipelineId());
             long seqNumber = loadBuffer.get();
-            // 获取 extract 数据
+            currentWaitSeqNum.add(seqNumber);
+            if (currentSeqNum.get() != seqNumber) {
+                currentWaitSeqNum.add(seqNumber);
+            }
+        });
 
-            // 添加删除保护指令 数据回环指令
+
+        readySeqProcessor.execute(()->{
+            long seqNumber = currentWaitSeqNum.first();
+            if (currentSeqNum.get() != seqNumber) {
+                //
+                currentReadySeqNum.add(seqNumber);
+                // 滑动
+                currentSeqNum.addAndGet(1);
+            }else {
+                // 放回去 等待正确的数据处理
+                currentWaitSeqNum.add(seqNumber);
+            }
+        });
+        // load 阶段单线程处理 pipeline发送 增加速度
+        while (true) {
+            try {
+                // 通过上述的处理确保滑动窗口并发能力和有序性
+                Long seqNumber = currentReadySeqNum.take();
+
+                // 自动识别基于内存进行管道传输还是基于rpc进行管道传输
+                SelectorBatchEvent selectBatchEvent = CompomentManager.getInstance().getPipe().getSelectBatchEvent(getPipelineId(), seqNumber);
+                List<SelectorEvent> selectorEvent = selectBatchEvent.getSelectorEvent();
+                if (!CollectionUtils.isEmpty(selectorEvent)) {
+                    // 构建【添加删除保护指令 数据回环指令】
 
 
-            // 发送到目标redis
+                    // 通过redis pipeline 进行批量发送
+                }
+
+                // 滑动窗口尾部推进
+
+
+                // 发送到目标redis
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
 
 
@@ -56,5 +123,6 @@ public class LoadTask extends Task {
         }
 
     }
+
 
 }

@@ -5,8 +5,10 @@ import com.renxl.rotter.sel.ExtractTask;
 import com.renxl.rotter.sel.LoadTask;
 import com.renxl.rotter.rpcclient.CommunicationRegistry;
 import com.renxl.rotter.sel.SelectTask;
+import com.renxl.rotter.sel.SelectorBatchEvent;
 
 import static com.renxl.rotter.config.CompomentManager.*;
+import static com.renxl.rotter.config.CompomentManager.getInstance;
 
 /**
  * @description:
@@ -21,6 +23,7 @@ public class TaskServiceListener {
         CommunicationRegistry.regist(TaskEventType.selectTask, this);
         CommunicationRegistry.regist(TaskEventType.loadTask, this);
         CommunicationRegistry.regist(TaskEventType.selectAndLoadIpEvent, this);
+        CommunicationRegistry.regist(TaskEventType.getExtractBatchEvents, this);
 
 
     }
@@ -109,7 +112,15 @@ public class TaskServiceListener {
     }
 
 
-
+    /**
+     * load节点通过pipe拉取数据
+     * @param event
+     * @return
+     */
+    public SelectorBatchEvent onGetExtractBatchEvents(GetExtractBatchEvents event){
+        SelectorBatchEvent selectorBatchEvent = getInstance().getMetaManager().takeExtractEvent(event.getPipelineId(),event.getSeqNumber());
+        return selectorBatchEvent;
+    }
 
     /**
      * todo

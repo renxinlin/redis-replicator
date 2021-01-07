@@ -9,6 +9,8 @@ import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.DefaultCommunicationClientImpl;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.dubbo.DubboCommunicationEndpoint;
+import com.renxl.rotter.sel.Pipe;
+import com.renxl.rotter.sel.PipeImpl;
 import com.renxl.rotter.sel.window.WindowSeqGenerator;
 import com.renxl.rotter.task.TaskServiceListener;
 
@@ -48,6 +50,10 @@ public class CompomentBuilder {
 
         WindowSeqGenerator windowSeqGenerator = new WindowSeqGenerator();
         instance.setWindowSeqGenerator(windowSeqGenerator);
+
+        Pipe pipe = new PipeImpl();
+        instance.setPipe(pipe);
+
         return instance;
     }
 }
