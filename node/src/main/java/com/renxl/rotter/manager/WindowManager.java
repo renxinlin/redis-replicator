@@ -88,14 +88,14 @@ public class WindowManager {
      * @param ip
      * @throws IOException
      */
-    public void singleSelect(Integer pipelineId, String ip) throws IOException {
+    public void singleSelect(Integer pipelineId, String ip)   {
         // load 保障了syncNumber 的消费顺序 select不再增加重复确定
         String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
         // 只起到唤醒作用 不做全局滑动窗口序列号
         String windowData = null;
-        long syncNumber = CompomentManager.getInstance().getWindowSeqGenerator().gene(pipelineId);
         try {
-            windowData = JSON.json(new WindowData(pipelineId, WindowType.l, ip, syncNumber));
+            // 需要select生成 不能在当前机器生成
+            windowData = JSON.json(new WindowData(pipelineId, WindowType.l, ip, -1L));
         } catch (IOException e) {
             log.info("json format error");
         }

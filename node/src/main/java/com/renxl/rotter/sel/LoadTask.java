@@ -109,9 +109,9 @@ public class LoadTask extends Task {
                 }
 
                 // 滑动窗口尾部推进
+                String selecterIp = CompomentManager.getInstance().getMetaManager().getPipelineTaskIps().get(getPipelineId()).getSelecterIp();
+                CompomentManager.getInstance().getWindowManager().singleSelect(getPipelineId(),selecterIp);
 
-
-                // 发送到目标redis
 
             } catch (InterruptedException e) {
                 e.printStackTrace();

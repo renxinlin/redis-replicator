@@ -222,6 +222,7 @@ public class CompomentManager implements LifeCycle {
         }
         if (windowType == WindowType.s) {
             WindowBuffer selectBuffer = windowManager.getSelectBuffer(pipeLineId);
+            batchId = getWindowSeqGenerator().gene(pipeLineId);
             selectBuffer.put(batchId);
         }
 
