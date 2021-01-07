@@ -206,7 +206,7 @@ public class CompomentManager implements LifeCycle {
         String ip = windowData.getIp();
         Integer pipeLineId = windowData.getPipeLineId();
         short windowType = windowData.getWindowType();
-        // 滑动窗口序列号 采用idworker自增
+        // 滑动窗口序列号 有seletorTask端自增 初始值0
         long batchId = windowData.getBatchId();
         if (!metaManager.getNodeIp().equals(ip)) {
             return;

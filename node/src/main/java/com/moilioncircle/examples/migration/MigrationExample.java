@@ -33,6 +33,7 @@ import com.moilioncircle.redis.replicator.rdb.dump.DumpRdbVisitor;
 import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
 import com.moilioncircle.redis.replicator.util.Strings;
 import redis.clients.jedis.Client;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Protocol;
 
 import java.io.IOException;
@@ -108,6 +109,7 @@ public class MigrationExample {
                     DefaultCommand dc = (DefaultCommand) event;
                     Object r = target.send(dc.getCommand(), dc.getArgs());
                     System.out.println(r);
+
                 }
             }
         });

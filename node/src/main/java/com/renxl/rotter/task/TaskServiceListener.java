@@ -20,6 +20,9 @@ public class TaskServiceListener {
 
         CommunicationRegistry.regist(TaskEventType.selectTask, this);
         CommunicationRegistry.regist(TaskEventType.loadTask, this);
+        CommunicationRegistry.regist(TaskEventType.selectAndLoadIpEvent, this);
+
+
     }
 
     /**
@@ -38,16 +41,14 @@ public class TaskServiceListener {
         // 创建并启动 select task
         SelectTask selectTask = new SelectTask(pipelineId,sourceRedises,parallelism,relpInfoResponse);
         selectTask.setPipelineId(pipelineId);
+        // 添加到任务池
+        getInstance().getMetaManager().addTask(selectTask);
         selectTask.start(); // 阻塞等待selectPermit
 
-        // 添加到同步任务池
-        getInstance().getMetaManager().addTask(selectTask);
 
-
-        // extract task
         // extract task 和 select task 于同一台机器上
-
         ExtractTask extractTask = new ExtractTask(pipelineId,parallelism);
+        getInstance().getMetaManager().addTask(extractTask);
         extractTask.start();
 
 
@@ -64,14 +65,23 @@ public class TaskServiceListener {
         Integer pipelineId = loadTaskEvent.getPipelineId();
 
         String targetRedis = loadTaskEvent.getTargetRedis();
+        Integer parallelism = loadTaskEvent.getParallelism();
         // 发送rpc ready 事件
 
-        LoadTask loadTask = new LoadTask(pipelineId,targetRedis);
+        LoadTask loadTask = new LoadTask(pipelineId,targetRedis, parallelism);
         loadTask.setPipelineId(pipelineId);
         getInstance().getMetaManager().addTask(loadTask);
 
         getInstance().callLoadPermit(pipelineId);
         return true;
+    }
+
+    /**
+     * 由manager通知pipeline的工作节点对应的相关信息
+     * @param selectAndLoadIpEvent
+     */
+    public  void onSelectAndLoadIpEvent(SelectAndLoadIpEvent selectAndLoadIpEvent){
+        getInstance().getMetaManager().addIps(selectAndLoadIpEvent);
     }
 
 

@@ -8,7 +8,6 @@ import com.renxl.rotter.sel.window.WindowType;
 import com.renxl.rotter.sel.window.buffer.SelectWindowBuffer;
 import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 import com.renxl.rotter.zookeeper.ZKclient;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.renxl.rotter.zookeeper.ZookeeperConfig.pipelineWindowId;
 import static com.renxl.rotter.zookeeper.ZookeeperConfig.pipelineWindowTemp;
 
 /**
@@ -24,13 +22,14 @@ import static com.renxl.rotter.zookeeper.ZookeeperConfig.pipelineWindowTemp;
  * @author: renxl
  * @create: 2020-12-28 20:04
  */
-@Data
 @Slf4j
 public class WindowManager {
-
-    private Map<Integer, WindowBuffer> sWindowBuffers = new HashMap();
-    private Map<Integer, WindowBuffer> eWindowBuffers = new HashMap();
-    private Map<Integer, WindowBuffer> lWindowBuffers = new HashMap();
+    /**
+     * todo 优化线程安全
+     */
+    private volatile Map<Integer, WindowBuffer> sWindowBuffers = new HashMap();
+    private volatile Map<Integer, WindowBuffer> eWindowBuffers = new HashMap();
+    private volatile Map<Integer, WindowBuffer> lWindowBuffers = new HashMap();
 
 
     public WindowBuffer getSelectBuffer(Integer pipelineId) {
@@ -62,40 +61,55 @@ public class WindowManager {
         return windowBuffer;
     }
 
-
-    public static void singleExtract(Integer pipelineId)   {
-        String pipelineWindowIdFormat = MessageFormat.format(pipelineWindowId, String.valueOf(pipelineId));
+    /**
+     * 滑动窗口序列号
+     *
+     * @param pipelineId
+     * @param syncNumber
+     */
+    public void singleExtract(Integer pipelineId, long syncNumber) {
         String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
         // 只起到唤醒作用 不做全局滑动窗口序列号
-        long batchId = CompomentManager.getInstance().getIdWorker().nextId();
         String windowData = null;
         try {
-            windowData = JSON.json(new WindowData(pipelineId, WindowType.e, AddressUtils.getHostAddress().getHostAddress(), batchId));
+            windowData = JSON.json(new WindowData(pipelineId, WindowType.e, AddressUtils.getHostAddress().getHostAddress(), syncNumber));
         } catch (IOException e) {
             log.info("json format error");
         }
         ZKclient.instance.createNodeSel(pipelineWindowTempFormat, windowData);
     }
 
-
-    public static void singleSelect(Integer pipelineId, String ip) throws IOException {
-        String pipelineWindowIdFormat = MessageFormat.format(pipelineWindowId, String.valueOf(pipelineId));
+    /**
+     * load 节点调用这个
+     * <p>
+     * rpc通着select节点进行
+     *
+     * @param pipelineId
+     * @param ip
+     * @throws IOException
+     */
+    public void singleSelect(Integer pipelineId, String ip) throws IOException {
+        // load 保障了syncNumber 的消费顺序 select不再增加重复确定
         String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
-        // 既起到唤醒作用 也做全局滑动窗口序列号控制顺序
-        long batchId = CompomentManager.getInstance().getIdWorker().nextId();
-        String windowData = JSON.json(new WindowData(pipelineId, WindowType.s, ip, batchId));
+        // 只起到唤醒作用 不做全局滑动窗口序列号
+        String windowData = null;
+        long syncNumber = CompomentManager.getInstance().getWindowSeqGenerator().gene(pipelineId);
+        try {
+            windowData = JSON.json(new WindowData(pipelineId, WindowType.l, ip, syncNumber));
+        } catch (IOException e) {
+            log.info("json format error");
+        }
         ZKclient.instance.createNodeSel(pipelineWindowTempFormat, windowData);
+
     }
 
 
-    public static void singleLoad(Integer pipelineId, String ip)     {
-        String pipelineWindowIdFormat = MessageFormat.format(pipelineWindowId, String.valueOf(pipelineId));
+    public void singleLoad(Integer pipelineId, String ip, long syncNumber) {
         String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
         // 只起到唤醒作用 不做全局滑动窗口序列号
-        long batchId = CompomentManager.getInstance().getIdWorker().nextId();
         String windowData = null;
         try {
-            windowData = JSON.json(new WindowData(pipelineId, WindowType.l, ip, batchId));
+            windowData = JSON.json(new WindowData(pipelineId, WindowType.l, ip, syncNumber));
         } catch (IOException e) {
             log.info("json format error");
         }

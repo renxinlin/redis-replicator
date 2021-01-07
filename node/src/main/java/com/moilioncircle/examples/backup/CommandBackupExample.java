@@ -16,13 +16,19 @@
 
 package com.moilioncircle.examples.backup;
 
+import com.alibaba.dubbo.common.json.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.moilioncircle.redis.replicator.RedisReplicator;
 import com.moilioncircle.redis.replicator.Replicator;
 import com.moilioncircle.redis.replicator.cmd.Command;
+import com.moilioncircle.redis.replicator.cmd.impl.EvalCommand;
+import com.moilioncircle.redis.replicator.cmd.impl.GenericKeyCommand;
+import com.moilioncircle.redis.replicator.cmd.impl.SelectCommand;
 import com.moilioncircle.redis.replicator.event.Event;
 import com.moilioncircle.redis.replicator.event.EventListener;
 import com.moilioncircle.redis.replicator.event.PostRdbSyncEvent;
 import com.moilioncircle.redis.replicator.io.RawByteListener;
+import com.moilioncircle.redis.replicator.util.Strings;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -39,19 +45,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SuppressWarnings("resource")
 public class CommandBackupExample {
     public static void main(String[] args) throws IOException, URISyntaxException {
-        final OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("/path/to/appendonly.aof")));
         final RawByteListener rawByteListener = new RawByteListener() {
             @Override
             public void handle(byte... rawBytes) {
-                try {
-                    out.write(rawBytes);
-                } catch (IOException ignore) {
-                }
+
             }
         };
 
         //save 1000 records commands
-        Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         final AtomicInteger acc = new AtomicInteger(0);
         replicator.addEventListener(new EventListener() {
             @Override
@@ -59,15 +61,27 @@ public class CommandBackupExample {
                 if (event instanceof PostRdbSyncEvent) {
                     replicator.addRawByteListener(rawByteListener);
                 }
+                if(event instanceof EvalCommand){
+                    return;
+                }
                 if (event instanceof Command) {
-                    if (acc.incrementAndGet() == 1000) {
-                        try {
-                            out.close();
-                            replicator.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    try {
+                        System.out.println("===="+event.getClass());
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                }
+                if(event instanceof GenericKeyCommand){
+                    byte[] keyByte = ((GenericKeyCommand) event).getKey();
+                    String keyStr = Strings.toString(keyByte);
+                    System.out.println("gen==>"+keyStr);
+
+                }
+
+                if(event instanceof SelectCommand){
+                    int index = ((SelectCommand) event).getIndex();
+                    System.out.println("index"+index);
+
                 }
             }
         });

@@ -44,6 +44,7 @@ public class DumpParserExample {
                     KeyValuePair<?, ?> parsedKV = parser.parse(dkv);
                     System.out.println(parsedKV);
                 }
+
             }
         });
         replicator.open();

@@ -18,10 +18,12 @@ package com.renxl.rotter.sel;
 
 import com.moilioncircle.redis.replicator.Replicator;
 import com.moilioncircle.redis.replicator.cmd.CommandName;
+import com.moilioncircle.redis.replicator.cmd.impl.AbstractCommand;
 import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
 import com.moilioncircle.redis.replicator.cmd.parser.DefaultCommandParser;
 import com.moilioncircle.redis.replicator.cmd.parser.PingParser;
 import com.moilioncircle.redis.replicator.cmd.parser.ReplConfParser;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.rdb.dump.DumpRdbVisitor;
 import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
 import com.moilioncircle.redis.replicator.util.Strings;
@@ -171,14 +173,14 @@ public abstract class Selector     {
      */
 
 
-    public abstract void open() throws IOException;
+    public abstract void open()    ;
 
     public abstract void sync();
     public abstract void close();
 
-    public abstract void aof(DefaultCommand event);
+    public abstract void aof(AbstractCommand event);
 
-    public abstract void rdb(DumpKeyValuePair event);
+    public abstract void rdb(KeyValuePair event);
 
     /*
      * Jedis is not a reliable redis client.

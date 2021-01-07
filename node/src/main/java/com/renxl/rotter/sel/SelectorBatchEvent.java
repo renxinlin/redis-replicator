@@ -20,6 +20,13 @@ import java.util.List;
 @Accessors(chain = true)
 public class SelectorBatchEvent {
 
+    /**
+     * aof rdb 事件
+     */
     private List<SelectorEvent> selectorEvent;
+
+    /**
+     * 递增序列号
+     */
     private long batchId;
 }

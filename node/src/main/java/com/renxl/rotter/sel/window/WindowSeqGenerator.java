@@ -26,7 +26,11 @@ public class WindowSeqGenerator {
 
     }
 
-
+    /**
+     * 滑动窗口初始序列号是0
+     * @param pipelineId
+     * @return
+     */
     public  long gene(Integer pipelineId) {
         AtomicLong geneoratorBatchId = piplineIdAndSelectTaskGenerator.getOrDefault(pipelineId, new AtomicLong(0));
         return geneoratorBatchId.getAndAdd(1);

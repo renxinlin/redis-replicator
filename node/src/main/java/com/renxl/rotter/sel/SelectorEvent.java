@@ -1,6 +1,8 @@
 package com.renxl.rotter.sel;
 
+import com.moilioncircle.redis.replicator.cmd.impl.AbstractCommand;
 import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +20,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SelectorEvent {
 
-    private DefaultCommand defaultCommand;
-    private DumpKeyValuePair dumpKeyValuePair;
+    private AbstractCommand abstartCommand;
+
+    private KeyValuePair keyValuePair;
 }

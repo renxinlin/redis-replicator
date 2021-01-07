@@ -9,8 +9,10 @@ import com.lmax.disruptor.dsl.ProducerType;
 import com.moilioncircle.redis.replicator.RedisReplicator;
 import com.moilioncircle.redis.replicator.RedisURI;
 import com.moilioncircle.redis.replicator.Replicator;
+import com.moilioncircle.redis.replicator.cmd.impl.AbstractCommand;
 import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
 import com.moilioncircle.redis.replicator.event.*;
+import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.constants.Constants;
@@ -51,7 +53,10 @@ public class DefaultSelector extends Selector {
         this.param = param;
         // 根据并行数创建滑动窗口大小
         CompomentManager.getInstance().getWindowManagerWatcher().initPipelined(param.getPipelineId(), param.getParallelism());
-        executor = new ThreadPoolExecutor(1, 1, 300, TimeUnit.SECONDS,
+        /**
+         * select一个线程 ack一个线程
+         */
+        executor = new ThreadPoolExecutor(2, 2, 300, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<>(0),
                 new DefaultThreadFactory("selector-pipelineId-" + param.getPipelineId()),
                 new ThreadPoolExecutor.CallerRunsPolicy());
@@ -76,7 +81,7 @@ public class DefaultSelector extends Selector {
             while (retry < retriesFromRedisServerInfo) {
                 try {
                     retry++;
-                    // TODO 同步检查
+                    // TODO 阻塞同步检查
                     r.open();
                     log.info("open times " + retry);
                 } catch (IOException e) {
@@ -155,9 +160,9 @@ public class DefaultSelector extends Selector {
                 if (event instanceof PreRdbSyncEvent) {
                     log.info("start rdb==>");
                 }
-                if (event instanceof DumpKeyValuePair) {
+                if (event instanceof KeyValuePair) {
                     DumpKeyValuePair dkv = (DumpKeyValuePair) event;
-                    rdb((DumpKeyValuePair) event);
+                    rdb((KeyValuePair) event);
                 }
                 if (event instanceof PostRdbSyncEvent) {
                     log.info("end rdb==>");
@@ -166,8 +171,8 @@ public class DefaultSelector extends Selector {
                     log.info("start aof==>");
 
                 }
-                if (event instanceof DefaultCommand) {
-                    aof((DefaultCommand) event);
+                if (event instanceof AbstractCommand) {
+                    aof((AbstractCommand) event);
                 }
 
                 if (event instanceof PostCommandSyncEvent) {
@@ -189,12 +194,12 @@ public class DefaultSelector extends Selector {
     }
 
     @Override
-    public void aof(DefaultCommand event) {
+    public void aof(AbstractCommand event) {
         // disruptor 生产
         long sequence = ringBuffer.next();
         try {
             SelectorEvent selectorEvent = ringBuffer.get(sequence);
-            selectorEvent.setDefaultCommand(event);
+            selectorEvent.setAbstartCommand(event);
         } finally {
             // 生产
             ringBuffer.publish(sequence);
@@ -202,11 +207,11 @@ public class DefaultSelector extends Selector {
     }
 
     @Override
-    public void rdb(DumpKeyValuePair event) {
+    public void rdb(KeyValuePair event) {
         long sequence = ringBuffer.next();
         try {
             SelectorEvent selectorEvent = ringBuffer.get(sequence);
-            selectorEvent.setDumpKeyValuePair(event);
+            selectorEvent.setKeyValuePair(event);
         } finally {
             // 生产
             ringBuffer.publish(sequence);
@@ -219,7 +224,6 @@ public class DefaultSelector extends Selector {
      * redis - disruptor 复制消费者
      */
 
-    @Slf4j
     class RotterSelectorEventHandler implements EventHandler<SelectorEvent> {
         ArrayBlockingQueue<SelectorEvent> arrayBlockingQueue = new ArrayBlockingQueue(1024*1024);
         List buffer = new CopyOnWriteArrayList<>();
@@ -236,17 +240,19 @@ public class DefaultSelector extends Selector {
             }
             if(!buffer.isEmpty()){
                 Integer pipelineId = param.getPipelineId();
-                WindowBuffer selectBuffer = getInstance().getWindowManager().getSelectBuffer(pipelineId);
+                WindowBuffer selectWindowBuffer = getInstance().getWindowManager().getSelectBuffer(pipelineId);
                 SelectorBatchEvent selectorBatchEvent = new SelectorBatchEvent();
                 selectorBatchEvent.setSelectorEvent(buffer);
-                //  设置滑动窗口单调递增序列号保障顺序
-                long batchId = selectBuffer.get();
+
+                //  阻塞获取滑动窗口信息
+                long batchId = selectWindowBuffer.get();
+
                 selectorBatchEvent.setBatchId(batchId);
                 CompomentManager.getInstance().getMetaManager().addEvent(pipelineId,selectorBatchEvent);
                 buffer.clear();
 
                 // 滑动窗口向下传递到Extract Task 通知e task 工作  etask 是核心 消费较慢  允许多线程 同时在load阶段通过滑动窗口序列号保障顺序性
-                getInstance().getWindowManager().singleExtract(pipelineId);
+                getInstance().getWindowManager().singleExtract(pipelineId,batchId);
 
 
             }

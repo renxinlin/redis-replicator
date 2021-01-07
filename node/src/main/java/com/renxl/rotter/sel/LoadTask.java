@@ -1,5 +1,9 @@
 package com.renxl.rotter.sel;
 
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * @description:
  * @author: renxl
@@ -8,7 +12,18 @@ package com.renxl.rotter.sel;
 public class LoadTask extends Task {
 
     private String  targetRedis ;
-    public LoadTask(Integer pipelineId, String targetRedis) {
+
+    /**
+     * 按照滑动窗口顺序阻塞等待 先发出后到达的 aof rdb
+     */
+    private ArrayList<Long> currentWaitSeqNum ;
+    /**
+     * 初始的滑动窗口序列号
+     */
+    private AtomicLong currentSeqNum = new AtomicLong(0L);
+
+    public LoadTask(Integer pipelineId, String targetRedis, int parallelism) {
+        currentWaitSeqNum = new ArrayList(parallelism);
         this.setPipelineId(pipelineId);
         this.targetRedis = targetRedis;
 

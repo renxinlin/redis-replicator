@@ -39,3 +39,4 @@ public abstract class GenericKeyCommand extends AbstractCommand {
         this.key = key;
     }
 }
+

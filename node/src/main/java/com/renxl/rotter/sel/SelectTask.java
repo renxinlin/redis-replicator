@@ -1,10 +1,6 @@
 package com.renxl.rotter.sel;
 
-import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.rpcclient.events.RelpInfoResponse;
-import com.renxl.rotter.sel.window.buffer.WindowBuffer;
-
-import java.io.IOException;
 
 /**
  * @description:
@@ -36,19 +32,15 @@ public class SelectTask extends Task {
         Selector selector = SelectorFactory.buildSelector(new SelectorParam(getPipelineId(), sourceRedises, parallelism, relpInfoResponse));
         selector.sync();
         // 启动 todo 启动优化
-        try {
-            // 启动链接
-            selector.open();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // 启动链接
+        selector.open();
 
 
     }
 
 
     @Override
-   public boolean getPermit() {
+    public boolean getPermit() {
         return permit;
     }
 }

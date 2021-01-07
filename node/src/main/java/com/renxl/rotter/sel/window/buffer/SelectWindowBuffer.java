@@ -11,9 +11,11 @@ import java.util.concurrent.ArrayBlockingQueue;
  * @create: 2020-12-30 19:23
  */
 public class SelectWindowBuffer extends WindowBuffer {
+    /**
+     * 滑动窗口的大小
+     */
+    private ArrayBlockingQueue<Long> arrayBlockingQueue  = new ArrayBlockingQueue(1024);
 
-
-    private ArrayBlockingQueue<Long> arrayBlockingQueue = new ArrayBlockingQueue(1024);
 
     @Override
     public long get() {
