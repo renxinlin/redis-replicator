@@ -16,10 +16,16 @@
 
 package com.moilioncircle.redis.replicator.cmd.impl;
 
+import com.moilioncircle.redis.replicator.util.Strings;
+import lombok.ToString;
+
+import java.util.Arrays;
+
 /**
  * @author René Kerner (@rk3rn3r)
  * @since 3.3.0
  */
+
 public abstract class GenericKeyValueCommand extends GenericKeyCommand {
 
     private byte[] value;
@@ -38,5 +44,12 @@ public abstract class GenericKeyValueCommand extends GenericKeyCommand {
 
     public void setValue(byte[] value) {
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return  "GenericKeyValueCommand{" +
+                "value=" + Strings.toString(value) +
+                '}'+super.toString();
     }
 }

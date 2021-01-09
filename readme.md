@@ -107,7 +107,7 @@ redis aof
 在rdb阶段要存在主机房 从机房的概念  数据只能以一个机房为准 
 rdb类似于全量数据，需要已一个机房为准
 
-
+selectCommand 不存在任何处理  必须传递到对方
 
 
 对redis Command 的划分

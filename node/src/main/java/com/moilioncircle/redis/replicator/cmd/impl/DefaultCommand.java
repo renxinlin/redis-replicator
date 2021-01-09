@@ -16,10 +16,16 @@
 
 package com.moilioncircle.redis.replicator.cmd.impl;
 
+import com.moilioncircle.redis.replicator.cmd.CommandParser;
+import com.moilioncircle.redis.replicator.cmd.CommandParsers;
+
+import java.util.Arrays;
+
 /**
  * @author Leon Chen
  * @since 2.5.0
  */
+
 public class DefaultCommand extends AbstractCommand {
 
     private static final long serialVersionUID = 1L;
@@ -49,5 +55,13 @@ public class DefaultCommand extends AbstractCommand {
 
     public void setArgs(byte[][] args) {
         this.args = args;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultCommand{" +
+                "command=" + CommandParsers.toRune(command) +
+                ", args=" + "" +
+                '}';
     }
 }

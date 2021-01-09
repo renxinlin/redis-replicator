@@ -16,27 +16,27 @@
 
 package com.moilioncircle.examples.backup;
 
-import com.alibaba.dubbo.common.json.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.moilioncircle.examples.migration.MigrationExample;
 import com.moilioncircle.redis.replicator.RedisReplicator;
+import com.moilioncircle.redis.replicator.RedisURI;
 import com.moilioncircle.redis.replicator.Replicator;
 import com.moilioncircle.redis.replicator.cmd.Command;
-import com.moilioncircle.redis.replicator.cmd.impl.EvalCommand;
-import com.moilioncircle.redis.replicator.cmd.impl.GenericKeyCommand;
-import com.moilioncircle.redis.replicator.cmd.impl.SelectCommand;
+import com.moilioncircle.redis.replicator.cmd.impl.*;
 import com.moilioncircle.redis.replicator.event.Event;
 import com.moilioncircle.redis.replicator.event.EventListener;
 import com.moilioncircle.redis.replicator.event.PostRdbSyncEvent;
 import com.moilioncircle.redis.replicator.io.RawByteListener;
+import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
 import com.moilioncircle.redis.replicator.util.Strings;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.moilioncircle.examples.migration.MigrationExample.dress;
 
 /**
  * @author Leon Chen
@@ -44,43 +44,54 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @SuppressWarnings("resource")
 public class CommandBackupExample {
+    public  static LinkedList<DumpKeyValuePair> dumpKeyValuePairs = new LinkedList<>();
     public static void main(String[] args) throws IOException, URISyntaxException {
-        final RawByteListener rawByteListener = new RawByteListener() {
-            @Override
-            public void handle(byte... rawBytes) {
 
-            }
-        };
 
-        //save 1000 records commands
-        Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
-        final AtomicInteger acc = new AtomicInteger(0);
+
+        Replicator replicator = new RedisReplicator("redis://127.0.0.1:6378");
+        replicator = dress(replicator);
+
         replicator.addEventListener(new EventListener() {
             @Override
             public void onEvent(Replicator replicator, Event event) {
-                if (event instanceof PostRdbSyncEvent) {
-                    replicator.addRawByteListener(rawByteListener);
+                if (event instanceof DumpKeyValuePair) {
+                    System.out.println("DumpKeyValuePair" + event);
+
                 }
-                if(event instanceof EvalCommand){
+                if (event instanceof PostRdbSyncEvent) {
+                    System.out.println("PostRdbSyncEvent" + event);
+
+                }
+                if (event instanceof EvalCommand) {
                     return;
                 }
                 if (event instanceof Command) {
                     try {
-                        System.out.println("===="+event.getClass());
+                        byte[] command = ((DefaultCommand) event).getCommand();
+
+                        System.out.println("Command" +Strings.toString(command));
+                    } catch (Exception e) {
+                    }
+                }
+
+                if (event instanceof SetCommand) {
+                    try {
+                        System.out.println("==1==" + event.toString());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                if(event instanceof GenericKeyCommand){
+                if (event instanceof GenericKeyCommand) {
                     byte[] keyByte = ((GenericKeyCommand) event).getKey();
                     String keyStr = Strings.toString(keyByte);
-                    System.out.println("gen==>"+keyStr);
+                    System.out.println("gen==>" + keyStr);
 
                 }
 
-                if(event instanceof SelectCommand){
+                if (event instanceof SelectCommand) {
                     int index = ((SelectCommand) event).getIndex();
-                    System.out.println("index"+index);
+                    System.out.println("index" + index);
 
                 }
             }
@@ -88,14 +99,6 @@ public class CommandBackupExample {
 
         replicator.open();
 
-        //check aof file
-        replicator = new RedisReplicator("redis:///path/to/appendonly.aof");
-        replicator.addEventListener(new EventListener() {
-            @Override
-            public void onEvent(Replicator replicator, Event event) {
-                System.out.println(event);
-            }
-        });
-        replicator.open();
+
     }
 }

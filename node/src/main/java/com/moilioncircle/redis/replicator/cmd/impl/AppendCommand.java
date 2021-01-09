@@ -29,4 +29,9 @@ public class AppendCommand extends GenericKeyValueCommand {
     public AppendCommand(byte[] key, byte[] value) {
         super(key, value);
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

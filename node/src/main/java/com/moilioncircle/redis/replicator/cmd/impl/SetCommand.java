@@ -17,6 +17,7 @@
 package com.moilioncircle.redis.replicator.cmd.impl;
 
 import com.moilioncircle.redis.replicator.rdb.datatype.ExpiredType;
+import lombok.ToString;
 
 /**
  * @author Leon Chen
@@ -72,5 +73,15 @@ public class SetCommand extends GenericKeyValueCommand {
 
     public void setExistType(ExistType existType) {
         this.existType = existType;
+    }
+
+    @Override
+    public String toString() {
+        return  "SetCommand{" +
+                "keepTtl=" + keepTtl +
+                ", expiredType=" + expiredType +
+                ", expiredValue=" + expiredValue +
+                ", existType=" + existType +
+                '}' + super.toString();
     }
 }

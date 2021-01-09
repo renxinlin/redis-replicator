@@ -16,6 +16,8 @@
 
 package com.moilioncircle.redis.replicator.cmd.impl;
 
+import java.util.Arrays;
+
 /**
  * @author Leon Chen
  * @since 2.1.0
@@ -49,5 +51,14 @@ public class GetTypeOffset implements Statement {
 
     public void setOffset(byte[] offset) {
         this.offset = offset;
+    }
+
+
+    @Override
+    public String toString() {
+        return "GetTypeOffset{" +
+                "type=" + Arrays.toString(type) +
+                ", offset=" + Arrays.toString(offset) +
+                '}';
     }
 }

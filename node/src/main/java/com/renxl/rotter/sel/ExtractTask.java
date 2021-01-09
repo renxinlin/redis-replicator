@@ -1,21 +1,15 @@
 package com.renxl.rotter.sel;
 
-import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.alibaba.dubbo.common.utils.NamedThreadFactory;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.domain.SelectAndLoadIp;
-import com.renxl.rotter.sel.extract.AofCircleSyncFilter;
-import com.renxl.rotter.sel.extract.AofDeleteKeyFilter;
-import com.renxl.rotter.sel.extract.Filter;
+import com.renxl.rotter.sel.extract.*;
 import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.renxl.rotter.config.CompomentManager.getInstance;
 
@@ -74,7 +68,13 @@ public class ExtractTask extends Task {
          *
          */
 
-        filter = new AofCircleSyncFilter();
+        filter = new AofCommandFilter();
+        AofAndRdbDbFilter aofAndRdbDbFilter = new AofAndRdbDbFilter();
+        AofKeyFilter aofKeyFilter = new AofKeyFilter();
+        filter.setNext(aofAndRdbDbFilter);
+        aofAndRdbDbFilter.setNext(aofKeyFilter);
+
+
 
     }
 

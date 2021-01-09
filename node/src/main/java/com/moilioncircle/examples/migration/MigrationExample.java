@@ -23,9 +23,7 @@ import com.moilioncircle.redis.replicator.RedisURI;
 import com.moilioncircle.redis.replicator.Replicator;
 import com.moilioncircle.redis.replicator.cmd.CommandName;
 import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
-import com.moilioncircle.redis.replicator.cmd.parser.DefaultCommandParser;
-import com.moilioncircle.redis.replicator.cmd.parser.PingParser;
-import com.moilioncircle.redis.replicator.cmd.parser.ReplConfParser;
+import com.moilioncircle.redis.replicator.cmd.parser.*;
 import com.moilioncircle.redis.replicator.event.Event;
 import com.moilioncircle.redis.replicator.event.EventListener;
 import com.moilioncircle.redis.replicator.rdb.datatype.DB;
@@ -52,7 +50,26 @@ import static redis.clients.jedis.Protocol.toByteArray;
 public class MigrationExample {
 
     public static void main(String[] args) throws IOException, URISyntaxException {
-        sync("redis://127.0.0.1:6379", "redis://127.0.0.1:6380");
+        new Thread(()->{
+            try {
+                sync("redis://127.0.0.1:6379", "redis://127.0.0.1:6378");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+//        new Thread(()->{
+//            try {
+//                sync("redis://127.0.0.1:6378", "redis://127.0.0.1:6379");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } catch (URISyntaxException e) {
+//                e.printStackTrace();
+//            }
+//        }).start();
+
     }
 
     /*
@@ -82,6 +99,7 @@ public class MigrationExample {
             @Override
             public void onEvent(Replicator replicator, Event event) {
                 if (event instanceof DumpKeyValuePair) {
+                    System.out.println("---" +"dump");
                     DumpKeyValuePair dkv = (DumpKeyValuePair) event;
                     // Step1: select db
                     DB db = dkv.getDb();
@@ -102,9 +120,13 @@ public class MigrationExample {
                         Object r = target.restore(dkv.getKey(), ms, dkv.getValue(), true);
                         System.out.println(r);
                     }
+                }else {
+                    System.out.println("---" +"aof");
+
                 }
 
                 if (event instanceof DefaultCommand) {
+
                     // Step3: sync aof command
                     DefaultCommand dc = (DefaultCommand) event;
                     Object r = target.send(dc.getCommand(), dc.getArgs());
@@ -128,7 +150,7 @@ public class MigrationExample {
         // ignore PING REPLCONF GETACK
         r.addCommandParser(CommandName.name("PING"), new PingParser());
         r.addCommandParser(CommandName.name("REPLCONF"), new ReplConfParser());
-        //
+        // 237 -157 +2  = 82 todo 一共14个命令组200多个命令检查
         r.addCommandParser(CommandName.name("APPEND"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("SET"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("SETEX"), new DefaultCommandParser());
@@ -161,7 +183,7 @@ public class MigrationExample {
         r.addCommandParser(CommandName.name("INCRBY"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("DECRBY"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("PERSIST"), new DefaultCommandParser());
-        r.addCommandParser(CommandName.name("SELECT"), new DefaultCommandParser());
+        r.addCommandParser(CommandName.name("SELECT"), new SelectParser());
         r.addCommandParser(CommandName.name("FLUSHALL"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("FLUSHDB"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("HINCRBY"), new DefaultCommandParser());

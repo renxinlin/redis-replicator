@@ -16,6 +16,8 @@
 
 package com.moilioncircle.redis.replicator.cmd.impl;
 
+import java.util.Arrays;
+
 /**
  * @author Leon Chen
  * @since 2.1.0
@@ -59,5 +61,14 @@ public class IncrByTypeOffsetIncrement implements Statement {
 
     public void setIncrement(long increment) {
         this.increment = increment;
+    }
+
+    @Override
+    public String toString() {
+        return "IncrByTypeOffsetIncrement{" +
+                "type=" + Arrays.toString(type) +
+                ", offset=" + Arrays.toString(offset) +
+                ", increment=" + increment +
+                '}';
     }
 }

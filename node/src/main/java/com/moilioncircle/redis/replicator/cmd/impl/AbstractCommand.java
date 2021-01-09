@@ -18,10 +18,16 @@ package com.moilioncircle.redis.replicator.cmd.impl;
 
 import com.moilioncircle.redis.replicator.cmd.Command;
 import com.moilioncircle.redis.replicator.event.AbstractEvent;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author René Kerner (@rk3rn3r)
  * @since 3.3.0
  */
+@Getter
+@Setter
 public abstract class AbstractCommand extends AbstractEvent implements Command {
+    private Integer dbNumber;
 }

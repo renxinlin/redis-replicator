@@ -23,6 +23,7 @@ import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
 import com.moilioncircle.redis.replicator.cmd.parser.DefaultCommandParser;
 import com.moilioncircle.redis.replicator.cmd.parser.PingParser;
 import com.moilioncircle.redis.replicator.cmd.parser.ReplConfParser;
+import com.moilioncircle.redis.replicator.cmd.parser.SelectParser;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.rdb.dump.DumpRdbVisitor;
 import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
@@ -60,6 +61,8 @@ public abstract class Selector     {
         // ignore PING REPLCONF GETACK
         r.addCommandParser(CommandName.name("PING"), new PingParser());
         r.addCommandParser(CommandName.name("REPLCONF"), new ReplConfParser());
+        r.addCommandParser(CommandName.name("SELECT"), new SelectParser());
+
         //
         r.addCommandParser(CommandName.name("APPEND"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("SET"), new DefaultCommandParser());
@@ -93,7 +96,7 @@ public abstract class Selector     {
         r.addCommandParser(CommandName.name("INCRBY"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("DECRBY"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("PERSIST"), new DefaultCommandParser());
-        r.addCommandParser(CommandName.name("SELECT"), new DefaultCommandParser());
+
         r.addCommandParser(CommandName.name("FLUSHALL"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("FLUSHDB"), new DefaultCommandParser());
         r.addCommandParser(CommandName.name("HINCRBY"), new DefaultCommandParser());

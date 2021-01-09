@@ -28,11 +28,10 @@ public class AofCommandFilter extends Filter {
                 newSelectorEvents.add(new SelectorEvent(null, keyValuePair));
             }
 
+            // aof 过滤特殊key
             if (null != abstartCommand) {
                 DefaultCommand defaultCommand = (DefaultCommand) abstartCommand;
                 boolean tonext = true;
-
-
                 if (Strings.toString(defaultCommand.getCommand()).equals("FLUSHALL") ) {
                     // instanceof FlushAllCommand
                     tonext = false;
@@ -59,19 +58,22 @@ public class AofCommandFilter extends Filter {
                     // min-slaves-to-write 3
                     // min-slaves-max-lag 10
                     // 那么在从服务器的数量少于3个，或者三个从服务器的延迟（lag）值都大于或等于10秒时，主服务器将拒绝执行写命令，这里的延迟值就是上面提到的INFO replication命令的lag 值
-
                     tonext = false;
                 }
                 else if(abstartCommand instanceof MultiCommand || abstartCommand instanceof ExecCommand   ){
                     // DISCARD UnWatch watch
                     // 不支持redis 事务 但是事务内部的命令还是同步过去
                     tonext = false;
-
                 }
                 else if(abstartCommand instanceof SwapDBCommand ){
                     // 不支持redis 事务
                     tonext = false;
-
+                }
+                else if(abstartCommand instanceof FlushAllCommand ){
+                    tonext = false;
+                }
+                else if(abstartCommand instanceof FlushDBCommand ){
+                    tonext = false;
                 }else {
                     tonext = true;
                 }
@@ -80,9 +82,9 @@ public class AofCommandFilter extends Filter {
                 }
 
             }
-            selectorBatchEvent.setSelectorEvent(newSelectorEvents);
 
         });
+        selectorBatchEvent.setSelectorEvent(newSelectorEvents);
 
     }
 }

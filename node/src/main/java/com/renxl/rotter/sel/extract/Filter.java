@@ -5,7 +5,6 @@ import com.renxl.rotter.sel.SelectorBatchEvent;
 import com.renxl.rotter.sel.SelectorEvent;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -14,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public abstract class Filter {
 
-
+    private Integer pipeLineId ;
     private Filter next;
 
 
@@ -50,5 +49,10 @@ public abstract class Filter {
 
     public void setNext(Filter next) {
         this.next = next;
+    }
+
+
+    public Integer getPipeLineId() {
+        return pipeLineId;
     }
 }

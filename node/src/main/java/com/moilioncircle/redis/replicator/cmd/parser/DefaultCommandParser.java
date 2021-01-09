@@ -18,6 +18,7 @@ package com.moilioncircle.redis.replicator.cmd.parser;
 
 import com.moilioncircle.redis.replicator.cmd.CommandParser;
 import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
+import javassist.bytecode.stackmap.BasicBlock;
 
 import static com.moilioncircle.redis.replicator.util.Strings.format;
 
@@ -40,4 +41,6 @@ public class DefaultCommandParser implements CommandParser<DefaultCommand> {
         }
         return new DefaultCommand((byte[]) command[0], args);
     }
+
+
 }

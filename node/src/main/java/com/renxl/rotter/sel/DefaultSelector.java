@@ -9,8 +9,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import com.moilioncircle.redis.replicator.RedisReplicator;
 import com.moilioncircle.redis.replicator.RedisURI;
 import com.moilioncircle.redis.replicator.Replicator;
-import com.moilioncircle.redis.replicator.cmd.impl.AbstractCommand;
-import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
+import com.moilioncircle.redis.replicator.cmd.impl.*;
 import com.moilioncircle.redis.replicator.event.*;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
 import static com.renxl.rotter.config.CompomentManager.getInstance;
@@ -42,6 +42,7 @@ public class DefaultSelector extends Selector {
     SelectorParam param;
     Replicator r;
     int retry = 0;
+    AtomicInteger currentDb = new AtomicInteger(0);
     ThreadPoolExecutor executor;
     /**
      * 承接redisio线程
@@ -171,7 +172,26 @@ public class DefaultSelector extends Selector {
                     log.info("start aof==>");
 
                 }
-                if (event instanceof AbstractCommand) {
+
+                if(event instanceof SelectCommand){
+                    int index = ((SelectCommand) event).getIndex();
+                    currentDb.set(index);
+                    ((SelectCommand) event).setDbNumber(currentDb.get());
+                    aof((AbstractCommand) event);
+
+                }
+
+                if(event instanceof PingCommand){
+                    return;
+                }
+
+
+                if(event instanceof ReplConfCommand){
+                    return;
+                }
+                if (event instanceof DefaultCommand) {
+                     ((DefaultCommand) event).setDbNumber(currentDb.get());
+
                     aof((AbstractCommand) event);
                 }
 

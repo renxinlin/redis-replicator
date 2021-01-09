@@ -16,6 +16,10 @@
 
 package com.moilioncircle.redis.replicator.cmd.impl;
 
+import com.moilioncircle.redis.replicator.util.Strings;
+
+import java.util.Arrays;
+
 /**
  * @author René Kerner (@rk3rn3r)
  * @since 3.3.0
@@ -37,6 +41,13 @@ public abstract class GenericKeyCommand extends AbstractCommand {
 
     public void setKey(byte[] key) {
         this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        return  "GenericKeyCommand{" +
+                "key=" + Strings.toString(key) +
+                '}' + super.toString() ;
     }
 }
 
