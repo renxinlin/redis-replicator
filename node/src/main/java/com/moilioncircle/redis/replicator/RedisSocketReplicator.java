@@ -282,7 +282,7 @@ public class RedisSocketReplicator extends AbstractReplicator {
         try {
             send(command, args);
         } catch (IOException e) {
-            // NOP
+            logger.error("SERIOUS WARN SEND REPLCONF ACK ERROR ...... ",e);
         }
     }
     

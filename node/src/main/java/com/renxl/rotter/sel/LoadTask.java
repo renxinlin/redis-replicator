@@ -2,6 +2,8 @@ package com.renxl.rotter.sel;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.alibaba.dubbo.common.utils.NamedThreadFactory;
+import com.moilioncircle.redis.replicator.cmd.impl.SelectCommand;
+import com.moilioncircle.redis.replicator.event.Event;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 
@@ -45,7 +47,7 @@ public class LoadTask extends Task {
 
     public LoadTask(Integer pipelineId, String targetRedis, int parallelism) {
         currentWaitSeqNum = new TreeSet();
-        currentReadySeqNum = new ArrayBlockingQueue(parallelism);
+        currentReadySeqNum = new ArrayBlockingQueue(2 * parallelism);
         this.setPipelineId(pipelineId);
         this.targetRedis = targetRedis;
         /**
@@ -68,6 +70,7 @@ public class LoadTask extends Task {
 
     @Override
     boolean getPermit() {
+        // manager管理授权
         return permit;
     }
 
@@ -80,8 +83,6 @@ public class LoadTask extends Task {
                 currentWaitSeqNum.add(seqNumber);
             }
         });
-//
-
         readySeqProcessor.execute(() -> {
             while (true) {
                 long seqNumber = currentWaitSeqNum.pollFirst();
@@ -100,6 +101,7 @@ public class LoadTask extends Task {
                 }
             }
         });
+
         // load 阶段单线程处理 pipeline发送 增加速度
         while (true) {
             try {
@@ -128,6 +130,7 @@ public class LoadTask extends Task {
         }
 
     }
+
 
 
 }

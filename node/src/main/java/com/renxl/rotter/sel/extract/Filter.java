@@ -1,6 +1,11 @@
 package com.renxl.rotter.sel.extract;
 
+import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.renxl.rotter.sel.SelectorBatchEvent;
+import com.renxl.rotter.sel.SelectorEvent;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -15,13 +20,30 @@ public abstract class Filter {
 
     public void filter(SelectorBatchEvent selectorBatchEvent) {
 
-        executeFilterJob(selectorBatchEvent);
+
+        executeFilterJob0(selectorBatchEvent);
 
         if (next != null) {
             next.filter(selectorBatchEvent);
         }
 
     }
+
+
+       public void executeFilterJob0(SelectorBatchEvent selectorBatchEvent){
+           // 删除
+           List<SelectorEvent> selectorEvents = selectorBatchEvent.getSelectorEvent();
+
+           // 同步回环标存在则过滤指定数据
+           if(CollectionUtils.isEmpty(selectorEvents)){
+               return;
+           }
+
+           executeFilterJob(selectorBatchEvent);
+
+
+
+       }
 
     protected abstract void executeFilterJob(SelectorBatchEvent selectorBatchEvent);
 
