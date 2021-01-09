@@ -2,6 +2,7 @@ package com.renxl.rotter.sel;
 
 import com.alibaba.dubbo.common.utils.NamedThreadFactory;
 import com.renxl.rotter.config.CompomentManager;
+import com.renxl.rotter.domain.RedisMasterInfo;
 import com.renxl.rotter.domain.SelectAndLoadIp;
 import com.renxl.rotter.sel.extract.*;
 import com.renxl.rotter.sel.window.buffer.WindowBuffer;
@@ -40,6 +41,23 @@ import static com.renxl.rotter.config.CompomentManager.getInstance;
 public class ExtractTask extends Task {
 
     private ExecutorService extractThreads;
+
+    /**
+     * 及时更换同步的redis源
+     * @param newRedisMasterInfo
+     */
+    public   void onChangeSource(RedisMasterInfo newRedisMasterInfo){
+        Filter findRedis = this.filter;
+        while (findRedis!=null ){
+            if(findRedis instanceof AofParseEventFilter){
+                ((AofParseEventFilter) findRedis).initRedis(newRedisMasterInfo);
+            }else {
+                findRedis = findRedis.getNext();
+            }
+        }
+    }
+
+
     /**
      * todo 添加个headfilter
      * 在添加个tailfilter

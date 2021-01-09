@@ -2,6 +2,7 @@ package com.renxl.rotter.sel.extract;
 
 import com.moilioncircle.redis.replicator.cmd.CommandParsers;
 import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
+import com.renxl.rotter.constants.Constants;
 import com.renxl.rotter.sel.SelectorBatchEvent;
 import com.renxl.rotter.sel.SelectorEvent;
 
@@ -16,8 +17,7 @@ import java.util.List;
  * @create: 2021-01-05 14:28
  */
 public class AofCircleFlagFilter extends Filter {
-    private static final String DATA_CYCLE = "!@#$renxlrotter:cycle:";
-    private static final String DELETE_PROTECTED = "!@#$renxlrotter:d:";
+
 
     @Override
     protected void executeFilterJob(SelectorBatchEvent selectorBatchEvent) {
@@ -30,15 +30,15 @@ public class AofCircleFlagFilter extends Filter {
                     || CommandParsers.toRune(((DefaultCommand) (selectorEvent.getAbstartCommand())).getCommand()).equals("DEL")
             )
                     // 不管
-                    && (CommandParsers.toRune(((DefaultCommand) selectorEvent.getAbstartCommand()).getArgs()[0]).startsWith(DATA_CYCLE)
-                    || CommandParsers.toRune(((DefaultCommand) selectorEvent.getAbstartCommand()).getArgs()[0]).startsWith(DELETE_PROTECTED)
+                    && (CommandParsers.toRune(((DefaultCommand) selectorEvent.getAbstartCommand()).getArgs()[0]).startsWith(Constants.DATA_CYCLE)
+                    || CommandParsers.toRune(((DefaultCommand) selectorEvent.getAbstartCommand()).getArgs()[0]).startsWith(Constants.DELETE_PROTECTED)
             )) {
                 // 说明是数据回环或者删除保护标记  不进行回流
                 continue;
             } else if (selectorEvent.getKeyValuePair() != null
                     && (
-                    CommandParsers.toRune(selectorEvent.getKeyValuePair().getKey()).startsWith(DATA_CYCLE)
-                            || CommandParsers.toRune(selectorEvent.getKeyValuePair().getKey()).startsWith(DELETE_PROTECTED))) {
+                    CommandParsers.toRune(selectorEvent.getKeyValuePair().getKey()).startsWith(Constants.DATA_CYCLE)
+                            || CommandParsers.toRune(selectorEvent.getKeyValuePair().getKey()).startsWith(Constants.DELETE_PROTECTED))) {
                 // 说明是数据回环或者删除保护标记 dump 不进行同步任务
                 continue;
             } else {

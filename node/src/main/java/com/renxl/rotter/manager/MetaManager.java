@@ -3,6 +3,7 @@ package com.renxl.rotter.manager;
 import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.config.CompomentManager;
+import com.renxl.rotter.domain.RedisMasterInfo;
 import com.renxl.rotter.domain.SelectAndLoadIp;
 import com.renxl.rotter.rpcclient.events.SelectAndLoadIpEvent;
 import com.renxl.rotter.sel.*;
@@ -54,6 +55,9 @@ public class MetaManager {
      * pipeLine select and load ip Info
      */
     private Map<Integer, SelectAndLoadIp> pipelineTaskIps ;
+
+
+    private Map<Integer, RedisMasterInfo> redisMasterInfoMap ;
 
     /**
      *
@@ -217,5 +221,18 @@ public class MetaManager {
         // todo 目前只支持前缀匹配
         // 后期会扩展 左匹配  右匹配 模糊匹配  正则匹配等规则化对象
         return filterRule.startsWith(filterkey);
+    }
+
+    public void addPipelineSourceMaster(Integer pipelineId,String master, String port,String auth ) {
+        RedisMasterInfo redisMasterInfo = redisMasterInfoMap.get(pipelineId);
+        RedisMasterInfo newRedisMasterInfo = new RedisMasterInfo(master, port, auth);
+        if(redisMasterInfo!=null && redisMasterInfo.equals(newRedisMasterInfo)){
+            return;
+        }
+        redisMasterInfoMap.put(pipelineId,newRedisMasterInfo);
+        ExtractTask extractTask = pipelineExctractTasks.get(pipelineId);
+        extractTask.onChangeSource(newRedisMasterInfo);
+
+
     }
 }

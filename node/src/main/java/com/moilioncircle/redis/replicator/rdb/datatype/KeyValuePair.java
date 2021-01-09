@@ -112,4 +112,40 @@ public class KeyValuePair<K, V> extends AbstractEvent {
     public Long getExpiredMs() {
         return expiredValue;
     }
+
+
+    /**
+     *
+     *
+     *
+     *
+     *
+     *
+     * dump的三种情况
+     *
+     *
+     * 1         1
+     * 2         2
+     * 3         3
+     *           4
+     *
+     * 1   1
+     * 2   2
+     * 3   3
+     * 4
+     *
+     * 2   2
+     * 3   3
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     */
 }

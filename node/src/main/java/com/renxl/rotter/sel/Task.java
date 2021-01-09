@@ -1,5 +1,6 @@
 package com.renxl.rotter.sel;
 
+import com.renxl.rotter.domain.RedisMasterInfo;
 import lombok.Data;
 
 /**
@@ -25,4 +26,6 @@ public abstract class Task extends Thread{
     }
 
     abstract boolean getPermit();
+
+
 }

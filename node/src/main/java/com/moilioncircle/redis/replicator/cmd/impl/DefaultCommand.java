@@ -59,9 +59,13 @@ public class DefaultCommand extends AbstractCommand {
 
     @Override
     public String toString() {
+        StringBuffer stringBuffer = new StringBuffer("");
+        for (int i = 0 ;i <args.length;i++){
+              stringBuffer.append(CommandParsers.toRune(args[i]));
+        }
         return "DefaultCommand{" +
                 "command=" + CommandParsers.toRune(command) +
-                ", args=" + "" +
+                ", args=" + stringBuffer.toString() +
                 '}';
     }
 }

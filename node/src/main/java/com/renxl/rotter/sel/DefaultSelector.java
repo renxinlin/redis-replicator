@@ -120,13 +120,15 @@ public class DefaultSelector extends Selector {
         // 获取新的主从配置信息
         String sourceUri = param.getSourceRedises();
         String redisUrl = sourceUri.split(Constants.MULT_NODE_SPLIT)[0];
-        Jedis jedis = new Jedis(sourceUri);
+        String port = redisUrl.split(Constants.IP_PORT_SPLIT).length == 1 ? "6379": redisUrl.split(Constants.IP_PORT_SPLIT)[1];
+        Jedis jedis = new Jedis(redisUrl);
         String master = buildMasterAddress(redisUrl, jedis);
+        CompomentManager.getInstance().getMetaManager().addPipelineSourceMaster(param.getPipelineId(),master,port,null);
         jedis.close();
 
         // 通过manager获取复制进度信息
         RelpInfoResponse relpInfoResponse = getInstance().callSyncInfo(param.getPipelineId());
-        sourceUri = "redis://" + master + "" + 6379 + "?verbose=yes&retries=10&replId=" + relpInfoResponse.getReplid() + "&replOffset=" + relpInfoResponse.getOffset();
+        sourceUri = "redis://" + master + ":" + port + "?verbose=yes&retries=10&replId=" + relpInfoResponse.getReplid() + "&replOffset=" + relpInfoResponse.getOffset();
         RedisURI suri = null;
         try {
             suri = new RedisURI(sourceUri);

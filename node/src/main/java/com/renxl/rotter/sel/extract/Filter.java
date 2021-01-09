@@ -50,6 +50,9 @@ public abstract class Filter {
     public void setNext(Filter next) {
         this.next = next;
     }
+    public Filter getNext() {
+        return  next;
+    }
 
 
     public Integer getPipeLineId() {

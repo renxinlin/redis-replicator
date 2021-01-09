@@ -12,4 +12,15 @@ public interface Constants {
 
 
     String IP_PORT_SPLIT = ":";
+
+    /**
+     * 数据回环
+     */
+    String DATA_CYCLE = "!@#$renxlrotter:cycle:";
+
+
+    /**
+     * 删除保护
+     */
+    String DELETE_PROTECTED = "!@#$renxlrotter:d:";
 }

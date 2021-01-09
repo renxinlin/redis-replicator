@@ -10,6 +10,11 @@ package com.renxl.rotter.sel;
  */
 public interface Pipe {
 
-
+    /**
+     * load 拉取 extract SelectorBatchEvent
+     * @param pipelineId
+     * @param seqNumber
+     * @return
+     */
     SelectorBatchEvent getSelectBatchEvent(Integer pipelineId, long seqNumber);
 }

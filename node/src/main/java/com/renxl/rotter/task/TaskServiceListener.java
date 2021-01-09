@@ -1,13 +1,12 @@
 package com.renxl.rotter.task;
 
+import com.renxl.rotter.rpcclient.CommunicationRegistry;
 import com.renxl.rotter.rpcclient.events.*;
 import com.renxl.rotter.sel.ExtractTask;
 import com.renxl.rotter.sel.LoadTask;
-import com.renxl.rotter.rpcclient.CommunicationRegistry;
 import com.renxl.rotter.sel.SelectTask;
 import com.renxl.rotter.sel.SelectorBatchEvent;
 
-import static com.renxl.rotter.config.CompomentManager.*;
 import static com.renxl.rotter.config.CompomentManager.getInstance;
 
 /**
@@ -18,7 +17,7 @@ import static com.renxl.rotter.config.CompomentManager.getInstance;
 public class TaskServiceListener {
 
 
-    public  TaskServiceListener (){
+    public TaskServiceListener() {
 
         CommunicationRegistry.regist(TaskEventType.selectTask, this);
         CommunicationRegistry.regist(TaskEventType.loadTask, this);
@@ -30,10 +29,11 @@ public class TaskServiceListener {
 
     /**
      * selectTask 和extract task 同时构建
+     *
      * @param selectTaskEvent
      * @return
      */
-    public boolean onSelectTask(SelectTaskEvent selectTaskEvent){
+    public boolean onSelectTask(SelectTaskEvent selectTaskEvent) {
         Integer pipelineId = selectTaskEvent.getPipelineId();
         // 获取sel 中e的并行度 类似otter的滑动窗口
         Integer parallelism = selectTaskEvent.getParallelism();
@@ -42,16 +42,19 @@ public class TaskServiceListener {
         // 获取pipelineId的复制进度
         RelpInfoResponse relpInfoResponse = getInstance().callSyncInfo(pipelineId);
         // 创建并启动 select task
-        SelectTask selectTask = new SelectTask(pipelineId,sourceRedises,parallelism,relpInfoResponse);
+        SelectTask selectTask = new SelectTask(pipelineId, sourceRedises, parallelism, relpInfoResponse);
         selectTask.setPipelineId(pipelineId);
-        // 添加到任务池
-        getInstance().getMetaManager().addTask(selectTask);
-        selectTask.start(); // 阻塞等待selectPermit
 
 
         // extract task 和 select task 于同一台机器上
-        ExtractTask extractTask = new ExtractTask(pipelineId,parallelism);
+        ExtractTask extractTask = new ExtractTask(pipelineId, parallelism);
+
+        // 添加到任务池
         getInstance().getMetaManager().addTask(extractTask);
+        getInstance().getMetaManager().addTask(selectTask);
+
+        // 阻塞等待selectPermit
+        selectTask.start();
         extractTask.start();
 
 
@@ -64,14 +67,14 @@ public class TaskServiceListener {
     }
 
 
-    public boolean onLoadTask(LoadTaskEvent loadTaskEvent){
+    public boolean onLoadTask(LoadTaskEvent loadTaskEvent) {
         Integer pipelineId = loadTaskEvent.getPipelineId();
 
         String targetRedis = loadTaskEvent.getTargetRedis();
         Integer parallelism = loadTaskEvent.getParallelism();
         // 发送rpc ready 事件
 
-        LoadTask loadTask = new LoadTask(pipelineId,targetRedis, parallelism);
+        LoadTask loadTask = new LoadTask(pipelineId, targetRedis, parallelism);
         loadTask.setPipelineId(pipelineId);
         getInstance().getMetaManager().addTask(loadTask);
 
@@ -81,16 +84,17 @@ public class TaskServiceListener {
 
     /**
      * 由manager通知pipeline的工作节点对应的相关信息
+     *
      * @param selectAndLoadIpEvent
      */
-    public  void onSelectAndLoadIpEvent(SelectAndLoadIpEvent selectAndLoadIpEvent){
+    public void onSelectAndLoadIpEvent(SelectAndLoadIpEvent selectAndLoadIpEvent) {
         getInstance().getMetaManager().addIps(selectAndLoadIpEvent);
     }
 
 
-
     /**
      * 收到manager节点的许可凭证
+     *
      * @param event
      * @return
      */
@@ -102,6 +106,7 @@ public class TaskServiceListener {
 
     /**
      * 收到manager节点的许可凭证
+     *
      * @param event
      * @return
      */
@@ -114,16 +119,18 @@ public class TaskServiceListener {
 
     /**
      * load节点通过pipe拉取数据
+     *
      * @param event
      * @return
      */
-    public SelectorBatchEvent onGetExtractBatchEvents(GetExtractBatchEvents event){
-        SelectorBatchEvent selectorBatchEvent = getInstance().getMetaManager().takeExtractEvent(event.getPipelineId(),event.getSeqNumber());
+    public SelectorBatchEvent onGetExtractBatchEvents(GetExtractBatchEvents event) {
+        SelectorBatchEvent selectorBatchEvent = getInstance().getMetaManager().takeExtractEvent(event.getPipelineId(), event.getSeqNumber());
         return selectorBatchEvent;
     }
 
     /**
      * todo
+     *
      * @param event
      * @return
      */
@@ -135,6 +142,7 @@ public class TaskServiceListener {
 
     /**
      * todo
+     *
      * @param event
      * @return
      */
