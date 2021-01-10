@@ -264,6 +264,7 @@ public class MigrationExample {
         }
 
         public Object restore(byte[] key, long expired, byte[] dumped, boolean replace) {
+
             if (!replace) {
                 return send(Protocol.Command.RESTORE, key, Protocol.toByteArray(expired), dumped);
             } else {

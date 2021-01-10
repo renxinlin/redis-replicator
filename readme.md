@@ -199,4 +199,5 @@ SwapDBCommand
 
 
 
-
+对知识的总结:
+凡是没有物理写的，都不会产生日志【例如redis-aof   raft-log    mysql-binlog】
