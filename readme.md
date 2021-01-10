@@ -226,7 +226,11 @@ SwapDBCommand
 5 redis auth   启动从ip到端口级别
 
 
+6 滑动窗口增加重新发送机制 [目前无法ack则select端会阻塞导致manager重新调度 但还是希望滑动窗口增加重试机制]
 
+
+
+# 生产配置项
 
 
 
