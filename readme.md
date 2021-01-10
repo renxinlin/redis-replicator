@@ -201,3 +201,30 @@ SwapDBCommand
 
 对知识的总结:
 凡是没有物理写的，都不会产生日志【例如redis-aof   raft-log    mysql-binlog】
+
+
+
+
+
+
+// todo 
+
+1 offset持久化
+
+
+2 pipeline正确性检查
+
+
+
+3  dump存在主机房机制 dump时候只会从主机房向从机房dump
+【后期可能会考虑向otter一样 对不一致数据进行校验 比如以主机房为准】
+
+
+4 构建 ha node心跳   pipelineId [select load] task心跳 以及任务停止以及重启
+
+
+5 
+
+
+
+
