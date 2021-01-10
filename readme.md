@@ -223,7 +223,10 @@ SwapDBCommand
 4 构建 ha node心跳   pipelineId [select load] task心跳 以及任务停止以及重启
 
 
-5 
+5 redis auth   启动从ip到端口级别
+
+
+
 
 
 
