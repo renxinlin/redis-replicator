@@ -17,6 +17,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ManagerConfiguration {
 
+
+
     /**
      * rpc 通信工具 采用注册通信
      *
@@ -37,7 +39,7 @@ public class ManagerConfiguration {
 
     @Bean(initMethod = "initial", destroyMethod = "destory")
     public DubboCommunicationEndpoint dubboCommunicationEndpoint() {
-        DubboCommunicationEndpoint dubboCommunicationEndpoint = new DubboCommunicationEndpoint();
+        DubboCommunicationEndpoint dubboCommunicationEndpoint = new DubboCommunicationEndpoint(Configs.dubboManangerPort);
         return dubboCommunicationEndpoint;
     }
 

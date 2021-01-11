@@ -6,7 +6,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.utils.CloseableUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
@@ -183,5 +183,17 @@ public class ZKclient {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<String> getChild(String parent) {
+        try {
+            List<String> path = client.getChildren().forPath(parent);
+            return path;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+
     }
 }

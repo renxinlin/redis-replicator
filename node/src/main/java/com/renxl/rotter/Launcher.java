@@ -27,7 +27,7 @@ public class Launcher {
         // 关闭处理
         Runtime.getRuntime().addShutdownHook(new Thread(() -> manager.stop()));
 
-
+        System.out.println("start over");
 
 
 

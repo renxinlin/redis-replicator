@@ -34,35 +34,41 @@ public interface CommunicationClient {
     public void destory();
 
     /**
-     *  单地址调用
+     * 单地址调用
+     *
      * @param addr
      * @param event
      * @return
      */
-    public Object call(final String addr, final Event event);
+    Object call(final String addr, int port, final Event event);
 
     /**
      * 单地址调用携带回调函数
+     *
      * @param addr
      * @param event
      * @param callback
      */
-    public void call(final String addr, Event event, final Callback callback);
+    void call(final String addr,  int port, Event event, final Callback callback);
 
     /**
      * 多地址 调用
+     *
      * @param addrs
      * @param event
      * @return
      */
-    public Object call(final String[] addrs, final Event event);
+    @Deprecated
+    Object call(final String[] addrs, int port, final Event event);
 
     /**
      * 多地址调用携带回调函数
+     *
      * @param serveraddrs
      * @param event
      * @param callback
      */
-    public void call(final String[] serveraddrs, final Event event, final Callback callback);
+    @Deprecated
+    void call(final String[] serveraddrs, int port, final Event event, final Callback callback);
 
 }

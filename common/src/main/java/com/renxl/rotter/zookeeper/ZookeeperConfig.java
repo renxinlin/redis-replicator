@@ -17,8 +17,7 @@ public class ZookeeperConfig  {//implements ApplicationContextAware {
 
 
 
-    @Value("${zk.register.address}")
-    private String address;
+    private String address = "127.0.0.1:2181";
     /**
      * select准备就绪事件
      * ${0} pipelineId
@@ -36,6 +35,7 @@ public class ZookeeperConfig  {//implements ApplicationContextAware {
      * manager master占用路径
      */
     public static final String managerMaster = "/rotter/manager";
+    public static final String nodeAddress = "/rotter/node";
 
     public static final String managerMasterParent = "/rotter";
 
@@ -51,7 +51,7 @@ public class ZookeeperConfig  {//implements ApplicationContextAware {
     // pipelineWindowSize
     public static final String pipelineWindowTemp = "/rotter/window/{0}/";
 
-    private static ZookeeperConfig zookeeperConfig  ;
+    private static ZookeeperConfig zookeeperConfig = new ZookeeperConfig() ;
 
     public static ZookeeperConfig getInstance() {
         return zookeeperConfig;

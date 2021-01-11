@@ -1,6 +1,7 @@
 package com.renxl.rotter.register;
 
 import com.renxl.rotter.common.AddressUtils;
+import com.renxl.rotter.config.Configs;
 import com.renxl.rotter.zookeeper.ZKclient;
 import com.renxl.rotter.zookeeper.ZookeeperConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,7 @@ public class RegisterrWatcher {
             if (!ZKclient.instance.isNodeExist(managerMasterParent)) {
                 ZKclient.instance.createNode(managerMasterParent, null);
             }
-            ZKclient.instance.createEphemeral(ZookeeperConfig.managerMaster, hostAddress);
+            ZKclient.instance.createEphemeral(ZookeeperConfig.managerMaster, hostAddress+":"+ Configs.dubboManangerPort);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -53,7 +54,7 @@ public class RegisterrWatcher {
                             switch (event.getType()) {
                                 case CHILD_REMOVED:
                                     try {
-                                        ZKclient.instance.createEphemeral(ZookeeperConfig.managerMaster, hostAddress);
+                                        ZKclient.instance.createEphemeral(ZookeeperConfig.managerMaster, hostAddress+hostAddress+":"+ Configs.dubboManangerPort);
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }

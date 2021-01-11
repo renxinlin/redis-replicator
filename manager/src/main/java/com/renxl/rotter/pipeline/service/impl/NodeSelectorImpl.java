@@ -1,5 +1,6 @@
 package com.renxl.rotter.pipeline.service.impl;
 
+import com.renxl.rotter.config.Configs;
 import com.renxl.rotter.pipeline.service.INodeSelector;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.events.PingEvent;
@@ -36,7 +37,7 @@ public class NodeSelectorImpl implements INodeSelector {
         Collections.shuffle(nodes);
         lastRuningNode = nodes.get(0);
         try {
-            PongResponse pongResponse = (PongResponse) communicationClient.call(lastRuningNode, new PingEvent());
+            PongResponse pongResponse = (PongResponse) communicationClient.call(lastRuningNode, Configs.dubboNodePort, new PingEvent());
             return lastRuningNode;
         } catch (Exception e) {
             log.error("send ping to ["+lastRuningNode+"] no response [pong]",e);

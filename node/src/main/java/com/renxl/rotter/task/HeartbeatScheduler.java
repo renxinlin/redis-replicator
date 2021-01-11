@@ -3,6 +3,8 @@ package com.renxl.rotter.task;
 import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.config.HeartBeatConfig;
+import com.renxl.rotter.manager.ManagerInfo;
+import com.renxl.rotter.manager.MetaManager;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.NodeHeartEvent;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -48,9 +50,10 @@ public class HeartbeatScheduler  {
         // 心跳15秒一次 超时 60秒   [类似eureka] 后期将这些都配置化
         executors.scheduleAtFixedRate(()->{
             // 获取当前的manager信息
-            String manager = CompomentManager.getInstance().getMetaManager().getManager().getManagerAddress();
+            ManagerInfo manager = CompomentManager.getInstance().getMetaManager().getManager();
+
             CommunicationClient communicationClient = CompomentManager.getInstance().getCommunicationClient();
-            communicationClient.call(manager, new NodeHeartEvent(AddressUtils.getHostAddress().getHostAddress()));
+            communicationClient.call(manager.getManagerAddress(),manager.getPort(), new NodeHeartEvent(AddressUtils.getHostAddress().getHostAddress()));
 
         },10*1000, HeartBeatConfig.heartBeatTime, TimeUnit.MILLISECONDS);
     }

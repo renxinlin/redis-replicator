@@ -1,6 +1,7 @@
 package com.renxl.rotter.pipeline.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.renxl.rotter.config.Configs;
 import com.renxl.rotter.pipeline.domain.PipelineNodeInfo;
 import com.renxl.rotter.pipeline.domain.PipelineTaskReading;
 import com.renxl.rotter.pipeline.mapper.PipelineTaskReadingMapper;
@@ -37,8 +38,8 @@ public class RpcPermitServiceImpl extends ServiceImpl<PipelineTaskReadingMapper,
     public void permit(Integer pipelineId) {
         PipelineNodeInfo nodeInfo = iPipelineNodeInfoService.getOne(iPipelineNodeInfoService.lambdaQuery().eq(PipelineNodeInfo::getPipelineId, pipelineId).getWrapper());
         // 许可 select load 两个节点执行任务
-        communicationClient.call(nodeInfo.getLastSelectNode(), new SelectPermitEvent(pipelineId, nodeInfo.getLastSelectNode()));
-        communicationClient.call(nodeInfo.getLastLoadNode(), new LoadPermitEvent(pipelineId, nodeInfo.getLastLoadNode()));
+        communicationClient.call(nodeInfo.getLastSelectNode(), Configs.dubboNodePort,new SelectPermitEvent(pipelineId, nodeInfo.getLastSelectNode()));
+        communicationClient.call(nodeInfo.getLastLoadNode(),Configs.dubboNodePort, new LoadPermitEvent(pipelineId, nodeInfo.getLastLoadNode()));
 
 
     }

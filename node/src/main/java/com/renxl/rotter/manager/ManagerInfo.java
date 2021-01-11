@@ -13,4 +13,5 @@ public class ManagerInfo {
      * rpc默认端口6666
      */
     private String managerAddress;
+    private int port;
 }

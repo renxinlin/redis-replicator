@@ -1,6 +1,7 @@
 package com.renxl.rotter.sel;
 
 import com.renxl.rotter.config.CompomentManager;
+import com.renxl.rotter.config.HeartBeatConfig;
 import com.renxl.rotter.rpcclient.events.GetExtractBatchEvents;
 
 /**
@@ -20,8 +21,8 @@ public class PipeImpl implements Pipe {
             // 内存调用
             selectorBatchEvent = CompomentManager.getInstance().getMetaManager().takeExtractEvent(pipelineId, seqNumber);
         } else {
-            // rpc调用
-            selectorBatchEvent = (SelectorBatchEvent) CompomentManager.getInstance().getCommunicationClient().call(selecterIp, new GetExtractBatchEvents(pipelineId, seqNumber));
+            // rpc调用 todo 端口问题
+            selectorBatchEvent = (SelectorBatchEvent) CompomentManager.getInstance().getCommunicationClient().call(selecterIp, HeartBeatConfig.dubboPort, new GetExtractBatchEvents(pipelineId, seqNumber));
         }
 
         return selectorBatchEvent;

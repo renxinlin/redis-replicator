@@ -44,13 +44,13 @@ public class DubboCommunicationEndpoint extends AbstractCommunicationEndpoint {
     private ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getExtension("javassist");
 
     private Exporter<CommunicationEndpoint> exporter = null;
-    private int port = DefaultCommunicationClientImpl.DEFAULT_PORT;
 
-    public DubboCommunicationEndpoint() {
+    private int port;
 
-    }
+
 
     public DubboCommunicationEndpoint(int port) {
+        // todo 添加端口自动探测功能
         this.port = port;
     }
 

@@ -1,9 +1,6 @@
 package com.renxl.rotter.config;
 
-import com.renxl.rotter.manager.MetaManager;
-import com.renxl.rotter.manager.MetaManagerWatcher;
-import com.renxl.rotter.manager.WindowManager;
-import com.renxl.rotter.manager.WindowManagerWatcher;
+import com.renxl.rotter.manager.*;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.impl.CommunicationConnectionFactory;
 import com.renxl.rotter.rpcclient.impl.DefaultCommunicationClientImpl;
@@ -22,16 +19,16 @@ import com.renxl.rotter.task.TaskServiceListener;
 public class CompomentBuilder {
 
 
-    public static  CompomentManager bulid(){
-        CompomentManager instance = CompomentManager.getInstance();
+    public static  CompomentManager bulid(int port){
+        CompomentManager instance =   CompomentManager.newInstance();
         // 构建rpc client
         CommunicationConnectionFactory communicationConnectionFactory = new DubboCommunicationConnectionFactory();
         CommunicationClient communicationClient = new DefaultCommunicationClientImpl(communicationConnectionFactory);
         // 暴露dubbo服务
-        DubboCommunicationEndpoint dubboCommunicationEndpoint = new DubboCommunicationEndpoint();
+        DubboCommunicationEndpoint dubboCommunicationEndpoint = new DubboCommunicationEndpoint(port);
 
         // 元信息管理器 todo 获取zk上的manager信息 start的get
-        MetaManager manager = new MetaManager();
+        MetaManager manager = new MetaManager(port);
         MetaManagerWatcher metaManagerWatcher = new MetaManagerWatcher();
         instance.setMetaManagerWatcher(metaManagerWatcher);
         instance.setCommunicationClient(communicationClient);
@@ -54,6 +51,9 @@ public class CompomentBuilder {
         Pipe pipe = new PipeImpl();
         instance.setPipe(pipe);
 
+
+        NodeRegister  nodeRegister = new NodeRegister();
+        instance.setNodeRegister(nodeRegister);
         return instance;
     }
 }

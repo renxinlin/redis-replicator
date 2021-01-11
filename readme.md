@@ -228,7 +228,7 @@ SwapDBCommand
 
 6 滑动窗口增加重新发送机制 [目前无法ack则select端会阻塞导致manager重新调度 但还是希望滑动窗口增加重试机制]
 
-
+7 dubbo 端口配置   node dubbo端口 master  6666  dubbo端口6667
 
 # 生产配置项
 

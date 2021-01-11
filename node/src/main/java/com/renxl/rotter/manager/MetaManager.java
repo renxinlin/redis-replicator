@@ -1,13 +1,17 @@
 package com.renxl.rotter.manager;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
+import com.alibaba.fastjson.JSON;
 import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.config.CompomentManager;
+import com.renxl.rotter.config.HeartBeatConfig;
+import com.renxl.rotter.constants.Constants;
 import com.renxl.rotter.domain.RedisMasterInfo;
 import com.renxl.rotter.domain.SelectAndLoadIp;
 import com.renxl.rotter.rpcclient.events.SelectAndLoadIpEvent;
 import com.renxl.rotter.sel.*;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -22,14 +26,21 @@ import java.util.concurrent.ConcurrentMap;
  * @author: renxl
  * @create: 2020-12-28 20:04
  */
+@Slf4j
 @Data
 public class MetaManager {
+
+
+    public MetaManager(int port){
+        this.nodeDubboPort = port;
+    }
 
     /**
      * manager master节点信息
      */
     private ManagerInfo manager;
     private String nodeIp = AddressUtils.getHostAddress().getHostAddress();
+    private int nodeDubboPort ;
 
     /**
      * pipelineid task
@@ -42,7 +53,7 @@ public class MetaManager {
     /**
      * pipelineid 任务当前的select db  用于dbfilter 表示白名单配置
      */
-    private Map<Integer, List<Integer>> pipelineCurrentDb ;
+    private Map<Integer, List<Integer>> pipelineCurrentDb;
 
 
     /**
@@ -54,52 +65,53 @@ public class MetaManager {
     /**
      * pipeLine select and load ip Info
      */
-    private Map<Integer, SelectAndLoadIp> pipelineTaskIps ;
+    private Map<Integer, SelectAndLoadIp> pipelineTaskIps;
 
 
-    private Map<Integer, RedisMasterInfo> redisMasterInfoMap ;
+    private Map<Integer, RedisMasterInfo> redisMasterInfoMap;
 
     /**
-     *
-     *
-     *
-     *                      zkclient--[add batchId]
-     *                       |
-     *                  ------------
-     *                 |            |
-     *                 |            batchId [remove batchId]
-     *                 |            |
-     *             batchId          --> ExtractTask    --->
+     * zkclient--[add batchId]
+     * |
+     * ------------
+     * |            |
+     * |            batchId [remove batchId]
+     * |            |
+     * batchId          --> ExtractTask    --->
      * selectTask --> batchBuffer   --> ExtractTask    ----> ---->
-     *                               --> ExtractTask   ---->
+     * --> ExtractTask   ---->
      *
      * @param Integer pipelineId
      * @param ArrayBlockingQueue rdb aof
      */
-    private ConcurrentMap<Integer, Map<Long,SelectorBatchEvent>> batchBuffer;
+    private ConcurrentMap<Integer, Map<Long, SelectorBatchEvent>> batchBuffer;
 
     /**
      * 原本的设计是buffer 但是为了便于滑动窗口算法按顺序读取
-     *
+     * <p>
      * 这里采用了map
      * 算是偷懒
-     *
+     * <p>
      * 同时由于滑动窗口的保障 这里的Map<Long,SelectorBatchEvent> 不会增的超过并行量 也算是起到大小固定的能力
-     *
-     *
+     * <p>
+     * <p>
      * TODO 改造成阻塞式排序队列
      */
-    private ConcurrentMap<Integer, Map<Long,SelectorBatchEvent>> batchExtractBuffer;
+    private ConcurrentMap<Integer, Map<Long, SelectorBatchEvent>> batchExtractBuffer;
 
 
     public void init() {
 
         String adress = CompomentManager.getInstance().callInitManagerAdress();
         if (StringUtils.isEmpty(adress)) {
-            return;
+            String[] ipAndPort = adress.split(Constants.IP_PORT_SPLIT);
+            manager = new ManagerInfo();
+            manager.setManagerAddress(ipAndPort[0]);
+            manager.setPort(Integer.valueOf(ipAndPort[1]));
+            log.info("manager is [{}]", JSON.toJSONString(manager));
+
         }
-        manager = new ManagerInfo();
-        manager.setManagerAddress(adress);
+
         pipelineTaskIps = new ConcurrentHashMap<>();
         pipelineCurrentDb = new HashMap<>();
         batchBuffer = new ConcurrentHashMap<>();
@@ -110,25 +122,25 @@ public class MetaManager {
 
     public void addEvent(Integer pipelineId, SelectorBatchEvent task) {
         Map<Long, SelectorBatchEvent> seqNumberAndEventBuffer = batchBuffer.getOrDefault(pipelineId, new ConcurrentHashMap<>());
-        seqNumberAndEventBuffer.put(task.getBatchId(),task);
+        seqNumberAndEventBuffer.put(task.getBatchId(), task);
     }
 
 
     public SelectorBatchEvent takeEvent(Integer pipelineId, Long seqNumber) {
-        Map<Long,SelectorBatchEvent> seqNumberAndEventBuffer = batchBuffer.get(pipelineId);
+        Map<Long, SelectorBatchEvent> seqNumberAndEventBuffer = batchBuffer.get(pipelineId);
         return seqNumberAndEventBuffer.remove(seqNumber);
     }
 
 
     public void addExtractEvent(Integer pipelineId, SelectorBatchEvent task) {
         Map<Long, SelectorBatchEvent> seqNumberAndEventBuffer = batchExtractBuffer.getOrDefault(pipelineId, new ConcurrentHashMap<>());
-        seqNumberAndEventBuffer.put(task.getBatchId(),task);
+        seqNumberAndEventBuffer.put(task.getBatchId(), task);
     }
+
     public SelectorBatchEvent takeExtractEvent(Integer pipelineId, Long seqNumber) {
         Map<Long, SelectorBatchEvent> seqNumberAndEventBuffer = batchExtractBuffer.get(pipelineId);
         return seqNumberAndEventBuffer.remove(seqNumber);
     }
-
 
 
     public void addTask(Task task) {
@@ -156,7 +168,7 @@ public class MetaManager {
         pipelineTaskIps.clear();
         pipelineCurrentDb.clear();
         batchBuffer.clear();
-        batchExtractBuffer .clear();
+        batchExtractBuffer.clear();
         pipelineKeyFilter.clear();
     }
 
@@ -167,7 +179,7 @@ public class MetaManager {
     }
 
     public void addIps(SelectAndLoadIpEvent selectAndLoadIpEvent) {
-        pipelineTaskIps.put(selectAndLoadIpEvent.getPipelineId(),new SelectAndLoadIp(selectAndLoadIpEvent.getSelectorIp(),selectAndLoadIpEvent.getLoadIp()));
+        pipelineTaskIps.put(selectAndLoadIpEvent.getPipelineId(), new SelectAndLoadIp(selectAndLoadIpEvent.getSelectorIp(), selectAndLoadIpEvent.getLoadIp()));
 
 
     }
@@ -197,16 +209,16 @@ public class MetaManager {
     }
 
 
-    public boolean matchFilterKeys(Integer pipelineId,String...  filterkeys) {
+    public boolean matchFilterKeys(Integer pipelineId, String... filterkeys) {
         List<String> filters = pipelineKeyFilter.get(pipelineId);
-        if(CollectionUtils.isEmpty(filters)){
+        if (CollectionUtils.isEmpty(filters)) {
             return false;
-        }else {
+        } else {
 
-            for (int i = 0;i<filterkeys.length;i++){
-                for (int j = 0;j< filters.size();j++){
+            for (int i = 0; i < filterkeys.length; i++) {
+                for (int j = 0; j < filters.size(); j++) {
                     boolean match = match(filters.get(j), filterkeys[i]);
-                    if(match){
+                    if (match) {
                         return true;
                     }
                 }
@@ -223,13 +235,13 @@ public class MetaManager {
         return filterRule.startsWith(filterkey);
     }
 
-    public void addPipelineSourceMaster(Integer pipelineId,String master, String port,String auth ) {
+    public void addPipelineSourceMaster(Integer pipelineId, String master, String port, String auth) {
         RedisMasterInfo redisMasterInfo = redisMasterInfoMap.get(pipelineId);
         RedisMasterInfo newRedisMasterInfo = new RedisMasterInfo(master, port, auth);
-        if(redisMasterInfo!=null && redisMasterInfo.equals(newRedisMasterInfo)){
+        if (redisMasterInfo != null && redisMasterInfo.equals(newRedisMasterInfo)) {
             return;
         }
-        redisMasterInfoMap.put(pipelineId,newRedisMasterInfo);
+        redisMasterInfoMap.put(pipelineId, newRedisMasterInfo);
         ExtractTask extractTask = pipelineExctractTasks.get(pipelineId);
         extractTask.onChangeSource(newRedisMasterInfo);
 

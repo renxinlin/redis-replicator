@@ -1,6 +1,7 @@
 package com.renxl.rotter.pipeline.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.renxl.rotter.config.Configs;
 import com.renxl.rotter.pipeline.domain.PipelineNodeInfo;
 import com.renxl.rotter.pipeline.domain.PipelineTaskReading;
 import com.renxl.rotter.pipeline.mapper.PipelineTaskReadingMapper;
@@ -36,13 +37,13 @@ public class SelectAndLoadNodeSendServiceImpl   implements ISelectAndLoadNodeSen
     @Override
     public void sendWhenSelectorReady(Integer pipelineId) {
         PipelineNodeInfo nodeInfo = iPipelineNodeInfoService.getOne(iPipelineNodeInfoService.lambdaQuery().eq(PipelineNodeInfo::getPipelineId, pipelineId).getWrapper());
-        communicationClient.call(nodeInfo.getLastSelectNode(), new SelectAndLoadIpEvent(pipelineId, nodeInfo.getLastSelectNode(),nodeInfo.getLastLoadNode()));
+        communicationClient.call(nodeInfo.getLastSelectNode(), Configs.dubboNodePort, new SelectAndLoadIpEvent(pipelineId, nodeInfo.getLastSelectNode(),nodeInfo.getLastLoadNode()));
     }
 
     @Override
     public void sendWhenLoadReady(Integer pipelineId) {
         PipelineNodeInfo nodeInfo = iPipelineNodeInfoService.getOne(iPipelineNodeInfoService.lambdaQuery().eq(PipelineNodeInfo::getPipelineId, pipelineId).getWrapper());
-        communicationClient.call(nodeInfo.getLastLoadNode(), new SelectAndLoadIpEvent(pipelineId, nodeInfo.getLastSelectNode(),nodeInfo.getLastLoadNode()));
+        communicationClient.call(nodeInfo.getLastLoadNode(), Configs.dubboNodePort, new SelectAndLoadIpEvent(pipelineId, nodeInfo.getLastSelectNode(),nodeInfo.getLastLoadNode()));
 
     }
 

@@ -20,7 +20,7 @@ import java.io.UnsupportedEncodingException;
  * @author: renxl
  * @create: 2020-12-26 22:45
  */
-@Component
+
 @Slf4j
 public class RotterNodeWorkMonitor {
 

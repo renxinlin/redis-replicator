@@ -38,8 +38,8 @@ import java.util.concurrent.*;
 public class DefaultCommunicationClientImpl implements CommunicationClient {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultCommunicationClientImpl.class);
-    // todo 配置化
-    public static final int DEFAULT_PORT = 6666;
+
+
 
     private CommunicationConnectionFactory factory = null;
     private int poolSize = 10;
@@ -75,8 +75,8 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
         executor.shutdown();
     }
 
-    public Object call(final String addr, final Event event) {
-        CommunicationParam params = buildParams(addr);
+    public Object call(final String addr,int port, final Event event) {
+        CommunicationParam params = buildParams(addr,port);
         CommunicationConnection connection = null;
         int count = 0;
         Throwable ex = null;
@@ -103,18 +103,18 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
         throw new CommunicationException("call[" + addr + "] , Event[" + event.toString() + "]", ex);
     }
 
-    public void call(final String addr, final Event event, final Callback callback) {
+    public void call(final String addr, int port,final Event event, final Callback callback) {
         submit(new Runnable() {
 
             @Override
             public void run() {
-                Object obj = call(addr, event);
+                Object obj = call(addr,port,event);
                 callback.call(obj);
             }
         });
     }
 
-    public Object call(final String[] addrs, final Event event) {
+    public Object call(final String[] addrs,int port, final Event event) {
         if (addrs == null || addrs.length == 0) {
             throw new IllegalArgumentException("addrs example: 127.0.0.1:1099");
         }
@@ -127,7 +127,7 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
 
                 @Override
                 public Object call() throws Exception {
-                    return DefaultCommunicationClientImpl.this.call(addr, event);
+                    return DefaultCommunicationClientImpl.this.call(addr,port, event);
                 }
             })));
         }
@@ -179,7 +179,7 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
         }
     }
 
-    public void call(final String[] addrs, final Event event, final Callback callback) {
+    public void call(final String[] addrs,int port, final Event event, final Callback callback) {
         if (addrs == null || addrs.length == 0) {
             throw new IllegalArgumentException("addrs example: 127.0.0.1:1099");
         }
@@ -187,7 +187,7 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
 
             @Override
             public void run() {
-                Object obj = call(addrs, event);
+                Object obj = call(addrs,port, event);
                 callback.call(obj);
             }
         });
@@ -209,7 +209,7 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
 
     // ===================== helper method ==================
 
-    private CommunicationParam buildParams(String addr) {
+    private CommunicationParam buildParams(String addr,int port) {
         CommunicationParam params = new CommunicationParam();
         String[] strs = StringUtils.split(addr, ":");
         if (strs == null) {
@@ -223,7 +223,7 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
             throw new CommunicationException("addr_error", "addr[" + addr + "] is unknow!");
         }
         params.setIp(address.getHostAddress());
-        int port = strs.length == 1 ? DEFAULT_PORT : Integer.valueOf(strs[1]);
+        port = strs.length == 1 ? port : Integer.valueOf(strs[1]);
 
         params.setPort(port);
         return params;

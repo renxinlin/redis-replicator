@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.utils.NamedThreadFactory;
 import com.renxl.rotter.LifeCycle;
 import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.common.IdWorker;
+import com.renxl.rotter.constants.Constants;
 import com.renxl.rotter.manager.*;
 import com.renxl.rotter.rpcclient.CommunicationClient;
 import com.renxl.rotter.rpcclient.events.LoadReadingEvent;
@@ -90,6 +91,9 @@ public class CompomentManager implements LifeCycle {
      */
     private WindowSeqGenerator windowSeqGenerator;
 
+
+    private NodeRegister nodeRegister;
+
     /**
      * 数据传输管道
      * zk只负责滑动窗口协议 监听
@@ -115,7 +119,21 @@ public class CompomentManager implements LifeCycle {
         if (INSTANCE == null) {
             synchronized (CompomentManager.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = CompomentBuilder.bulid();
+                    INSTANCE = CompomentBuilder.bulid(HeartBeatConfig.dubboPort);
+                }
+            }
+        }
+        return INSTANCE;
+    }
+
+
+
+    protected static CompomentManager newInstance() {
+
+        if (INSTANCE == null) {
+            synchronized (CompomentManager.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new CompomentManager();
                 }
             }
         }
@@ -131,6 +149,7 @@ public class CompomentManager implements LifeCycle {
         metaManagerWatcher.init();
         windowManagerWatcher.init();
         windowSeqGenerator.init();
+        nodeRegister.init();
 
     }
 
@@ -142,6 +161,7 @@ public class CompomentManager implements LifeCycle {
         metaManagerWatcher.destory();
         windowManagerWatcher.destory();
         windowSeqGenerator.destory();
+        nodeRegister.destory();
     }
 
 
@@ -167,7 +187,9 @@ public class CompomentManager implements LifeCycle {
      */
     public void onUpdateMeta(String managerAddress) {
         ManagerInfo managerInfo = new ManagerInfo();
-        managerInfo.setManagerAddress(managerAddress);
+        String[] ipAndPort = managerAddress.split(Constants.IP_PORT_SPLIT);
+        managerInfo.setManagerAddress(ipAndPort[0]);
+        managerInfo.setPort(Integer.valueOf(ipAndPort[1]));
         metaManager.setManager(managerInfo);
 
     }
@@ -178,8 +200,9 @@ public class CompomentManager implements LifeCycle {
      * @param pipelineId
      */
     public void callLoadPermit(Integer pipelineId) {
-        String managerAddress = metaManager.getManager().getManagerAddress();
-        communicationClient.call(managerAddress, new LoadReadingEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
+        ManagerInfo manager = metaManager.getManager();
+
+        communicationClient.call(manager.getManagerAddress(),manager.getPort(), new LoadReadingEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
 
     }
 
@@ -189,8 +212,8 @@ public class CompomentManager implements LifeCycle {
      * @param pipelineId
      */
     public void callSelectPermit(Integer pipelineId) {
-        String managerAddress = metaManager.getManager().getManagerAddress();
-        communicationClient.call(managerAddress, new SelectReadingEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
+        ManagerInfo manager = metaManager.getManager();
+        communicationClient.call(manager.getManagerAddress(),manager.getPort(), new SelectReadingEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
 
     }
 
@@ -201,8 +224,8 @@ public class CompomentManager implements LifeCycle {
      * @return
      */
     public RelpInfoResponse callSyncInfo(Integer pipelineId) {
-        String managerAddress = metaManager.getManager().getManagerAddress();
-        RelpInfoResponse relpInfoResponse = (RelpInfoResponse) communicationClient.call(managerAddress, new RelpInfoEvent(pipelineId));
+        ManagerInfo manager = metaManager.getManager();
+        RelpInfoResponse relpInfoResponse = (RelpInfoResponse) communicationClient.call(manager.getManagerAddress(),manager.getPort(), new RelpInfoEvent(pipelineId));
         return relpInfoResponse;
     }
 

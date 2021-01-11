@@ -26,4 +26,7 @@ public class HeartBeatConfig {
     public static int EXCTRACT_DEFAULT_POOL_SIZE = 50;
 
     public static int EXCTRACT_DEFAULT_ACCEPT_COUNT = 100;
+
+
+    public static int dubboPort = 6667;
 }
