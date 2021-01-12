@@ -256,7 +256,6 @@ public class DefaultSelector extends Selector {
 
         @Override
         public void onEvent(SelectorEvent event, long sequence, boolean endOfBatch) {
-            System.out.println("consume");
             arrayBlockingQueue.add(event);
             // disputor 消费 批量发送到[多线程的]extractTask的batch buffer
             try {

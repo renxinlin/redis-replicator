@@ -95,7 +95,7 @@ public class WindowManager {
         String windowData = null;
         try {
             // 需要select生成 不能在当前机器生成
-            windowData = JSON.json(new WindowData(pipelineId, WindowType.l, ip, -1L));
+            windowData = JSON.json(new WindowData(pipelineId, WindowType.s, ip, -1L));
         } catch (IOException e) {
             log.info("json format error");
         }

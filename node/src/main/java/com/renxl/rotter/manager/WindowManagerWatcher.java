@@ -61,8 +61,11 @@ public class WindowManagerWatcher {
             return;
         }
 
+
         String pipelineWindowIdFormat = MessageFormat.format(pipelineWindowId, String.valueOf(pipelineId));
         String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
+
+
 
 
         PathChildrenCache windowWatcher;
@@ -83,8 +86,7 @@ public class WindowManagerWatcher {
                             WindowData windowData = null;
                             try {
 
-                                System.out.println("window------------------------"+windowDataStr);
-                                windowData = JSON.parse(windowDataStr,WindowData.class);
+                                 windowData = JSON.parse(windowDataStr,WindowData.class);
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
@@ -94,13 +96,9 @@ public class WindowManagerWatcher {
                                     break;
 
                                 case CHILD_ADDED:
-                                    System.out.println("window------------------------"+windowDataStr);
-
                                     CompomentManager.getInstance().onUpdateWindow(windowData);
                                     break;
                                 case CHILD_UPDATED:
-                                    System.out.println("window------------------------"+windowDataStr);
-
                                     CompomentManager.getInstance().onUpdateWindow(windowData);
                                     break;
 
@@ -121,6 +119,7 @@ public class WindowManagerWatcher {
             log.error(" get manager error ", e);
         }
 
+
         // select 初始化
         if(parallel!=null){
             try {
@@ -134,20 +133,15 @@ public class WindowManagerWatcher {
                 while (i<parallel) {
                     i++;
                     // 滑动窗口递增值
-                    long batchId = CompomentManager.getInstance().getWindowSeqGenerator().gene(pipelineId);
+                    long batchId =-1L;
+                    WindowData windowData = new WindowData(pipelineId, WindowType.s, AddressUtils.getHostAddress().getHostAddress(), batchId);
+                    CompomentManager.getInstance().onUpdateWindow(windowData);
 
-                    String windowData = JSON.json(new WindowData(pipelineId, WindowType.s, AddressUtils.getHostAddress().getHostAddress(),batchId));
-
-                    ZKclient.instance.createNodeSel(pipelineWindowTempFormat, windowData);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
-
-
-
 
 
     }

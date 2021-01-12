@@ -104,6 +104,16 @@ public class LoadTask extends Task {
         return permit;
     }
 
+    public static void main(String[] args) throws InterruptedException {
+        PriorityBlockingQueue<Long> currentWaitSeqNum = new PriorityBlockingQueue<>(8);
+        currentWaitSeqNum.add(1L);
+        Long take = currentWaitSeqNum.take();
+        System.out.println(1);
+
+          take = currentWaitSeqNum.take();
+        System.out.println(1);
+
+    }
     public void run() {
 
 
@@ -112,8 +122,6 @@ public class LoadTask extends Task {
             while (true) {
                 WindowBuffer loadBuffer = CompomentManager.getInstance().getWindowManager().getLoadBuffer(getPipelineId());
                 long seqNumber = loadBuffer.get();
-                System.out.println("load"+seqNumber);
-
                 currentWaitSeqNum.add(seqNumber);
             }
         });
@@ -125,7 +133,6 @@ public class LoadTask extends Task {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println("load1"+seqNumber);
 
                 if (currentSeqNum.get() == seqNumber) {
                     // tcp就绪队列
@@ -157,8 +164,6 @@ public class LoadTask extends Task {
             try {
                 // 通过上述的处理确保滑动窗口并发能力和有序性
                 Long seqNumber = currentReadySeqNum.take();
-                System.out.println("load2"+seqNumber);
-
                 // 自动识别基于内存进行管道传输还是基于rpc进行管道传输
                 SelectorBatchEvent selectBatchEvent = CompomentManager.getInstance().getPipe().getSelectBatchEvent(getPipelineId(), seqNumber);
                 List<SelectorEvent> selectorEvents = selectBatchEvent.getSelectorEvent();

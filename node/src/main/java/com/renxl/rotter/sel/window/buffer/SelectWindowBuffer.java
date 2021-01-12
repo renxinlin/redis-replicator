@@ -1,9 +1,6 @@
 package com.renxl.rotter.sel.window.buffer;
 
-import com.renxl.rotter.sel.window.Window;
-import com.renxl.rotter.sel.window.WindowType;
-
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * @description:
@@ -14,7 +11,7 @@ public class SelectWindowBuffer extends WindowBuffer {
     /**
      * 滑动窗口的大小
      */
-    private ArrayBlockingQueue<Long> arrayBlockingQueue  = new ArrayBlockingQueue(1024);
+    private PriorityBlockingQueue<Long> arrayBlockingQueue = new PriorityBlockingQueue(1024);
 
 
     @Override
@@ -35,12 +32,7 @@ public class SelectWindowBuffer extends WindowBuffer {
 
     @Override
     public long put(long batchId) {
-        try {
-
-            arrayBlockingQueue.put(batchId);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        arrayBlockingQueue.add(batchId);
         return batchId;
     }
 }
