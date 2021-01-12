@@ -54,11 +54,11 @@ public class PipelineTaskReading implements Serializable {
     private Long deleteTimestamp = 0L ;
 
 
-    public boolean isLoadReading() {
+    public boolean hasLoadReading() {
         return reading.equals(loadReading);
     }
 
-    public boolean isselectReading() {
+    public boolean hasSelectReading() {
         return reading.equals(selectReading);
     }
 

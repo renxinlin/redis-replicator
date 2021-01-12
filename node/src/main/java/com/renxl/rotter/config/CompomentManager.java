@@ -107,7 +107,6 @@ public class CompomentManager implements LifeCycle {
     private int acceptCount = EXCTRACT_DEFAULT_ACCEPT_COUNT;
     private String name = "rotter-extract";
 
-    private IdWorker idWorker = new IdWorker();
 
 
     private CompomentManager() {

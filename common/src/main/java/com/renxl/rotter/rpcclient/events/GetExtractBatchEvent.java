@@ -9,14 +9,14 @@ import lombok.Data;
  * @create: 2021-01-07 18:59
  */
 @Data
-public class GetExtractBatchEvents extends Event {
+public class GetExtractBatchEvent extends Event {
 
     private Integer pipelineId;
 
     private Long seqNumber;
 
-    public GetExtractBatchEvents(Integer pipelineId,Long seqNumber ) {
-        super(TaskEventType.getExtractBatchEvents);
+    public GetExtractBatchEvent(Integer pipelineId, Long seqNumber ) {
+        super(TaskEventType.getExtractBatch);
         this.pipelineId = pipelineId;
         this.seqNumber = seqNumber;
     }

@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *
+ *
+ *
+ *
+ * 判断一个业务key是不是回环key
  * 业务系统在A机房redis-A写入指令 set a 1
  * A机房replicator-A作为redis-A的从节点接收到指令set a 1
  * rotter-A MD5(set a 1) 得到circle-key-md5，拼装成指令setex circle-key-md5 120 1

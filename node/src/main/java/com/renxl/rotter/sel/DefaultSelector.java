@@ -39,6 +39,7 @@ import static com.renxl.rotter.config.CompomentManager.getInstance;
 public class DefaultSelector extends Selector {
 
 
+
     SelectorParam param;
     Replicator r;
     int retry = 0;
@@ -70,7 +71,7 @@ public class DefaultSelector extends Selector {
         String[] redisInfo = replicationInfo.split("\r\n");
         String roleInfo = redisInfo[1].split(":")[1];
         String master = roleInfo.equals("master") ? null : redisInfo[2].split(":")[1];
-        master = master == null ? redisUrl : master;
+        master = master == null ? redisUrl.split(Constants.IP_PORT_SPLIT)[0] : master;
         return master;
     }
 
@@ -86,6 +87,7 @@ public class DefaultSelector extends Selector {
                     r.open();
                     log.info("open times " + retry);
                 } catch (IOException e) {
+                    e.printStackTrace();
                     // 构建同步信息
                     sync();
                     // 开始aof rdb 复制
@@ -120,7 +122,7 @@ public class DefaultSelector extends Selector {
         String sourceUri = param.getSourceRedises();
         String redisUrl = sourceUri.split(Constants.MULT_NODE_SPLIT)[0];
         String port = redisUrl.split(Constants.IP_PORT_SPLIT).length == 1 ? "6379" : redisUrl.split(Constants.IP_PORT_SPLIT)[1];
-        Jedis jedis = new Jedis(redisUrl);
+        Jedis jedis = new Jedis("redis://" + redisUrl);
         String master = buildMasterAddress(redisUrl, jedis);
         CompomentManager.getInstance().getMetaManager().addPipelineSourceMaster(param.getPipelineId(), master, port, null);
         jedis.close();

@@ -118,6 +118,7 @@ public class MetaManager {
         batchBuffer = new ConcurrentHashMap<>();
         batchExtractBuffer = new ConcurrentHashMap<>();
         pipelineKeyFilter = new HashMap<>();
+        redisMasterInfoMap = new HashMap<>();
 
     }
 

@@ -21,8 +21,8 @@ public class TaskServiceListener {
 
         CommunicationRegistry.regist(TaskEventType.selectTask, this);
         CommunicationRegistry.regist(TaskEventType.loadTask, this);
-        CommunicationRegistry.regist(TaskEventType.selectAndLoadIpEvent, this);
-        CommunicationRegistry.regist(TaskEventType.getExtractBatchEvents, this);
+        CommunicationRegistry.regist(TaskEventType.selectAndLoadIp, this);
+        CommunicationRegistry.regist(TaskEventType.getExtractBatch, this);
         CommunicationRegistry.regist(TaskEventType.ping, this);
 
 
@@ -92,7 +92,7 @@ public class TaskServiceListener {
      *
      * @param selectAndLoadIpEvent
      */
-    public void onSelectAndLoadIpEvent(SelectAndLoadIpEvent selectAndLoadIpEvent) {
+    public void onSelectAndLoadIp(SelectAndLoadIpEvent selectAndLoadIpEvent) {
         getInstance().getMetaManager().addIps(selectAndLoadIpEvent);
     }
 
@@ -128,7 +128,7 @@ public class TaskServiceListener {
      * @param event
      * @return
      */
-    public SelectorBatchEvent onGetExtractBatchEvents(GetExtractBatchEvents event) {
+    public SelectorBatchEvent onGetExtractBatchEvent(GetExtractBatchEvent event) {
         SelectorBatchEvent selectorBatchEvent = getInstance().getMetaManager().takeExtractEvent(event.getPipelineId(), event.getSeqNumber());
         return selectorBatchEvent;
     }

@@ -48,9 +48,8 @@ public class ExtractTask extends Task {
         while (findRedis!=null ){
             if(findRedis instanceof AofParseEventFilter){
                 ((AofParseEventFilter) findRedis).initRedis(newRedisMasterInfo);
-            }else {
-                findRedis = findRedis.getNext();
             }
+            findRedis = findRedis.getNext();
         }
     }
 
@@ -77,23 +76,29 @@ public class ExtractTask extends Task {
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
 
-        /**
-         * 构建extract的核心工作
-         *
-         * 过滤掉回环指令和删除保护指令
-         * 过滤掉不需要同步的KEY
-         * 过滤掉不需要同步的DB
-         *
-         * 过滤掉特殊指令
-         *
-         */
 
-        filter = new AofCommandFilter();
-        AofAndRdbDbFilter aofAndRdbDbFilter = new AofAndRdbDbFilter();
-        AofKeyFilter aofKeyFilter = new AofKeyFilter();
-        filter.setNext(aofAndRdbDbFilter);
-        aofAndRdbDbFilter.setNext(aofKeyFilter);
+        // 过滤回环key
+        AofParseEventFilter aofParseEventFilter = new AofParseEventFilter();
 
+        // 回环和数据删除保护标记过滤
+        AofCircleFlagFilter aofCircleFlagFilter = new AofCircleFlagFilter();
+        aofCircleFlagFilter.setNext(aofParseEventFilter);
+
+        // 过滤配置的key
+        KeyFilter keyFilter = new KeyFilter();
+        keyFilter.setNext(aofCircleFlagFilter);
+
+        // 过滤不在配置中的db
+        DbFilter dbFilter = new DbFilter();
+        dbFilter.setNext(keyFilter);
+
+        // 过滤flushDb等风险性命令
+        AofCommandFilter aofCommandFilter  = new AofCommandFilter();
+        aofCommandFilter.setNext(dbFilter);
+
+        // 过滤 todo master 传向 slave slave不传向
+        filter = new RdbDumpFilter();
+        filter.setNext(aofCommandFilter);
 
 
     }

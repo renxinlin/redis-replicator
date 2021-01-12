@@ -17,10 +17,7 @@ import java.util.stream.Collectors;
  * @author: renxl
  * @create: 2021-01-05 14:28
  */
-public  class AofAndRdbDbFilter extends Filter {
-
-    //
-
+public  class DbFilter extends Filter {
 
 
     @Override

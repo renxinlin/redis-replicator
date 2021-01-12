@@ -2,7 +2,7 @@ package com.renxl.rotter.sel;
 
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.config.HeartBeatConfig;
-import com.renxl.rotter.rpcclient.events.GetExtractBatchEvents;
+import com.renxl.rotter.rpcclient.events.GetExtractBatchEvent;
 
 /**
  * 通过管道拉取 sedg
@@ -22,7 +22,7 @@ public class PipeImpl implements Pipe {
             selectorBatchEvent = CompomentManager.getInstance().getMetaManager().takeExtractEvent(pipelineId, seqNumber);
         } else {
             // rpc调用 todo 端口问题
-            selectorBatchEvent = (SelectorBatchEvent) CompomentManager.getInstance().getCommunicationClient().call(selecterIp, HeartBeatConfig.dubboPort, new GetExtractBatchEvents(pipelineId, seqNumber));
+            selectorBatchEvent = (SelectorBatchEvent) CompomentManager.getInstance().getCommunicationClient().call(selecterIp, HeartBeatConfig.dubboPort, new GetExtractBatchEvent(pipelineId, seqNumber));
         }
 
         return selectorBatchEvent;

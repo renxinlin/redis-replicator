@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * @create: 2021-01-05 14:28
  */
 @Slf4j
-public class AofKeyFilter extends Filter {
+public class KeyFilter extends Filter {
 
 
     @Override

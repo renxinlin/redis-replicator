@@ -173,7 +173,7 @@ public class ZKclient {
             if(path!=null && path.size()>0){
                 path.forEach(p-> {
                     try {
-                        client.delete().forPath(p);
+                        client.delete().forPath(pipelineWindowIdFormat+"/"+p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

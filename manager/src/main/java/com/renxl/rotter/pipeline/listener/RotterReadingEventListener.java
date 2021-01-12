@@ -47,13 +47,14 @@ public class RotterReadingEventListener {
         LambdaQueryWrapper<PipelineTaskReading> queryByPipelineId = PipelineTaskReadingQueryWrapper.buildQuery(event.getPipelineId());
         PipelineTaskReading pipelineTaskReading = taskReadingService.getOne(queryByPipelineId);
         if (pipelineTaskReading == null) {
+            pipelineTaskReading = new PipelineTaskReading();
             pipelineTaskReading.initSelectReading(event.getPipelineId());
             taskReadingService.getBaseMapper().insert(pipelineTaskReading);
             return;
         }
         taskReadingService.updateById(pipelineTaskReading);
         // 准备完毕则许可node节点进行工作
-        boolean loadReading = pipelineTaskReading.isLoadReading();
+        boolean loadReading = pipelineTaskReading.hasLoadReading();
         // 更新节点相关信息
         selectAndLoadNodeSendService.sendWhenSelectorReady(event.getPipelineId());
         if (loadReading) {
@@ -70,6 +71,7 @@ public class RotterReadingEventListener {
         LambdaQueryWrapper<PipelineTaskReading> queryByPipelineId = PipelineTaskReadingQueryWrapper.buildQuery(event.getPipelineId());
         PipelineTaskReading pipelineTaskReading = taskReadingService.getOne(queryByPipelineId);
         if (pipelineTaskReading == null) {
+            pipelineTaskReading = new PipelineTaskReading();
             pipelineTaskReading.initLoadReading(event.getPipelineId());
             taskReadingService.getBaseMapper().insert(pipelineTaskReading);
             return;
@@ -78,7 +80,7 @@ public class RotterReadingEventListener {
         // 更新节点相关信息
         selectAndLoadNodeSendService.sendWhenLoadReady(event.getPipelineId());
         // 准备完毕则许可node节点进行工作
-        boolean selectReading = pipelineTaskReading.isselectReading();
+        boolean selectReading = pipelineTaskReading.hasSelectReading();
         if (selectReading) {
             permitService.permit(event.getPipelineId());
             taskReadingService.getBaseMapper().deleteById(pipelineTaskReading.getId());

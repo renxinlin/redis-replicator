@@ -61,16 +61,16 @@ public class WindowManagerWatcher {
             return;
         }
 
+        String pipelineWindowIdFormat = MessageFormat.format(pipelineWindowId, String.valueOf(pipelineId));
+        String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
         // select 初始化
         if(parallel!=null){
-            String pipelineWindowIdFormat = MessageFormat.format(pipelineWindowId, String.valueOf(pipelineId));
-            String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
             try {
-                if (!ZKclient.instance.isNodeExist(pipelineWindowId)) {
-                    ZKclient.instance.createNode(pipelineWindowId, null);
+                if (!ZKclient.instance.isNodeExist(pipelineWindowIdFormat)) {
+                    ZKclient.instance.createNode(pipelineWindowIdFormat, null);
+                }else {
+                    ZKclient.instance.deleteChild(pipelineWindowIdFormat);
                 }
-                // TODO 测试
-                ZKclient.instance.deleteChild(pipelineWindowIdFormat);
                 int i = 0;
                 // 创建滑动窗口大小
                 while (i<parallel) {
@@ -94,8 +94,7 @@ public class WindowManagerWatcher {
 
         try {
             // 创建了一个单线程池
-
-            windowWatcher = new PathChildrenCache(client, managerMasterParent, true);
+            windowWatcher = new PathChildrenCache(client, pipelineWindowIdFormat, true);
             PathChildrenCacheListener childrenCacheListener =
                     // 单线程！！！ 这里采用单线程来简化这个服务发现 注册的复杂性 从而保障正确性
                     new PathChildrenCacheListener() {
@@ -107,6 +106,8 @@ public class WindowManagerWatcher {
                             String windowDataStr = new String(data.getData());
                             WindowData windowData = null;
                             try {
+
+                                System.out.println("window------------------------"+windowDataStr);
                                 windowData = JSON.parse(windowDataStr,WindowData.class);
                             } catch (ParseException e) {
                                 e.printStackTrace();

@@ -11,5 +11,8 @@ public  class RdbDumpFilter extends Filter {
     @Override
     protected void executeFilterJob(SelectorBatchEvent selectorBatchEvent) {
 
+
+        // TODO  主机房 db 发往  备机房
+
     }
 }

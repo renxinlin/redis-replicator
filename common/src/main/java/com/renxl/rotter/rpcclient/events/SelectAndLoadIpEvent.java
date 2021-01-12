@@ -18,7 +18,7 @@ public class SelectAndLoadIpEvent extends Event {
     public SelectAndLoadIpEvent(Integer pipelineId,
                                 String selectorIp,
                                 String loadIp) {
-        super(TaskEventType.selectAndLoadIpEvent);
+        super(TaskEventType.selectAndLoadIp);
         this.pipelineId = pipelineId;
         this.selectorIp = selectorIp;
         this.loadIp = loadIp;
