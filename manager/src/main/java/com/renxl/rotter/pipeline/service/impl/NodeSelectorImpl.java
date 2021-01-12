@@ -30,7 +30,7 @@ public class NodeSelectorImpl implements INodeSelector {
         if (CollectionUtils.isEmpty(nodes)) {
             return null;
         }
-        if(StringUtils.isEmpty(lastRuningNode)){
+        if(!StringUtils.isEmpty(lastRuningNode)){
             nodes.remove(lastRuningNode);
         }
         // 使得所有的节点随机的进行工作

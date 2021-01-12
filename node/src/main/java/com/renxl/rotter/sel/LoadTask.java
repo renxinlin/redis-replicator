@@ -21,10 +21,7 @@ import redis.clients.jedis.Protocol;
 
 import java.util.List;
 import java.util.TreeSet;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -70,14 +67,14 @@ public class LoadTask extends Task {
          * 滑动窗口阻塞队列处理器
          */
         waitSeqProcessor = new ThreadPoolExecutor(1, 1, 60, TimeUnit.SECONDS,
-                new ArrayBlockingQueue(0), new NamedThreadFactory("load-window-wait-" + pipelineId),
+                  new SynchronousQueue(), new NamedThreadFactory("load-window-wait-" + pipelineId),
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
         /**
          * 滑动窗口就绪队列处理器
          */
         readySeqProcessor = new ThreadPoolExecutor(1, 1, 60, TimeUnit.SECONDS,
-                new ArrayBlockingQueue(0), new NamedThreadFactory("load-window-ready-" + pipelineId),
+                  new SynchronousQueue(), new NamedThreadFactory("load-window-ready-" + pipelineId),
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
         loadMarkFilter = new LoadMarkFilter();

@@ -7,10 +7,7 @@ import com.renxl.rotter.domain.SelectAndLoadIp;
 import com.renxl.rotter.sel.extract.*;
 import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static com.renxl.rotter.config.CompomentManager.getInstance;
 
@@ -69,9 +66,14 @@ public class ExtractTask extends Task {
         this.setPipelineId(pipelineId);
         /**
          * node节点配置的extracttask线程池的大小
+         *
+         *  queues == 0 ? new SynchronousQueue<Runnable>() :
+         *                         (queues < 0 ? new LinkedBlockingQueue<Runnable>()
+         *                                 : new LinkedBlockingQueue<Runnable>(queues)),
+         *
          */
         extractThreads = new ThreadPoolExecutor(parallelism, parallelism, 60, TimeUnit.SECONDS,
-                new ArrayBlockingQueue(0), new NamedThreadFactory("extract-pipelineId-" + pipelineId),
+                new SynchronousQueue(), new NamedThreadFactory("extract-pipelineId-" + pipelineId),
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
 

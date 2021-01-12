@@ -18,7 +18,7 @@ public class Configs {
 
 
     public   static  int dubboManangerPort = 6666;
-    public   static  int dubboNodePort = 6666;
+    public   static  int dubboNodePort = 6667;
 
 
 

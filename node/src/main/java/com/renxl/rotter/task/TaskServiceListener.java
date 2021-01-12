@@ -23,8 +23,13 @@ public class TaskServiceListener {
         CommunicationRegistry.regist(TaskEventType.loadTask, this);
         CommunicationRegistry.regist(TaskEventType.selectAndLoadIpEvent, this);
         CommunicationRegistry.regist(TaskEventType.getExtractBatchEvents, this);
+        CommunicationRegistry.regist(TaskEventType.ping, this);
 
 
+    }
+
+    public PongResponse onPing(PingEvent pingEvent) {
+        return new PongResponse();
     }
 
     /**

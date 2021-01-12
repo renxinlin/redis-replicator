@@ -39,6 +39,7 @@ public class RotterReadingEventListener {
     RotterReadingEventListener() {
         CommunicationRegistry.regist(TaskEventType.selectReading, this);
         CommunicationRegistry.regist(TaskEventType.loadReading, this);
+        CommunicationRegistry.regist(TaskEventType.relpInfo, this);
     }
 
 
@@ -95,11 +96,15 @@ public class RotterReadingEventListener {
         PipelineSyncInfo syncInfo = syncInfoService.getOne(syncInfoService.lambdaQuery().eq(PipelineSyncInfo::getPipelineId, pipelineId).getWrapper());
         RelpInfoResponse relpInfoResponse = new RelpInfoResponse();
         if(syncInfo!=null){
-            relpInfoResponse.setOffset(syncInfo.getOffset());
             relpInfoResponse.setPipelineId(syncInfo.getPipelineId());
             relpInfoResponse.setReplid(syncInfo.getReplid());
             relpInfoResponse.setReplJson(syncInfo.getReplJson());
             relpInfoResponse.setOffset(syncInfo.getOffset());
+        }else {
+            relpInfoResponse.setPipelineId(event.getPipelineId().longValue());
+            relpInfoResponse.setReplid(null);
+            relpInfoResponse.setReplJson(null);
+            relpInfoResponse.setOffset(null);
         }
 
         return relpInfoResponse;

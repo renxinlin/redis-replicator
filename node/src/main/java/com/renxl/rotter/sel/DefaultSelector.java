@@ -19,6 +19,7 @@ import com.renxl.rotter.rpcclient.events.RelpInfoResponse;
 import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
@@ -26,7 +27,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.LockSupport;
 
 import static com.renxl.rotter.config.CompomentManager.getInstance;
 
@@ -58,7 +58,7 @@ public class DefaultSelector extends Selector {
          * select一个线程 ack一个线程
          */
         executor = new ThreadPoolExecutor(2, 2, 300, TimeUnit.SECONDS,
-                new ArrayBlockingQueue<>(0),
+                new SynchronousQueue<>(),
                 new DefaultThreadFactory("selector-pipelineId-" + param.getPipelineId()),
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
@@ -75,8 +75,8 @@ public class DefaultSelector extends Selector {
     }
 
     @Override
-    public void open()     {
-        executor.execute(()->{
+    public void open() {
+        executor.execute(() -> {
             retry = 0;
             int retriesFromRedisServerInfo = r.getConfiguration().getRetriesFromRedisServerInfo();
             while (retry < retriesFromRedisServerInfo) {
@@ -93,7 +93,6 @@ public class DefaultSelector extends Selector {
                 }
             }
         });
-
 
 
     }
@@ -120,15 +119,19 @@ public class DefaultSelector extends Selector {
         // 获取新的主从配置信息
         String sourceUri = param.getSourceRedises();
         String redisUrl = sourceUri.split(Constants.MULT_NODE_SPLIT)[0];
-        String port = redisUrl.split(Constants.IP_PORT_SPLIT).length == 1 ? "6379": redisUrl.split(Constants.IP_PORT_SPLIT)[1];
+        String port = redisUrl.split(Constants.IP_PORT_SPLIT).length == 1 ? "6379" : redisUrl.split(Constants.IP_PORT_SPLIT)[1];
         Jedis jedis = new Jedis(redisUrl);
         String master = buildMasterAddress(redisUrl, jedis);
-        CompomentManager.getInstance().getMetaManager().addPipelineSourceMaster(param.getPipelineId(),master,port,null);
+        CompomentManager.getInstance().getMetaManager().addPipelineSourceMaster(param.getPipelineId(), master, port, null);
         jedis.close();
 
         // 通过manager获取复制进度信息
-        RelpInfoResponse relpInfoResponse = getInstance().callSyncInfo(param.getPipelineId());
-        sourceUri = "redis://" + master + ":" + port + "?verbose=yes&retries=10&replId=" + relpInfoResponse.getReplid() + "&replOffset=" + relpInfoResponse.getOffset();
+        RelpInfoResponse relpInfoResponse = param.getRelpInfoResponse();
+        if (relpInfoResponse != null && StringUtils.isEmpty(relpInfoResponse.getReplid()) && StringUtils.isEmpty(relpInfoResponse.getOffset())) {
+            sourceUri = "redis://" + master + ":" + port + "?verbose=yes&replId=" + relpInfoResponse.getReplid() + "&replOffset=" + relpInfoResponse.getOffset();
+        } else {
+            sourceUri = "redis://" + master + ":" + port + "?verbose=yes";
+        }
         RedisURI suri = null;
         try {
             suri = new RedisURI(sourceUri);
@@ -153,7 +156,7 @@ public class DefaultSelector extends Selector {
             @Override
             public void onEvent(Replicator replicator, Event event) {
                 Boolean permit = getInstance().getMetaManager().isPermit(param.getPipelineId());
-                while (!permit){
+                while (!permit) {
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
@@ -175,7 +178,7 @@ public class DefaultSelector extends Selector {
 
                 }
 
-                if(event instanceof SelectCommand){
+                if (event instanceof SelectCommand) {
                     int index = ((SelectCommand) event).getIndex();
                     currentDb.set(index);
                     ((SelectCommand) event).setDbNumber(currentDb.get());
@@ -183,16 +186,16 @@ public class DefaultSelector extends Selector {
 
                 }
 
-                if(event instanceof PingCommand){
+                if (event instanceof PingCommand) {
                     return;
                 }
 
 
-                if(event instanceof ReplConfCommand){
+                if (event instanceof ReplConfCommand) {
                     return;
                 }
                 if (event instanceof DefaultCommand) {
-                     ((DefaultCommand) event).setDbNumber(currentDb.get());
+                    ((DefaultCommand) event).setDbNumber(currentDb.get());
 
                     aof((AbstractCommand) event);
                 }
@@ -241,14 +244,14 @@ public class DefaultSelector extends Selector {
     }
 
 
-
     /**
      * redis - disruptor 复制消费者
      */
 
     class RotterSelectorEventHandler implements EventHandler<SelectorEvent> {
-        ArrayBlockingQueue<SelectorEvent> arrayBlockingQueue = new ArrayBlockingQueue(1024*1024);
+        ArrayBlockingQueue<SelectorEvent> arrayBlockingQueue = new ArrayBlockingQueue(1024 * 1024);
         List buffer = new CopyOnWriteArrayList<>();
+
         @Override
         public void onEvent(SelectorEvent event, long sequence, boolean endOfBatch) {
             arrayBlockingQueue.add(event);
@@ -258,9 +261,9 @@ public class DefaultSelector extends Selector {
                 Queues.drain(arrayBlockingQueue, buffer, 10, 500, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 // todo 堆栈打印指定行数工具
-                log.error(" thread interrupted",e);
+                log.error(" thread interrupted", e);
             }
-            if(!buffer.isEmpty()){
+            if (!buffer.isEmpty()) {
                 Integer pipelineId = param.getPipelineId();
                 WindowBuffer selectWindowBuffer = getInstance().getWindowManager().getSelectBuffer(pipelineId);
                 SelectorBatchEvent selectorBatchEvent = new SelectorBatchEvent();
@@ -270,11 +273,11 @@ public class DefaultSelector extends Selector {
                 long batchId = selectWindowBuffer.get();
 
                 selectorBatchEvent.setBatchId(batchId);
-                CompomentManager.getInstance().getMetaManager().addEvent(pipelineId,selectorBatchEvent);
+                CompomentManager.getInstance().getMetaManager().addEvent(pipelineId, selectorBatchEvent);
                 buffer.clear();
 
                 // 滑动窗口向下传递到Extract Task 通知e task 工作  etask 是核心 消费较慢  允许多线程 同时在load阶段通过滑动窗口序列号保障顺序性
-                getInstance().getWindowManager().singleExtract(pipelineId,batchId);
+                getInstance().getWindowManager().singleExtract(pipelineId, batchId);
 
 
             }

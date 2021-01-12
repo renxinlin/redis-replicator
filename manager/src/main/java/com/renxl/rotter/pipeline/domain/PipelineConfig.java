@@ -89,6 +89,12 @@ public class PipelineConfig implements Serializable {
     private Integer status = stop;
 
 
+    /**
+     * isMaster 表示是否为主机房  rdb 时只会将主机房同步到双活机房 ;
+     */
+    private Integer isMaster;
+
+
     public void start() {
         this.status = start;
     }
@@ -107,7 +113,7 @@ public class PipelineConfig implements Serializable {
         // ip:port 或者ip
         String[] ipAndPort = targetRedis.split(IP_PORT_SPLIT);
         if (ipAndPort.length == 1) {
-            targetRedis += DEFAULT_PORT;
+            targetRedis +=":"+ DEFAULT_PORT;
         }
     }
 

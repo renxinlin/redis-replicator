@@ -103,7 +103,8 @@ public class MetaManager {
     public void init() {
 
         String adress = CompomentManager.getInstance().callInitManagerAdress();
-        if (StringUtils.isEmpty(adress)) {
+
+        if (!StringUtils.isEmpty(adress)) {
             String[] ipAndPort = adress.split(Constants.IP_PORT_SPLIT);
             manager = new ManagerInfo();
             manager.setManagerAddress(ipAndPort[0]);
