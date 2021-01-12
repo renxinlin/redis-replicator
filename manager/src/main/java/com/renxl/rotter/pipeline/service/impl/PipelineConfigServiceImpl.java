@@ -62,11 +62,21 @@ public class PipelineConfigServiceImpl extends ServiceImpl<PipelineConfigMapper,
         PipelineConfig pipelineConfig = baseMapper.selectById(id);
         Asserts.check(!pipelineConfig.isStart(), RotterResponse.BizCodeAndMsg.PIPLINED_STARTED);
 
-        // 获取能够正常启动的load
+
+        PipelineNodeInfo one = iPipelineNodeInfoService.getOne(iPipelineNodeInfoService.lambdaQuery().eq(PipelineNodeInfo::getPipelineId, pipelineConfig.getId()).getWrapper());
+        if(one!=null){
+            iPipelineNodeInfoService.getBaseMapper().deleteById(one.getId());
+        }
+        // 获取能够正常启动的load todo 获取最后的节点 过滤 如果只有一个 就只能选定了
         String selectNode = iNodeSelector.getRuningNode(pipelineConfig.getSelectNodeList(), null);
         String loadNode = iNodeSelector.getRuningNode(pipelineConfig.getLoadNodeList(), null);
         Asserts.check(!StringUtils.isEmpty(selectNode), RotterResponse.BizCodeAndMsg.PING_ERRPR);
         Asserts.check(!StringUtils.isEmpty(loadNode), RotterResponse.BizCodeAndMsg.PING_ERRPR);
+
+        // todo 存储最后执行的机器 如果最后有 则先删除后更新
+        PipelineNodeInfo pipelineNodeInfo = new PipelineNodeInfo();
+        pipelineNodeInfo.init(pipelineConfig.getId(),selectNode,loadNode);
+        iPipelineNodeInfoService.save(pipelineNodeInfo);
 
         // 通知node节点启动准备资源
         communicationClient.call(selectNode, Configs.dubboNodePort, new SelectTaskEvent(pipelineConfig.getId().intValue(),pipelineConfig.getSourceRedises(),pipelineConfig.getParallelism()));
@@ -75,9 +85,7 @@ public class PipelineConfigServiceImpl extends ServiceImpl<PipelineConfigMapper,
         // 此时 同步任务可能在准备中 也可能在执行中; 但是都不允许再次启动
         pipelineConfig.start();
         baseMapper.updateById(pipelineConfig);
-        PipelineNodeInfo pipelineNodeInfo = new PipelineNodeInfo();
-        pipelineNodeInfo.init(pipelineConfig.getId(),selectNode,loadNode);
-        iPipelineNodeInfoService.save(pipelineNodeInfo);
+
 
     }
 

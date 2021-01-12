@@ -42,7 +42,7 @@ public class LoadTask extends Task {
     /**
      * 按照滑动窗口wait队列 有序队列 顺序保障
      */
-    private TreeSet<Long> currentWaitSeqNum;
+    private PriorityBlockingQueue<Long> currentWaitSeqNum;
     /**
      * 滑动窗口就绪队列 先进先出
      */
@@ -57,7 +57,7 @@ public class LoadTask extends Task {
     private JedisPool jedisPool;
 
     public LoadTask(Integer pipelineId, String targetRedis, int parallelism) {
-        currentWaitSeqNum = new TreeSet();
+        currentWaitSeqNum = new PriorityBlockingQueue(2 * parallelism);
         currentReadySeqNum = new ArrayBlockingQueue(2 * parallelism);
         this.setPipelineId(pipelineId);
         this.targetRedis = targetRedis;
@@ -112,12 +112,21 @@ public class LoadTask extends Task {
             while (true) {
                 WindowBuffer loadBuffer = CompomentManager.getInstance().getWindowManager().getLoadBuffer(getPipelineId());
                 long seqNumber = loadBuffer.get();
+                System.out.println("load"+seqNumber);
+
                 currentWaitSeqNum.add(seqNumber);
             }
         });
         readySeqProcessor.execute(() -> {
             while (true) {
-                long seqNumber = currentWaitSeqNum.pollFirst();
+                Long seqNumber = null;
+                try {
+                    seqNumber = currentWaitSeqNum.take();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("load1"+seqNumber);
+
                 if (currentSeqNum.get() == seqNumber) {
                     // tcp就绪队列
                     try {
@@ -148,6 +157,7 @@ public class LoadTask extends Task {
             try {
                 // 通过上述的处理确保滑动窗口并发能力和有序性
                 Long seqNumber = currentReadySeqNum.take();
+                System.out.println("load2"+seqNumber);
 
                 // 自动识别基于内存进行管道传输还是基于rpc进行管道传输
                 SelectorBatchEvent selectBatchEvent = CompomentManager.getInstance().getPipe().getSelectBatchEvent(getPipelineId(), seqNumber);

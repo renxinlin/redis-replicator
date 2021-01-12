@@ -32,9 +32,11 @@ public class WindowSeqGenerator {
      * @return
      */
     public  long gene(Integer pipelineId) {
-        AtomicLong geneoratorBatchId = piplineIdAndSelectTaskGenerator.getOrDefault(pipelineId, new AtomicLong(0));
+        piplineIdAndSelectTaskGenerator.putIfAbsent(pipelineId, new AtomicLong(0));
+        AtomicLong geneoratorBatchId = piplineIdAndSelectTaskGenerator.get(pipelineId);
         return geneoratorBatchId.getAndAdd(1);
 
     }
+
 
 }

@@ -25,6 +25,10 @@ public class TaskServiceListener {
         CommunicationRegistry.regist(TaskEventType.getExtractBatch, this);
         CommunicationRegistry.regist(TaskEventType.ping, this);
 
+        CommunicationRegistry.regist(TaskEventType.selectPermit, this);
+        CommunicationRegistry.regist(TaskEventType.loadPermit, this);
+
+
 
     }
 
@@ -33,6 +37,8 @@ public class TaskServiceListener {
     }
 
     /**
+     *
+     * 启动selectTask
      * selectTask 和extract task 同时构建
      *
      * @param selectTaskEvent
@@ -83,6 +89,7 @@ public class TaskServiceListener {
         loadTask.setPipelineId(pipelineId);
         getInstance().getMetaManager().addTask(loadTask);
 
+        loadTask.start();
         getInstance().callLoadPermit(pipelineId);
         return true;
     }

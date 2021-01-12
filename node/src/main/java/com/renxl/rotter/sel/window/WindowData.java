@@ -3,6 +3,7 @@ package com.renxl.rotter.sel.window;
 import com.renxl.rotter.common.AddressUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -13,6 +14,7 @@ import java.io.Serializable;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class WindowData implements Serializable {
     private Integer pipeLineId;
     private short windowType;

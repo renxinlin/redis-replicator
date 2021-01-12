@@ -67,6 +67,7 @@ public abstract class AbstractCommunicationEndpoint implements CommunicationEndp
                         // 注意这里是远程调用
                         return method.invoke(action, new Object[]{event});
                     } catch (Throwable e) {
+                        e.printStackTrace();
                         throw new CommunicationException("method_invoke_error:" + methodName, e);
                     }
                 } else {

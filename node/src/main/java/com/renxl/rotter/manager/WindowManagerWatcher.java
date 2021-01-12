@@ -63,30 +63,6 @@ public class WindowManagerWatcher {
 
         String pipelineWindowIdFormat = MessageFormat.format(pipelineWindowId, String.valueOf(pipelineId));
         String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
-        // select 初始化
-        if(parallel!=null){
-            try {
-                if (!ZKclient.instance.isNodeExist(pipelineWindowIdFormat)) {
-                    ZKclient.instance.createNode(pipelineWindowIdFormat, null);
-                }else {
-                    ZKclient.instance.deleteChild(pipelineWindowIdFormat);
-                }
-                int i = 0;
-                // 创建滑动窗口大小
-                while (i<parallel) {
-                    i++;
-                    // 滑动窗口递增值
-                    long batchId = CompomentManager.getInstance().getWindowSeqGenerator().gene(pipelineId);
-
-                    String windowData = JSON.json(new WindowData(pipelineId, WindowType.s, AddressUtils.getHostAddress().getHostAddress(),batchId));
-
-                    ZKclient.instance.createNodeSel(pipelineWindowTempFormat, windowData);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
 
 
         PathChildrenCache windowWatcher;
@@ -118,9 +94,13 @@ public class WindowManagerWatcher {
                                     break;
 
                                 case CHILD_ADDED:
+                                    System.out.println("window------------------------"+windowDataStr);
+
                                     CompomentManager.getInstance().onUpdateWindow(windowData);
                                     break;
                                 case CHILD_UPDATED:
+                                    System.out.println("window------------------------"+windowDataStr);
+
                                     CompomentManager.getInstance().onUpdateWindow(windowData);
                                     break;
 
@@ -140,6 +120,34 @@ public class WindowManagerWatcher {
         } catch (Exception e) {
             log.error(" get manager error ", e);
         }
+
+        // select 初始化
+        if(parallel!=null){
+            try {
+                if (!ZKclient.instance.isNodeExist(pipelineWindowIdFormat)) {
+                    ZKclient.instance.createNode(pipelineWindowIdFormat, null);
+                }else {
+                    ZKclient.instance.deleteChild(pipelineWindowIdFormat);
+                }
+                int i = 0;
+                // 创建滑动窗口大小
+                while (i<parallel) {
+                    i++;
+                    // 滑动窗口递增值
+                    long batchId = CompomentManager.getInstance().getWindowSeqGenerator().gene(pipelineId);
+
+                    String windowData = JSON.json(new WindowData(pipelineId, WindowType.s, AddressUtils.getHostAddress().getHostAddress(),batchId));
+
+                    ZKclient.instance.createNodeSel(pipelineWindowTempFormat, windowData);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+
 
 
     }

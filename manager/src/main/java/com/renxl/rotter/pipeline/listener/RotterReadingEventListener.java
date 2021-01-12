@@ -43,26 +43,29 @@ public class RotterReadingEventListener {
     }
 
 
-    public void onSelectReading(SelectReadingEvent event) {
+    public boolean onSelectReading(SelectReadingEvent event) {
         LambdaQueryWrapper<PipelineTaskReading> queryByPipelineId = PipelineTaskReadingQueryWrapper.buildQuery(event.getPipelineId());
         PipelineTaskReading pipelineTaskReading = taskReadingService.getOne(queryByPipelineId);
         if (pipelineTaskReading == null) {
             pipelineTaskReading = new PipelineTaskReading();
             pipelineTaskReading.initSelectReading(event.getPipelineId());
             taskReadingService.getBaseMapper().insert(pipelineTaskReading);
-            return;
+            return true;
         }
+        pipelineTaskReading.initSelectReading(event.getPipelineId());
         taskReadingService.updateById(pipelineTaskReading);
+
         // 准备完毕则许可node节点进行工作
         boolean loadReading = pipelineTaskReading.hasLoadReading();
+
         // 更新节点相关信息
         selectAndLoadNodeSendService.sendWhenSelectorReady(event.getPipelineId());
         if (loadReading) {
             permitService.permit(event.getPipelineId());
+            // todo 这是干嘛的？？？？？ 为啥要删掉
             taskReadingService.getBaseMapper().deleteById(pipelineTaskReading.getId());
         }
-
-
+        return true;
         // 添加node上的的同步任务信息
     }
 
@@ -83,6 +86,7 @@ public class RotterReadingEventListener {
         boolean selectReading = pipelineTaskReading.hasSelectReading();
         if (selectReading) {
             permitService.permit(event.getPipelineId());
+            // todo 这是干嘛的？？？？？ 为啥要删掉 目前删掉也影响不大 后期还要根据ha决定是否留下
             taskReadingService.getBaseMapper().deleteById(pipelineTaskReading.getId());
         }
         // 添加node上的的同步任务信息

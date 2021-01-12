@@ -85,6 +85,7 @@ public class DefaultCommunicationClientImpl implements CommunicationClient {
                 connection = factory.createConnection(params);
                 return connection.call(event);
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.error(String.format("call[%s] , retry[%s]", addr, count), e);
                 try {
                     Thread.sleep(count * retryDelay);
