@@ -60,7 +60,7 @@ public class PipelineConfigServiceImpl extends ServiceImpl<PipelineConfigMapper,
     @Override
     public void start(Integer id) {
         PipelineConfig pipelineConfig = baseMapper.selectById(id);
-        Asserts.check(!pipelineConfig.isStart(), RotterResponse.BizCodeAndMsg.PIPLINED_STARTED);
+//        Asserts.check(!pipelineConfig.isStart(), RotterResponse.BizCodeAndMsg.PIPLINED_STARTED);
 
 
         PipelineNodeInfo one = iPipelineNodeInfoService.getOne(iPipelineNodeInfoService.lambdaQuery().eq(PipelineNodeInfo::getPipelineId, pipelineConfig.getId()).getWrapper());

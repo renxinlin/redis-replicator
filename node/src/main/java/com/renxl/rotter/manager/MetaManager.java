@@ -208,7 +208,8 @@ public class MetaManager {
         defaultSelect.add(14);
         defaultSelect.add(15);
 
-        List<Integer> selectDbs = pipelineCurrentDb.getOrDefault(pipeLineId, defaultSelect);
+        pipelineCurrentDb.putIfAbsent(pipeLineId, defaultSelect);
+        List<Integer> selectDbs = pipelineCurrentDb.get(pipeLineId);
         return selectDbs;
     }
 

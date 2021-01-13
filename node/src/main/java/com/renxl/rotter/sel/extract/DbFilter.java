@@ -1,5 +1,6 @@
 package com.renxl.rotter.sel.extract;
 
+import com.alibaba.fastjson.JSON;
 import com.moilioncircle.redis.replicator.cmd.impl.AbstractCommand;
 import com.moilioncircle.redis.replicator.cmd.impl.SelectCommand;
 import com.moilioncircle.redis.replicator.rdb.datatype.DB;
@@ -36,10 +37,13 @@ public  class DbFilter extends Filter {
             }
             if(keyValuePair!=null){
                 DB db = keyValuePair.getDb();
-                return  filterDbs.contains(db.getDbNumber());
+                boolean contains = filterDbs.contains(Long.valueOf(db.getDbNumber()).intValue());
+                System.out.println(JSON.toJSONString(filterDbs)+ " contains "+db.getDbNumber()+" is "+contains );
+                return contains;
             }
             return false;
         }).collect(Collectors.toList());
+        System.out.println("db filter " + JSON.toJSONString(newSelectorEvents));
         selectorBatchEvent.setSelectorEvent(newSelectorEvents);
 
     }

@@ -1,5 +1,6 @@
 package com.renxl.rotter.sel;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Queues;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
@@ -275,6 +276,7 @@ public class DefaultSelector extends Selector {
                 long batchId = selectWindowBuffer.get();
 
                 selectorBatchEvent.setBatchId(batchId);
+                System.out.println("selectevent " + JSON.toJSONString(selectorBatchEvent));
                 CompomentManager.getInstance().getMetaManager().addEvent(pipelineId, selectorBatchEvent);
                 buffer.clear();
 

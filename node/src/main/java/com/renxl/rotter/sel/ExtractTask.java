@@ -1,6 +1,7 @@
 package com.renxl.rotter.sel;
 
 import com.alibaba.dubbo.common.utils.NamedThreadFactory;
+import com.alibaba.fastjson.JSON;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.domain.RedisMasterInfo;
 import com.renxl.rotter.domain.SelectAndLoadIp;
@@ -121,6 +122,7 @@ public class ExtractTask extends Task {
                 SelectorBatchEvent selectorBatchEvent = CompomentManager.getInstance().getMetaManager().takeEvent(getPipelineId(), seqNumber);
                 // 开始过滤 aof rdb 的 核心
                 filter.filter(selectorBatchEvent);
+
                 SelectAndLoadIp selectAndLoadIp = getInstance().getMetaManager().getPipelineTaskIps().get(getPipelineId());
                 // 通知load 进行加载 添加到缓存区等待 load读取
                 getInstance().getMetaManager().addExtractEvent(getPipelineId(),selectorBatchEvent);

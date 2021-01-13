@@ -93,6 +93,7 @@ public class AofParseEventFilter extends Filter {
             }
         });
 
+        selectorBatchEvent.setSelectorEvent(newSelectorEvents);
 
     }
 

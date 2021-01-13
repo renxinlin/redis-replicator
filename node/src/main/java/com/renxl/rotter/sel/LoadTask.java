@@ -2,6 +2,7 @@ package com.renxl.rotter.sel;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.alibaba.dubbo.common.utils.NamedThreadFactory;
+import com.alibaba.fastjson.JSON;
 import com.moilioncircle.examples.migration.MigrationExample;
 import com.moilioncircle.redis.replicator.cmd.impl.AbstractCommand;
 import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
@@ -164,12 +165,16 @@ public class LoadTask extends Task {
             try {
                 // 通过上述的处理确保滑动窗口并发能力和有序性
                 Long seqNumber = currentReadySeqNum.take();
+                System.out.println("ready"+seqNumber);
                 // 自动识别基于内存进行管道传输还是基于rpc进行管道传输
                 SelectorBatchEvent selectBatchEvent = CompomentManager.getInstance().getPipe().getSelectBatchEvent(getPipelineId(), seqNumber);
                 List<SelectorEvent> selectorEvents = selectBatchEvent.getSelectorEvent();
+                System.out.println("before  load event: "+ JSON.toJSONString(selectorEvents));
 
                 // 构建【添加删除保护指令 数据回环指令】 mark的时候select的顺序不可以变
                 selectorEvents = loadMarkFilter.mark(selectorEvents);
+                System.out.println("after  load event: "+ JSON.toJSONString(selectorEvents));
+
                 if (!CollectionUtils.isEmpty(selectorEvents)) {
 
                     selectorEvents.forEach(selectorEvent -> {

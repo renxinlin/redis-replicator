@@ -96,6 +96,7 @@ public class WindowManagerWatcher {
                                     break;
 
                                 case CHILD_ADDED:
+                                    System.out.println("window--------------------"+windowDataStr);
                                     CompomentManager.getInstance().onUpdateWindow(windowData);
                                     break;
                                 case CHILD_UPDATED:

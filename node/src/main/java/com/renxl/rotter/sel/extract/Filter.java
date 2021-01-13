@@ -1,6 +1,7 @@
 package com.renxl.rotter.sel.extract;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
+import com.alibaba.fastjson.JSON;
 import com.renxl.rotter.sel.SelectorBatchEvent;
 import com.renxl.rotter.sel.SelectorEvent;
 
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public abstract class Filter {
 
-    private Integer pipeLineId ;
+    private Integer pipeLineId;
     private Filter next;
 
 
@@ -29,31 +30,30 @@ public abstract class Filter {
     }
 
 
-       public void executeFilterJob0(SelectorBatchEvent selectorBatchEvent){
-           // 删除
-           List<SelectorEvent> selectorEvents = selectorBatchEvent.getSelectorEvent();
+    public void executeFilterJob0(SelectorBatchEvent selectorBatchEvent) {
+        // 删除
+        List<SelectorEvent> selectorEvents = selectorBatchEvent.getSelectorEvent();
 
-           // 同步回环标存在则过滤指定数据
-           if(CollectionUtils.isEmpty(selectorEvents)){
-               return;
-           }
+        // 同步回环标存在则过滤指定数据
+        if (CollectionUtils.isEmpty(selectorEvents)) {
+            return;
+        }
+        System.out.println("before " + this.getClass() + " filter event: " + JSON.toJSONString(selectorBatchEvent));
 
-           executeFilterJob(selectorBatchEvent);
+        executeFilterJob(selectorBatchEvent);
 
 
-
-       }
+    }
 
     protected abstract void executeFilterJob(SelectorBatchEvent selectorBatchEvent);
 
+    public Filter getNext() {
+        return next;
+    }
 
     public void setNext(Filter next) {
         this.next = next;
     }
-    public Filter getNext() {
-        return  next;
-    }
-
 
     public Integer getPipeLineId() {
         return pipeLineId;
