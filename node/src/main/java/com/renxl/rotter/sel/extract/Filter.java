@@ -38,8 +38,6 @@ public abstract class Filter {
         if (CollectionUtils.isEmpty(selectorEvents)) {
             return;
         }
-        System.out.println("before " + this.getClass() + " filter event: " + JSON.toJSONString(selectorBatchEvent));
-
         executeFilterJob(selectorBatchEvent);
 
 

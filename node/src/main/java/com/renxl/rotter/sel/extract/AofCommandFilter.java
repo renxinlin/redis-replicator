@@ -10,9 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- *
  * flushDb 等禁止命令过滤器
+ *
  * @description:
  * @author: renxl
  * @create: 2021-01-05 14:28
@@ -27,32 +26,32 @@ public class AofCommandFilter extends Filter {
             AbstractCommand abstartCommand = selectorEvent.getAbstartCommand();
             KeyValuePair keyValuePair = selectorEvent.getKeyValuePair();
             // rdb阶段
-            if(keyValuePair!=null){
+            if (keyValuePair != null) {
                 newSelectorEvents.add(new SelectorEvent(null, keyValuePair));
             }
 
             // aof 过滤特殊key
             if (null != abstartCommand) {
-                DefaultCommand defaultCommand = (DefaultCommand) abstartCommand;
                 boolean tonext = true;
-                if (Strings.toString(defaultCommand.getCommand()).equals("FLUSHALL") ) {
-                    // instanceof FlushAllCommand
-                    tonext = false;
-                }else if(Strings.toString(defaultCommand.getCommand()).equals("FLUSHDB") ){
-                    // instanceof SwapDBCommand
-                    // 交换视图 这种操作太骚不需要
-                    tonext = false;
-                }
-                else if(Strings.toString(defaultCommand.getCommand()).equals("SWAPDB") ){
-                    // instanceof SwapDBCommand
-                    // 交换视图 这种操作太骚不需要
-                    tonext = false;
-                }
-                else if(abstartCommand instanceof PingCommand){
+                if (abstartCommand instanceof DefaultCommand) {
+                    if (Strings.toString(((DefaultCommand) abstartCommand).getCommand()).equals("FLUSHALL")) {
+                        // instanceof FlushAllCommand
+                        tonext = false;
+                    } else if (Strings.toString(((DefaultCommand) abstartCommand).getCommand()).equals("FLUSHDB")) {
+                        // instanceof SwapDBCommand
+                        // 交换视图 这种操作太骚不需要
+                        tonext = false;
+                    } else if (Strings.toString(((DefaultCommand) abstartCommand).getCommand()).equals("SWAPDB")) {
+                        // instanceof SwapDBCommand
+                        // 交换视图 这种操作太骚不需要
+                        tonext = false;
+                    } else {
+                        tonext = true;
+                    }
+                } else if (abstartCommand instanceof PingCommand) {
                     // ping 命令 PING-PONG 测试一个连接是否还是可用
                     tonext = false;
-                }
-                else if(abstartCommand instanceof ReplConfCommand){
+                } else if (abstartCommand instanceof ReplConfCommand) {
                     //在命令传播阶段，从服务器默认会以每秒一次的频率，向主服务器发送命令 REPLCONF ACK <replication_offset>
                     // 在一般情况下，lag的值应该在0秒或者1秒之间跳动，如果超过1秒的话，那么说明主从 服务器之间的连接出现了故障
 
@@ -62,22 +61,18 @@ public class AofCommandFilter extends Filter {
                     // min-slaves-max-lag 10
                     // 那么在从服务器的数量少于3个，或者三个从服务器的延迟（lag）值都大于或等于10秒时，主服务器将拒绝执行写命令，这里的延迟值就是上面提到的INFO replication命令的lag 值
                     tonext = false;
-                }
-                else if(abstartCommand instanceof MultiCommand || abstartCommand instanceof ExecCommand   ){
+                } else if (abstartCommand instanceof MultiCommand || abstartCommand instanceof ExecCommand) {
                     // DISCARD UnWatch watch
                     // 不支持redis 事务 但是事务内部的命令还是同步过去
                     tonext = false;
-                }
-                else if(abstartCommand instanceof SwapDBCommand ){
+                } else if (abstartCommand instanceof SwapDBCommand) {
                     // 不支持redis 事务
                     tonext = false;
-                }
-                else if(abstartCommand instanceof FlushAllCommand ){
+                } else if (abstartCommand instanceof FlushAllCommand) {
                     tonext = false;
-                }
-                else if(abstartCommand instanceof FlushDBCommand ){
+                } else if (abstartCommand instanceof FlushDBCommand) {
                     tonext = false;
-                }else {
+                } else {
                     tonext = true;
                 }
                 if (tonext) {

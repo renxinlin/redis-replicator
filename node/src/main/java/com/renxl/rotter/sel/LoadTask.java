@@ -89,12 +89,7 @@ public class LoadTask extends Task {
     public void initRedis() {
         RedisMasterInfo redisMasterInfo = new RedisMasterInfo();
         redisMasterInfo.parse(targetRedis);
-        JedisPoolConfig config = new JedisPoolConfig();
-        config.setMaxTotal(8);
-        config.setMinIdle(2);
-        config.setTestOnBorrow(true);
-        jedisPool = new JedisPool(config, redisMasterInfo.getIp(), Integer.valueOf(redisMasterInfo.getPort()), 10000, redisMasterInfo.getAuth());
-        MigrationExample.ExampleClient exampleClient = new MigrationExample.ExampleClient("", 6379);
+        MigrationExample.ExampleClient exampleClient = new MigrationExample.ExampleClient(redisMasterInfo.getIp(),  Integer.valueOf(redisMasterInfo.getPort()));
         pipeline = new PipelineWithCommand();
         pipeline.setClient(exampleClient);
     }
@@ -165,16 +160,12 @@ public class LoadTask extends Task {
             try {
                 // 通过上述的处理确保滑动窗口并发能力和有序性
                 Long seqNumber = currentReadySeqNum.take();
-                System.out.println("ready"+seqNumber);
                 // 自动识别基于内存进行管道传输还是基于rpc进行管道传输
                 SelectorBatchEvent selectBatchEvent = CompomentManager.getInstance().getPipe().getSelectBatchEvent(getPipelineId(), seqNumber);
                 List<SelectorEvent> selectorEvents = selectBatchEvent.getSelectorEvent();
-                System.out.println("before  load event: "+ JSON.toJSONString(selectorEvents));
-
                 // 构建【添加删除保护指令 数据回环指令】 mark的时候select的顺序不可以变
                 selectorEvents = loadMarkFilter.mark(selectorEvents);
-                System.out.println("after  load event: "+ JSON.toJSONString(selectorEvents));
-
+                System.out.println("load " + JSON.toJSONString(selectorEvents));
                 if (!CollectionUtils.isEmpty(selectorEvents)) {
 
                     selectorEvents.forEach(selectorEvent -> {
@@ -182,9 +173,13 @@ public class LoadTask extends Task {
                         KeyValuePair keyValuePair = selectorEvent.getKeyValuePair();
                         if (abstartCommand != null) {
                             if (abstartCommand instanceof DefaultCommand) {
+                                System.out.println("loadaof Default" + JSON.toJSONString(abstartCommand));
+
                                 pipeline.send(((DefaultCommand) abstartCommand).getCommand(), ((DefaultCommand) abstartCommand).getArgs());
                             }
                             if (abstartCommand instanceof SelectCommand) {
+                                System.out.println("loadaof SELECT " + JSON.toJSONString(abstartCommand));
+
                                 pipeline.send("SELECT".getBytes(), toByteArray(((SelectCommand) abstartCommand).getIndex()));
                             }
 
@@ -197,18 +192,22 @@ public class LoadTask extends Task {
                                 DB db = dkv.getDb();
                                 int index;
                                 if (db != null && (index = (int) db.getDbNumber()) != dbnum.get()) {
+                                    System.out.println("loadkeypair SELECT" + JSON.toJSONString(dkv));
                                     pipeline.send("SELECT".getBytes(), Protocol.toByteArray(index));
                                     dbnum.set(index);
                                 }
                                 if (dkv.getExpiredMs() == null) {
+
                                     byte[][] args = new byte[4][];
                                     args[0] = ((DumpKeyValuePair) keyValuePair).getKey();
                                     args[1] = Protocol.toByteArray(0L);
                                     args[2] = dkv.getValue();
                                     args[3] = "REPLACE".getBytes();
+                                    System.out.println("loadkeypair SELECT" + JSON.toJSONString(dkv));
                                     pipeline.send("RESTORE".getBytes(), args);
 
                                 } else {
+
                                     long ms = dkv.getExpiredMs() - System.currentTimeMillis();
                                     // 过期key 不在处理
                                     if (ms <= 0) return;
@@ -217,6 +216,7 @@ public class LoadTask extends Task {
                                     args[1] = Protocol.toByteArray(dkv.getExpiredMs());
                                     args[2] = dkv.getValue();
                                     args[3] = "REPLACE".getBytes();
+                                    System.out.println("loadkeypair SELECT" + JSON.toJSONString(dkv));
                                     pipeline.send("RESTORE".getBytes(), args);
                                 }
                             }
@@ -224,14 +224,14 @@ public class LoadTask extends Task {
                     });
 
                     // 通过redis pipeline 进行批量发送
-                    pipeline.syncAndReturnAll();
+                    System.out.println("pipelie  sync event: "+ JSON.toJSONString(selectorEvents));
+
+                    pipeline.sync();
                 }
 
                 // 滑动窗口尾部推进
                 String selecterIp = CompomentManager.getInstance().getMetaManager().getPipelineTaskIps().get(getPipelineId()).getSelecterIp();
                 CompomentManager.getInstance().getWindowManager().singleSelect(getPipelineId(), selecterIp);
-
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

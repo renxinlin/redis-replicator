@@ -276,7 +276,6 @@ public class DefaultSelector extends Selector {
                 long batchId = selectWindowBuffer.get();
 
                 selectorBatchEvent.setBatchId(batchId);
-                System.out.println("selectevent " + JSON.toJSONString(selectorBatchEvent));
                 CompomentManager.getInstance().getMetaManager().addEvent(pipelineId, selectorBatchEvent);
                 buffer.clear();
 

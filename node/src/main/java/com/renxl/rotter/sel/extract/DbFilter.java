@@ -38,12 +38,10 @@ public  class DbFilter extends Filter {
             if(keyValuePair!=null){
                 DB db = keyValuePair.getDb();
                 boolean contains = filterDbs.contains(Long.valueOf(db.getDbNumber()).intValue());
-                System.out.println(JSON.toJSONString(filterDbs)+ " contains "+db.getDbNumber()+" is "+contains );
                 return contains;
             }
             return false;
         }).collect(Collectors.toList());
-        System.out.println("db filter " + JSON.toJSONString(newSelectorEvents));
         selectorBatchEvent.setSelectorEvent(newSelectorEvents);
 
     }
