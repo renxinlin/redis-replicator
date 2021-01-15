@@ -109,7 +109,7 @@ public class MetaManager {
             manager = new ManagerInfo();
             manager.setManagerAddress(ipAndPort[0]);
             manager.setPort(Integer.valueOf(ipAndPort[1]));
-            log.info("manager is [{}]", JSON.toJSONString(manager));
+            log.info("manager is [{}]",manager);
 
         }
 
@@ -123,6 +123,7 @@ public class MetaManager {
     }
 
     public void addEvent(Integer pipelineId, SelectorBatchEvent task) {
+
          batchBuffer.putIfAbsent(pipelineId, new ConcurrentHashMap<>());
         Map<Long, SelectorBatchEvent> seqNumberAndEventBuffer = batchBuffer.get(pipelineId);
         seqNumberAndEventBuffer.put(task.getBatchId(), task);

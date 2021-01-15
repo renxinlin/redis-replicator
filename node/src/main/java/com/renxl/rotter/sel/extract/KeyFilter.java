@@ -50,13 +50,14 @@ public class KeyFilter extends Filter {
                 if (abstartCommand instanceof GenericKeyCommand) {
                     byte[] key = ((GenericKeyCommand) abstartCommand).getKey();
                     String commandKey = CommandParsers.toRune(key);
+                    System.out.println("command key" + commandKey);
                     // 匹配上则不加入extract
                     return !CompomentManager.getInstance().getMetaManager().matchFilterKeys(getPipeLineId(), commandKey);
                 }
 
                 // TODO 对mset这些批量操作不做处理 ; 将来扩展个性化能力 以及eval这些特殊的将来提供定制化能力
             }
-            return false;
+            return true;
         }).collect(Collectors.toList());
         selectorBatchEvent.setSelectorEvent(newSelectorEvents);
 

@@ -20,9 +20,7 @@ public abstract class Filter {
 
     public void filter(SelectorBatchEvent selectorBatchEvent) {
 
-
         executeFilterJob0(selectorBatchEvent);
-
         if (next != null) {
             next.filter(selectorBatchEvent);
         }
@@ -38,6 +36,7 @@ public abstract class Filter {
         if (CollectionUtils.isEmpty(selectorEvents)) {
             return;
         }
+
         executeFilterJob(selectorBatchEvent);
 
 

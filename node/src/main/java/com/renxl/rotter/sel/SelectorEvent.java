@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * @description:
  * @author: renxl
@@ -18,7 +20,10 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class SelectorEvent {
+public class SelectorEvent  implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
 
     private AbstractCommand abstartCommand;
 

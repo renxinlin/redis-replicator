@@ -25,6 +25,7 @@ import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -257,6 +258,8 @@ public class DefaultSelector extends Selector {
 
         @Override
         public void onEvent(SelectorEvent event, long sequence, boolean endOfBatch) {
+            // 去除 disruptor对SelectorEvent影响
+            event = new SelectorEvent(event.getAbstartCommand(),event.getKeyValuePair());
             arrayBlockingQueue.add(event);
             // disputor 消费 批量发送到[多线程的]extractTask的batch buffer
             try {
@@ -270,18 +273,23 @@ public class DefaultSelector extends Selector {
                 Integer pipelineId = param.getPipelineId();
                 WindowBuffer selectWindowBuffer = getInstance().getWindowManager().getSelectBuffer(pipelineId);
                 SelectorBatchEvent selectorBatchEvent = new SelectorBatchEvent();
-                selectorBatchEvent.setSelectorEvent(buffer);
+                List newBuffer = new CopyOnWriteArrayList<>(buffer);
+                selectorBatchEvent.setSelectorEvent(newBuffer);
 
                 //  阻塞获取滑动窗口信息
                 long batchId = selectWindowBuffer.get();
 
                 selectorBatchEvent.setBatchId(batchId);
+                System.out.println("select: "+selectorBatchEvent);
+
                 CompomentManager.getInstance().getMetaManager().addEvent(pipelineId, selectorBatchEvent);
                 buffer.clear();
 
                 // 滑动窗口向下传递到Extract Task 通知e task 工作  etask 是核心 消费较慢  允许多线程 同时在load阶段通过滑动窗口序列号保障顺序性
                 getInstance().getWindowManager().singleExtract(pipelineId, batchId);
 
+
+                // HA 心跳
 
             }
         }

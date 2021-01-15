@@ -67,6 +67,7 @@ public class AofParseEventFilter extends Filter {
      */
     @Override
     protected void executeFilterJob(SelectorBatchEvent selectorBatchEvent) {
+        // todo 阻塞
         Jedis client = jedisPool.getResource();
         List<SelectorEvent> selectorEvents = selectorBatchEvent.getSelectorEvent();
         List<SelectorEvent> newSelectorEvents = new ArrayList<>();
@@ -94,6 +95,7 @@ public class AofParseEventFilter extends Filter {
         });
 
         selectorBatchEvent.setSelectorEvent(newSelectorEvents);
+        client.close();
 
     }
 
