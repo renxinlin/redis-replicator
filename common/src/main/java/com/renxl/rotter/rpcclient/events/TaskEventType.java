@@ -12,6 +12,7 @@ public enum TaskEventType implements EventType {
      * 通知node准备select
      */
     selectTask,
+    window,
     /**
      * 通知node 准备load
      */

@@ -3,6 +3,10 @@ package com.renxl.rotter.manager;
 import com.alibaba.dubbo.common.json.JSON;
 import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.config.CompomentManager;
+import com.renxl.rotter.domain.SelectAndLoadIp;
+import com.renxl.rotter.rpcclient.CommunicationClient;
+import com.renxl.rotter.rpcclient.Event;
+import com.renxl.rotter.rpcclient.events.WindowEvent;
 import com.renxl.rotter.sel.window.WindowData;
 import com.renxl.rotter.sel.window.WindowType;
 import com.renxl.rotter.sel.window.buffer.SelectWindowBuffer;
@@ -14,6 +18,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.renxl.rotter.zookeeper.ZookeeperConfig.pipelineWindowTemp;
 
@@ -30,6 +35,11 @@ public class WindowManager {
     private volatile Map<Integer, WindowBuffer> sWindowBuffers = new HashMap();
     private volatile Map<Integer, WindowBuffer> eWindowBuffers = new HashMap();
     private volatile Map<Integer, WindowBuffer> lWindowBuffers = new HashMap();
+
+
+    private volatile Map<Integer, AtomicBoolean> selectInit = new HashMap();
+    private volatile Map<Integer, AtomicBoolean> extractInit = new HashMap();
+    private volatile Map<Integer, AtomicBoolean> loadInit = new HashMap();
 
 
     public WindowBuffer getSelectBuffer(Integer pipelineId) {
@@ -68,16 +78,17 @@ public class WindowManager {
      * @param syncNumber
      */
     public void singleExtract(Integer pipelineId, long syncNumber) {
-        String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
-        // 只起到唤醒作用 不做全局滑动窗口序列号
-        String windowData = null;
-        try {
-            windowData = JSON.json(new WindowData(pipelineId, WindowType.e, AddressUtils.getHostAddress().getHostAddress(), syncNumber));
-        } catch (IOException e) {
-            log.info("json format error");
-        }
-        ZKclient.instance.createNodeSel(pipelineWindowTempFormat, windowData);
+        WindowData windowData = new WindowData(pipelineId, WindowType.e, AddressUtils.getHostAddress().getHostAddress(), syncNumber);
+        CommunicationClient communicationClient = CompomentManager.getInstance().getCommunicationClient();
+        SelectAndLoadIp selectAndLoadIp = CompomentManager.getInstance().getMetaManager().getPipelineTaskIps().get(pipelineId);
+        String selecterIp = selectAndLoadIp.getSelecterIp();
+        String selecterport = selectAndLoadIp.getSelecterport();
+        communicationClient.call(selecterIp, Integer.valueOf(selecterport),  new WindowEvent(windowData.getPipeLineId(),windowData.getWindowType(),windowData.getIp(),windowData.getBatchId()));
     }
+
+
+
+
 
     /**
      * load 节点调用这个
@@ -89,31 +100,24 @@ public class WindowManager {
      * @throws IOException
      */
     public void singleSelect(Integer pipelineId, String ip)   {
-        // load 保障了syncNumber 的消费顺序 select不再增加重复确定
-        String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
-        // 只起到唤醒作用 不做全局滑动窗口序列号
-        String windowData = null;
-        try {
-            // 需要select生成 不能在当前机器生成
-            windowData = JSON.json(new WindowData(pipelineId, WindowType.s, ip, -1L));
-        } catch (IOException e) {
-            log.info("json format error");
-        }
-        ZKclient.instance.createNodeSel(pipelineWindowTempFormat, windowData);
+        WindowData windowData = new WindowData(pipelineId, WindowType.s, ip, -1L);
+        CommunicationClient communicationClient = CompomentManager.getInstance().getCommunicationClient();
+        SelectAndLoadIp selectAndLoadIp = CompomentManager.getInstance().getMetaManager().getPipelineTaskIps().get(pipelineId);
+        String selecterIp = selectAndLoadIp.getSelecterIp();
+        String selecterport = selectAndLoadIp.getSelecterport();
+        communicationClient.call(selecterIp, Integer.valueOf(selecterport),  new WindowEvent(windowData.getPipeLineId(),windowData.getWindowType(),windowData.getIp(),windowData.getBatchId()));
 
     }
 
 
     public void singleLoad(Integer pipelineId, String ip, long syncNumber) {
-        String pipelineWindowTempFormat = MessageFormat.format(pipelineWindowTemp, String.valueOf(pipelineId));
-        // 只起到唤醒作用 不做全局滑动窗口序列号
-        String windowData = null;
-        try {
-            windowData = JSON.json(new WindowData(pipelineId, WindowType.l, ip, syncNumber));
-        } catch (IOException e) {
-            log.info("json format error");
-        }
-        ZKclient.instance.createNodeSel(pipelineWindowTempFormat, windowData);
+
+        WindowData windowData = new WindowData(pipelineId, WindowType.l, ip, syncNumber);
+        CommunicationClient communicationClient = CompomentManager.getInstance().getCommunicationClient();
+        SelectAndLoadIp selectAndLoadIp = CompomentManager.getInstance().getMetaManager().getPipelineTaskIps().get(pipelineId);
+        String loadIp = selectAndLoadIp.getLoadIp();
+        String loadPort = selectAndLoadIp.getLoadPort();
+        communicationClient.call(loadIp, Integer.valueOf(loadPort),  new WindowEvent(windowData.getPipeLineId(),windowData.getWindowType(),windowData.getIp(),windowData.getBatchId()));
     }
 
 

@@ -166,6 +166,21 @@ public class ZKclient {
         return null;
     }
 
+
+    public void updateNode(String srcpath, String data) {
+        byte[] payload = null;
+        try {
+            if (!StringUtils.isEmpty(data)) {
+
+                payload = data.getBytes("UTF-8");
+            }
+            // 创建一个 ZNode 节点
+            client.setData().forPath(srcpath, payload);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void deleteChild(String pipelineWindowIdFormat) {
         // todo 测试
         try {
