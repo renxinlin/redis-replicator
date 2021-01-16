@@ -41,25 +41,11 @@ public class WindowManagerWatcher {
         WindowData windowData = new WindowData(windowEvent.getPipeLineId(),windowEvent.getWindowType(),windowEvent.getIp(),windowEvent.getBatchId());
         CompomentManager.getInstance().onUpdateWindow(windowData);
     }
-        /**
-         * 每一个pipelineId对应的滑动窗口变更监视器
-         */
-    public Map<Integer, PathChildrenCache> pipelinedWatcher = new HashMap<>();
 
 
     public void init() {
-        try {
-            if (!ZKclient.instance.isNodeExist(pipelineWindowParent)) {
-                ZKclient.instance.createNode(pipelineWindowParent, null);
-            }
 
-            if (!ZKclient.instance.isNodeExist(pipelineWindow)) {
-                ZKclient.instance.createNode(pipelineWindow, null);
-            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -70,86 +56,9 @@ public class WindowManagerWatcher {
      * @param parallel
      */
     public void initPipelined(Integer pipelineId, Integer parallel) {
-        if (pipelinedWatcher.get(pipelineId) != null) {
-            return;
-        }
-
-
-        String pipelineWindowIdFormat = MessageFormat.format(pipelineWindowId, String.valueOf(pipelineId));
-
-
-        PathChildrenCache windowWatcher;
-        CuratorFramework client = ZKclient.instance.getClient();
-
-        try {
-            // 创建了一个单线程池
-
-            windowWatcher = new PathChildrenCache(client, pipelineWindowIdFormat, true);
-            PathChildrenCacheListener childrenCacheListener =
-                    // 单线程！！！ 这里采用单线程来简化这个服务发现 注册的复杂性 从而保障正确性
-                    new PathChildrenCacheListener() {
-                        @Override
-                        public void childEvent(CuratorFramework client,
-                                               PathChildrenCacheEvent event) {
-                            ChildData data = event.getData();
-
-                            String windowDataStr = new String(data.getData());
-                            WindowData windowData = null;
-                            try {
-
-                                windowData = JSON.parse(windowDataStr, WindowData.class);
-                                System.out.print("data..."+JSON.json(windowData));
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            switch (event.getType()) {
-                                case INITIALIZED:
-                                    System.out.println("INITIALIZED...");
-
-                                    break;
-
-                                case CHILD_ADDED:
-                                    System.out.println("CHILD_ADDED...");
-
-//                                    CompomentManager.getInstance().onUpdateWindow(windowData);
-                                    break;
-                                case CHILD_UPDATED:
-                                    System.out.println("CHILD_UPDATED...");
-
-                                    CompomentManager.getInstance().onUpdateWindow(windowData);
-                                    break;
-
-                                case CHILD_REMOVED:
-                                    System.out.println("CHILD_REMOVED...");
-
-                                    break;
-
-                                default:
-                                    System.out.println("default...");
-
-                                    break;
-                            }
-
-
-                        }
-                    };
-            windowWatcher.getListenable().addListener(childrenCacheListener);
-            windowWatcher.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
-            pipelinedWatcher.put(pipelineId, windowWatcher);
-        } catch (Exception e) {
-            log.error(" get manager error ", e);
-        }
-
-
         // select 初始化
         if (parallel != null) {
             try {
-                if (!ZKclient.instance.isNodeExist(pipelineWindowIdFormat)) {
-                    ZKclient.instance.createNode(pipelineWindowIdFormat, null);
-                } else {
-                    ZKclient.instance.deleteChild(pipelineWindowIdFormat);
-                }
                 int i = 0;
                 // 创建滑动窗口大小
                 while (i < parallel) {
@@ -171,22 +80,6 @@ public class WindowManagerWatcher {
 
     public void destory() {
 
-        for (PathChildrenCache everyPipelinedWatcher : pipelinedWatcher.values()) {
-            try {
-                everyPipelinedWatcher.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-
-
-        // 节点第一步不接受请求
-        try {
-            ZKclient.instance.getClient().close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
     }
 
