@@ -1,10 +1,8 @@
 package com.renxl.rotter.manager;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
-import com.alibaba.fastjson.JSON;
 import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.config.CompomentManager;
-import com.renxl.rotter.config.HeartBeatConfig;
 import com.renxl.rotter.constants.Constants;
 import com.renxl.rotter.domain.RedisMasterInfo;
 import com.renxl.rotter.domain.SelectAndLoadIp;
@@ -31,45 +29,34 @@ import java.util.concurrent.ConcurrentMap;
 public class MetaManager {
 
 
-    public MetaManager(int port){
-        this.nodeDubboPort = port;
-    }
-
+    private static final int NOT_MASTER = 1;
     /**
      * manager master节点信息
      */
     private ManagerInfo manager;
     private String nodeIp = AddressUtils.getHostAddress().getHostAddress();
-    private int nodeDubboPort ;
-
+    private int nodeDubboPort;
     /**
      * pipelineid task
      */
     private Map<Integer, SelectTask> pipelineSelectTasks = new HashMap<>();
     private Map<Integer, ExtractTask> pipelineExctractTasks = new HashMap<>();
     private Map<Integer, LoadTask> pipelineLoadTasks = new HashMap<>();
-
-
     /**
      * pipelineid 任务当前的select db  用于dbfilter 表示白名单配置
      */
     private Map<Integer, List<Integer>> pipelineCurrentDb;
-
-
     /**
      * pipelineId 对应的不需要同步的key 表示黑名单配置
      */
     private Map<Integer, List<String>> pipelineKeyFilter;
-
-
     /**
      * pipeLine select and load ip Info
      */
     private Map<Integer, SelectAndLoadIp> pipelineTaskIps;
-
-
     private Map<Integer, RedisMasterInfo> redisMasterInfoMap;
-
+    // todo 失败的设计 后期统一处理这些信息到对象中
+    private Map<Integer, Integer> pipeLineIdIsMaster;
     /**
      * zkclient--[add batchId]
      * |
@@ -85,7 +72,6 @@ public class MetaManager {
      * @param ArrayBlockingQueue rdb aof
      */
     private ConcurrentMap<Integer, Map<Long, SelectorBatchEvent>> batchBuffer;
-
     /**
      * 原本的设计是buffer 但是为了便于滑动窗口算法按顺序读取
      * <p>
@@ -99,6 +85,9 @@ public class MetaManager {
      */
     private ConcurrentMap<Integer, Map<Long, SelectorBatchEvent>> batchExtractBuffer;
 
+    public MetaManager(int port) {
+        this.nodeDubboPort = port;
+    }
 
     public void init() {
 
@@ -109,7 +98,7 @@ public class MetaManager {
             manager = new ManagerInfo();
             manager.setManagerAddress(ipAndPort[0]);
             manager.setPort(Integer.valueOf(ipAndPort[1]));
-            log.info("manager is [{}]",manager);
+            log.info("manager is [{}]", manager);
 
         }
 
@@ -118,13 +107,14 @@ public class MetaManager {
         batchBuffer = new ConcurrentHashMap<>();
         batchExtractBuffer = new ConcurrentHashMap<>();
         pipelineKeyFilter = new HashMap<>();
+        pipeLineIdIsMaster = new HashMap<>();
         redisMasterInfoMap = new HashMap<>();
 
     }
 
     public void addEvent(Integer pipelineId, SelectorBatchEvent task) {
 
-         batchBuffer.putIfAbsent(pipelineId, new ConcurrentHashMap<>());
+        batchBuffer.putIfAbsent(pipelineId, new ConcurrentHashMap<>());
         Map<Long, SelectorBatchEvent> seqNumberAndEventBuffer = batchBuffer.get(pipelineId);
         seqNumberAndEventBuffer.put(task.getBatchId(), task);
     }
@@ -175,6 +165,7 @@ public class MetaManager {
         batchBuffer.clear();
         batchExtractBuffer.clear();
         pipelineKeyFilter.clear();
+        pipeLineIdIsMaster.clear();
     }
 
     public Boolean isPermit(Integer pipelineId) {
@@ -252,5 +243,13 @@ public class MetaManager {
         extractTask.onChangeSource(newRedisMasterInfo);
 
 
+    }
+
+    public void setIsMaster(Integer pipelineId, Integer isMaster) {
+        pipeLineIdIsMaster.put(pipelineId,isMaster);
+    }
+    public boolean isMaster(Integer pipelineId) {
+        Integer isMaster = pipeLineIdIsMaster.get(pipelineId);
+        return isMaster ==null || isMaster.intValue() == NOT_MASTER ? false:true;
     }
 }

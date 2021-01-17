@@ -12,6 +12,9 @@ import lombok.Data;
 public class SelectTaskEvent extends Event {
 
     private Integer pipelineId;
+
+
+    private Integer isMaster;
     private String sourceRedises;
 
 
@@ -23,11 +26,12 @@ public class SelectTaskEvent extends Event {
         super(TaskEventType.selectTask);
     }
 
-    public SelectTaskEvent(Integer pipelineId,String sourceRedises, Integer parallelism) {
+    public SelectTaskEvent(Integer pipelineId,Integer isMaster,String sourceRedises, Integer parallelism) {
         super(TaskEventType.selectTask);
         this.pipelineId = pipelineId;
         this.parallelism = parallelism;
         this.sourceRedises = sourceRedises;
+        this.isMaster = isMaster;
 
     }
 }

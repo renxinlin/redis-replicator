@@ -61,6 +61,8 @@ public class TaskServiceListener {
         ExtractTask extractTask = new ExtractTask(pipelineId, parallelism);
 
         // 添加到任务池
+        Integer isMaster = selectTaskEvent.getIsMaster();
+        getInstance().getMetaManager().setIsMaster(pipelineId,isMaster);
         getInstance().getMetaManager().addTask(extractTask);
         getInstance().getMetaManager().addTask(selectTask);
 
