@@ -165,7 +165,7 @@ public class LoadTask extends Task {
                 List<SelectorEvent> selectorEvents = selectBatchEvent.getSelectorEvent();
                 // 构建【添加删除保护指令 数据回环指令】 mark的时候select的顺序不可以变
                 selectorEvents = loadMarkFilter.mark(selectorEvents);
-                System.out.println("load " + selectorEvents);
+                System.out.println("load " + JSON.toJSONString(selectorEvents));
                 if (!CollectionUtils.isEmpty(selectorEvents)) {
 
                     selectorEvents.forEach(selectorEvent -> {
@@ -173,12 +173,12 @@ public class LoadTask extends Task {
                         KeyValuePair keyValuePair = selectorEvent.getKeyValuePair();
                         if (abstartCommand != null) {
                             if (abstartCommand instanceof DefaultCommand) {
-                                System.out.println("loadaof Default" + abstartCommand);
+                                System.out.println("loadaof Default" + JSON.toJSONString(abstartCommand));
 
                                 pipeline.send(((DefaultCommand) abstartCommand).getCommand(), ((DefaultCommand) abstartCommand).getArgs());
                             }
                             if (abstartCommand instanceof SelectCommand) {
-                                System.out.println("loadaof SELECT " + abstartCommand);
+                                System.out.println("loadaof SELECT " + JSON.toJSONString(abstartCommand));
 
                                 pipeline.send("SELECT".getBytes(), toByteArray(((SelectCommand) abstartCommand).getIndex()));
                             }
@@ -192,7 +192,7 @@ public class LoadTask extends Task {
                                 DB db = dkv.getDb();
                                 int index;
                                 if (db != null && (index = (int) db.getDbNumber()) != dbnum.get()) {
-                                    System.out.println("loadkeypair SELECT" + dkv);
+                                    System.out.println("loadkeypair SELECT" + JSON.toJSONString(dkv));
                                     pipeline.send("SELECT".getBytes(), Protocol.toByteArray(index));
                                     dbnum.set(index);
                                 }
@@ -203,7 +203,7 @@ public class LoadTask extends Task {
                                     args[1] = Protocol.toByteArray(0L);
                                     args[2] = dkv.getValue();
                                     args[3] = "REPLACE".getBytes();
-                                    System.out.println("loadkeypair SELECT" +dkv);
+                                    System.out.println("loadkeypair SELECT" +JSON.toJSONString(dkv));
                                     pipeline.send("RESTORE".getBytes(), args);
 
                                 } else {
@@ -216,7 +216,7 @@ public class LoadTask extends Task {
                                     args[1] = Protocol.toByteArray(dkv.getExpiredMs());
                                     args[2] = dkv.getValue();
                                     args[3] = "REPLACE".getBytes();
-                                    System.out.println("loadkeypair SELECT" + dkv);
+                                    System.out.println("loadkeypair SELECT" + JSON.toJSONString(dkv));
                                     pipeline.send("RESTORE".getBytes(), args);
                                 }
                             }
@@ -224,7 +224,7 @@ public class LoadTask extends Task {
                     });
 
                     // 通过redis pipeline 进行批量发送
-                    System.out.println("pipelie  sync event: "+selectorEvents + "size"+selectorEvents.size());
+                    System.out.println("pipelie  sync event: "+JSON.toJSONString(selectorEvents) + "size"+selectorEvents.size());
 
                     pipeline.sync();
                 }

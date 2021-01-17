@@ -1,6 +1,7 @@
 package com.renxl.rotter.sel.extract;
 
 import com.moilioncircle.redis.replicator.cmd.impl.DefaultCommand;
+import com.moilioncircle.redis.replicator.cmd.impl.SelectCommand;
 import com.renxl.rotter.common.Md5Util;
 import com.renxl.rotter.constants.Constants;
 import com.renxl.rotter.domain.RedisMasterInfo;
@@ -88,7 +89,10 @@ public class AofParseEventFilter extends Filter {
                         newSelectorEvents.add(selectorEvent);
                     }
                 }
+                if(selectorEvent.getAbstartCommand() instanceof SelectCommand){
+                    newSelectorEvents.add(selectorEvent);
 
+                }
             } else {
                 newSelectorEvents.add(selectorEvent);
             }

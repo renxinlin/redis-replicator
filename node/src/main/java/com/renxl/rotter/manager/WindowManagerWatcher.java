@@ -36,7 +36,10 @@ public class WindowManagerWatcher {
         CommunicationRegistry.regist(TaskEventType.window,this);
     }
 
-
+    /**
+     * 滑动窗口变更监听
+     * @param windowEvent
+     */
     public void onWindow(WindowEvent windowEvent) {
         WindowData windowData = new WindowData(windowEvent.getPipeLineId(),windowEvent.getWindowType(),windowEvent.getIp(),windowEvent.getBatchId());
         CompomentManager.getInstance().onUpdateWindow(windowData);

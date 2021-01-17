@@ -122,11 +122,9 @@ public class ExtractTask extends Task {
             extractThreads.execute(()->{
                 SelectorBatchEvent selectorBatchEvent = CompomentManager.getInstance().getMetaManager().takeEvent(getPipelineId(), seqNumber);
                 // 开始过滤 aof rdb 的 核心
-                System.out.println("ExtractTask: "+selectorBatchEvent);
 
                 filter.filter(selectorBatchEvent);
-                System.out.println("filter: "+selectorBatchEvent);
-
+                System.out.println("after filter " +JSON.toJSONString(selectorBatchEvent));
                 SelectAndLoadIp selectAndLoadIp = getInstance().getMetaManager().getPipelineTaskIps().get(getPipelineId());
                 // 通知load 进行加载 添加到缓存区等待 load读取
                 getInstance().getMetaManager().addExtractEvent(getPipelineId(),selectorBatchEvent);
