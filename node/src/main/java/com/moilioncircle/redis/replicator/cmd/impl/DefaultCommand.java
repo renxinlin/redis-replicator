@@ -64,7 +64,7 @@ public class DefaultCommand extends AbstractCommand {
               stringBuffer.append(CommandParsers.toRune(args[i]));
         }
         return "DefaultCommand{" +
-                "command=" + CommandParsers.toRune(command) +
+                "command=" + CommandParsers.toRune(command).toUpperCase() +
                 ", args=" + stringBuffer.toString() +
                 '}';
     }

@@ -68,7 +68,7 @@ public class AofParseEventFilter extends Filter {
      */
     @Override
     protected void executeFilterJob(SelectorBatchEvent selectorBatchEvent) {
-        // todo 阻塞
+        // todo jedisPool为source redis信息
         Jedis client = jedisPool.getResource();
         List<SelectorEvent> selectorEvents = selectorBatchEvent.getSelectorEvent();
         List<SelectorEvent> newSelectorEvents = new ArrayList<>();

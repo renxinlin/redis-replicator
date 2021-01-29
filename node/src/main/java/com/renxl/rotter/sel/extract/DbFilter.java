@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
+ * 返回true则进行同步
  * @description:
  * @author: renxl
  * @create: 2021-01-05 14:28
