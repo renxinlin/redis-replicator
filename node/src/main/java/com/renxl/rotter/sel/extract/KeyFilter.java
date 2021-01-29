@@ -22,6 +22,10 @@ import java.util.stream.Collectors;
 public class KeyFilter extends Filter {
 
 
+    public KeyFilter(Integer pipelineId) {
+        super(pipelineId);
+    }
+
     @Override
     protected void executeFilterJob(SelectorBatchEvent selectorBatchEvent) {
 

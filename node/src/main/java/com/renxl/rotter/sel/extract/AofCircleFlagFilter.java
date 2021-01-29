@@ -19,6 +19,10 @@ import java.util.List;
 public class AofCircleFlagFilter extends Filter {
 
 
+    public AofCircleFlagFilter(Integer pipelineId) {
+        super(pipelineId);
+    }
+
     @Override
     protected void executeFilterJob(SelectorBatchEvent selectorBatchEvent) {
         List<SelectorEvent> selectorEvents = selectorBatchEvent.getSelectorEvent();

@@ -18,6 +18,10 @@ import java.util.List;
  */
 public class AofCommandFilter extends Filter {
 
+    public AofCommandFilter(Integer pipelineId) {
+        super(pipelineId);
+    }
+
     @Override
     protected void executeFilterJob(SelectorBatchEvent selectorBatchEvent) {
         List<SelectorEvent> selectorEvents = selectorBatchEvent.getSelectorEvent();

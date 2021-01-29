@@ -22,6 +22,10 @@ import java.util.stream.Collectors;
 public  class DbFilter extends Filter {
 
 
+    public DbFilter(Integer pipelineId) {
+        super(pipelineId);
+    }
+
     @Override
     protected void executeFilterJob(SelectorBatchEvent selectorBatchEvent) {
 

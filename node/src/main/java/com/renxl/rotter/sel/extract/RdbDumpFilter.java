@@ -13,6 +13,10 @@ import java.util.stream.Collectors;
  * @create: 2021-01-05 14:28
  */
 public  class RdbDumpFilter extends Filter {
+    public RdbDumpFilter(Integer pipelineId) {
+        super(pipelineId);
+    }
+
     @Override
     protected void executeFilterJob(SelectorBatchEvent selectorBatchEvent) {
         //  主机房db  非主机房直接过滤

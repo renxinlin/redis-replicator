@@ -17,6 +17,11 @@ public abstract class Filter {
     private Integer pipeLineId;
     private Filter next;
 
+    public Filter(Integer pipelineId) {
+        this.pipeLineId = pipelineId;
+
+    }
+
 
     public void filter(SelectorBatchEvent selectorBatchEvent) {
 

@@ -40,6 +40,10 @@ public class AofParseEventFilter extends Filter {
      */
     private JedisPool jedisPool;
 
+    public AofParseEventFilter(Integer pipelineId) {
+        super(pipelineId);
+    }
+
 
     /**
      * 在数据到达之前就会被初始化

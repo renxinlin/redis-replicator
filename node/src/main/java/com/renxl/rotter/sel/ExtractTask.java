@@ -80,26 +80,26 @@ public class ExtractTask extends Task {
 
 
         // 过滤回环key
-        AofParseEventFilter aofParseEventFilter = new AofParseEventFilter();
+        AofParseEventFilter aofParseEventFilter = new AofParseEventFilter(pipelineId);
 
         // 回环和数据删除保护标记过滤
-        AofCircleFlagFilter aofCircleFlagFilter = new AofCircleFlagFilter();
+        AofCircleFlagFilter aofCircleFlagFilter = new AofCircleFlagFilter(pipelineId);
         aofCircleFlagFilter.setNext(aofParseEventFilter);
 
         // 过滤配置的key
-        KeyFilter keyFilter = new KeyFilter();
+        KeyFilter keyFilter = new KeyFilter(pipelineId);
         keyFilter.setNext(aofCircleFlagFilter);
 
         // 过滤不在配置中的db
-        DbFilter dbFilter = new DbFilter();
+        DbFilter dbFilter = new DbFilter(pipelineId);
         dbFilter.setNext(keyFilter);
 
         // 过滤flushDb等风险性命令
-        AofCommandFilter aofCommandFilter  = new AofCommandFilter();
+        AofCommandFilter aofCommandFilter  = new AofCommandFilter(pipelineId);
         aofCommandFilter.setNext(dbFilter);
 
         // 过滤 todo master 传向 slave slave不传向
-        filter = new RdbDumpFilter();
+        filter = new RdbDumpFilter(pipelineId);
         filter.setNext(aofCommandFilter);
 
 
