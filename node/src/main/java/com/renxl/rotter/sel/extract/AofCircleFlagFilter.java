@@ -27,6 +27,7 @@ public class AofCircleFlagFilter extends Filter {
             if (selectorEvent.getAbstartCommand() != null && selectorEvent.getAbstartCommand() instanceof  DefaultCommand
                     // 数据回环和删除保护标记 通过set del命令 实现
                     && (CommandParsers.toRune(((DefaultCommand) (selectorEvent.getAbstartCommand())).getCommand()).equals("SET")
+                    || CommandParsers.toRune(((DefaultCommand) (selectorEvent.getAbstartCommand())).getCommand()).equals("SETEX")
                     || CommandParsers.toRune(((DefaultCommand) (selectorEvent.getAbstartCommand())).getCommand()).equals("DEL")
             )
                     // 不管

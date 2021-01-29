@@ -2,6 +2,10 @@ package com.renxl.rotter.sel.extract;
 
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.sel.SelectorBatchEvent;
+import com.renxl.rotter.sel.SelectorEvent;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -13,9 +17,10 @@ public  class RdbDumpFilter extends Filter {
     protected void executeFilterJob(SelectorBatchEvent selectorBatchEvent) {
         //  主机房db  非主机房直接过滤
         boolean master = CompomentManager.getInstance().getMetaManager().isMaster(getPipeLineId());
-        if(!master){
-            selectorBatchEvent.setSelectorEvent(null);
-        }
+        List<SelectorEvent> selectorEvents = selectorBatchEvent.getSelectorEvent();
+        List<SelectorEvent> newSelect = selectorEvents.stream().filter(selectorEvent -> master || selectorEvent.getAbstartCommand() != null).collect(Collectors.toList());
+        selectorBatchEvent.setSelectorEvent(newSelect);
+
 
     }
 }
