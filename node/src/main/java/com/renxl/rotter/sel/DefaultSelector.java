@@ -21,6 +21,7 @@ import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.omg.CORBA.TIMEOUT;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
@@ -256,42 +257,47 @@ public class DefaultSelector extends Selector {
         ArrayBlockingQueue<SelectorEvent> arrayBlockingQueue = new ArrayBlockingQueue(1024 * 1024);
         List buffer = new CopyOnWriteArrayList<>();
 
+        public RotterSelectorEventHandler(){
+            new Thread(this::batch).start();
+        }
+
         @Override
         public void onEvent(SelectorEvent event, long sequence, boolean endOfBatch) {
             // 去除 disruptor对SelectorEvent影响
             event = new SelectorEvent(event.getAbstartCommand(),event.getKeyValuePair());
             arrayBlockingQueue.add(event);
             // disputor 消费 批量发送到[多线程的]extractTask的batch buffer
-            try {
-                // todo 参数配置化
-                Queues.drain(arrayBlockingQueue, buffer, 10, 500, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                // todo 堆栈打印指定行数工具
-                log.error(" thread interrupted", e);
-            }
-            if (!buffer.isEmpty()) {
-                Integer pipelineId = param.getPipelineId();
-                WindowBuffer selectWindowBuffer = getInstance().getWindowManager().getSelectBuffer(pipelineId);
-                SelectorBatchEvent selectorBatchEvent = new SelectorBatchEvent();
-                List newBuffer = new CopyOnWriteArrayList<>(buffer);
-                selectorBatchEvent.setSelectorEvent(newBuffer);
 
-                //  阻塞获取滑动窗口信息
-                long batchId = selectWindowBuffer.get();
+        }
 
-                selectorBatchEvent.setBatchId(batchId);
-                System.out.println("select: "+selectorBatchEvent);
+        private void batch() {
+            while (true) {
+                try {
+                    // todo 参数配置化
+                    Queues.drain(arrayBlockingQueue, buffer, 10, 500, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    // todo 堆栈打印指定行数工具
+                    log.error(" thread interrupted", e);
+                }
+                if (!buffer.isEmpty()) {
+                    Integer pipelineId = param.getPipelineId();
+                    WindowBuffer selectWindowBuffer = getInstance().getWindowManager().getSelectBuffer(pipelineId);
+                    SelectorBatchEvent selectorBatchEvent = new SelectorBatchEvent();
+                    List newBuffer = new CopyOnWriteArrayList<>(buffer);
+                    selectorBatchEvent.setSelectorEvent(newBuffer);
 
-                CompomentManager.getInstance().getMetaManager().addEvent(pipelineId, selectorBatchEvent);
-                buffer.clear();
-                System.out.println("select: 1");
+                    //  阻塞获取滑动窗口信息
+                    long batchId = selectWindowBuffer.get();
 
-                // 滑动窗口向下传递到Extract Task 通知e task 工作  etask 是核心 消费较慢  允许多线程 同时在load阶段通过滑动窗口序列号保障顺序性
-                getInstance().getWindowManager().singleExtract(pipelineId, batchId);
+                    selectorBatchEvent.setBatchId(batchId);
 
+                    CompomentManager.getInstance().getMetaManager().addEvent(pipelineId, selectorBatchEvent);
+                    buffer.clear();
 
-                // HA 心跳
+                    // 滑动窗口向下传递到Extract Task 通知e task 工作  etask 是核心 消费较慢  允许多线程 同时在load阶段通过滑动窗口序列号保障顺序性
+                    getInstance().getWindowManager().singleExtract(pipelineId, batchId);
 
+                }
             }
         }
 

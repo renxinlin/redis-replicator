@@ -1,7 +1,6 @@
 package com.renxl.rotter.config;
 
 import com.renxl.rotter.LifeCycle;
-import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.constants.Constants;
 import com.renxl.rotter.manager.*;
 import com.renxl.rotter.rpcclient.CommunicationClient;
@@ -239,9 +238,7 @@ public class CompomentManager implements LifeCycle {
         }
 
         if (windowType == WindowType.e) {
-
             WindowBuffer buffer = windowManager.getExtractBuffer(pipeLineId);
-            System.out.println("滑动窗口增加时间" + System.currentTimeMillis());
             buffer.put(batchId);
         }
 
