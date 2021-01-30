@@ -18,6 +18,7 @@ public class ZookeeperConfig  {//implements ApplicationContextAware {
 
 
     private String address = "127.0.0.1:2181";
+//    private String address = "dev.zk.mockuai.com:2181";
     /**
      * select准备就绪事件
      * ${0} pipelineId

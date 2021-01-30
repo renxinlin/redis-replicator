@@ -34,7 +34,7 @@ public class MetaManager {
      * manager master节点信息
      */
     private ManagerInfo manager;
-    private String nodeIp = AddressUtils.getHostAddress().getHostAddress();
+    private String nodeIp ;
     private int nodeDubboPort;
     /**
      * pipelineid task
@@ -101,6 +101,7 @@ public class MetaManager {
             log.info("manager is [{}]", manager);
 
         }
+        nodeIp = AddressUtils.getHostAddress().getHostAddress();
 
         pipelineTaskIps = new ConcurrentHashMap<>();
         pipelineCurrentDb = new HashMap<>();
@@ -110,6 +111,10 @@ public class MetaManager {
         pipeLineIdIsMaster = new HashMap<>();
         redisMasterInfoMap = new HashMap<>();
 
+    }
+
+    public  String getNodeIp(){
+        return nodeIp;
     }
 
     public void addEvent(Integer pipelineId, SelectorBatchEvent task) {

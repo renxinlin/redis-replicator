@@ -68,7 +68,7 @@ public class WindowManagerWatcher {
                     i++;
                     // 滑动窗口递增值
                     long batchId = -1L;
-                    WindowData windowData = new WindowData(pipelineId, WindowType.s, AddressUtils.getHostAddress().getHostAddress(), batchId);
+                    WindowData windowData = new WindowData(pipelineId, WindowType.s, CompomentManager.getInstance().getMetaManager().getNodeIp(), batchId);
                     CompomentManager.getInstance().onUpdateWindow(windowData);
 
                 }

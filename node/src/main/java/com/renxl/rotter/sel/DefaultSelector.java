@@ -284,6 +284,7 @@ public class DefaultSelector extends Selector {
 
                 CompomentManager.getInstance().getMetaManager().addEvent(pipelineId, selectorBatchEvent);
                 buffer.clear();
+                System.out.println("select: 1");
 
                 // 滑动窗口向下传递到Extract Task 通知e task 工作  etask 是核心 消费较慢  允许多线程 同时在load阶段通过滑动窗口序列号保障顺序性
                 getInstance().getWindowManager().singleExtract(pipelineId, batchId);

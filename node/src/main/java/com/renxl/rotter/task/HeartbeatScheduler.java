@@ -53,7 +53,7 @@ public class HeartbeatScheduler  {
             ManagerInfo manager = CompomentManager.getInstance().getMetaManager().getManager();
 
             CommunicationClient communicationClient = CompomentManager.getInstance().getCommunicationClient();
-            communicationClient.call(manager.getManagerAddress(),manager.getPort(), new NodeHeartEvent(AddressUtils.getHostAddress().getHostAddress()));
+            communicationClient.call(manager.getManagerAddress(),manager.getPort(), new NodeHeartEvent(CompomentManager.getInstance().getMetaManager().getNodeIp()));
 
         },10*1000, HeartBeatConfig.heartBeatTime, TimeUnit.MILLISECONDS);
     }

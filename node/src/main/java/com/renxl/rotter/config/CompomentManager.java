@@ -1,9 +1,7 @@
 package com.renxl.rotter.config;
 
-import com.alibaba.dubbo.common.utils.NamedThreadFactory;
 import com.renxl.rotter.LifeCycle;
 import com.renxl.rotter.common.AddressUtils;
-import com.renxl.rotter.common.IdWorker;
 import com.renxl.rotter.constants.Constants;
 import com.renxl.rotter.manager.*;
 import com.renxl.rotter.rpcclient.CommunicationClient;
@@ -22,11 +20,6 @@ import com.renxl.rotter.task.HeartbeatScheduler;
 import com.renxl.rotter.task.TaskServiceListener;
 import com.renxl.rotter.zookeeper.ZKclient;
 import lombok.Data;
-
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static com.renxl.rotter.config.HeartBeatConfig.EXCTRACT_DEFAULT_ACCEPT_COUNT;
 import static com.renxl.rotter.config.HeartBeatConfig.EXCTRACT_DEFAULT_POOL_SIZE;
@@ -98,7 +91,6 @@ public class CompomentManager implements LifeCycle {
      * 数据传输管道
      * zk只负责滑动窗口协议 监听
      * 不做具体的数据传递
-     *
      */
     private Pipe pipe;
 
@@ -106,7 +98,6 @@ public class CompomentManager implements LifeCycle {
 
     private int acceptCount = EXCTRACT_DEFAULT_ACCEPT_COUNT;
     private String name = "rotter-extract";
-
 
 
     private CompomentManager() {
@@ -124,7 +115,6 @@ public class CompomentManager implements LifeCycle {
         }
         return INSTANCE;
     }
-
 
 
     protected static CompomentManager newInstance() {
@@ -201,7 +191,7 @@ public class CompomentManager implements LifeCycle {
     public void callLoadPermit(Integer pipelineId) {
         ManagerInfo manager = metaManager.getManager();
 
-        communicationClient.call(manager.getManagerAddress(),manager.getPort(), new LoadReadingEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
+        communicationClient.call(manager.getManagerAddress(), manager.getPort(), new LoadReadingEvent(pipelineId, CompomentManager.getInstance().getMetaManager().getNodeIp()));
 
     }
 
@@ -212,7 +202,7 @@ public class CompomentManager implements LifeCycle {
      */
     public void callSelectPermit(Integer pipelineId) {
         ManagerInfo manager = metaManager.getManager();
-        communicationClient.call(manager.getManagerAddress(),manager.getPort(), new SelectReadingEvent(pipelineId, AddressUtils.getHostAddress().getHostAddress()));
+        communicationClient.call(manager.getManagerAddress(), manager.getPort(), new SelectReadingEvent(pipelineId, CompomentManager.getInstance().getMetaManager().getNodeIp()));
 
     }
 
@@ -224,7 +214,7 @@ public class CompomentManager implements LifeCycle {
      */
     public RelpInfoResponse callSyncInfo(Integer pipelineId) {
         ManagerInfo manager = metaManager.getManager();
-        RelpInfoResponse relpInfoResponse = (RelpInfoResponse) communicationClient.call(manager.getManagerAddress(),manager.getPort(), new RelpInfoEvent(pipelineId));
+        RelpInfoResponse relpInfoResponse = (RelpInfoResponse) communicationClient.call(manager.getManagerAddress(), manager.getPort(), new RelpInfoEvent(pipelineId));
         return relpInfoResponse;
     }
 
@@ -249,7 +239,9 @@ public class CompomentManager implements LifeCycle {
         }
 
         if (windowType == WindowType.e) {
+
             WindowBuffer buffer = windowManager.getExtractBuffer(pipeLineId);
+            System.out.println("滑动窗口增加时间" + System.currentTimeMillis());
             buffer.put(batchId);
         }
 

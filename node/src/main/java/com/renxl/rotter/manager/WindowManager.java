@@ -1,26 +1,19 @@
 package com.renxl.rotter.manager;
 
-import com.alibaba.dubbo.common.json.JSON;
-import com.renxl.rotter.common.AddressUtils;
 import com.renxl.rotter.config.CompomentManager;
 import com.renxl.rotter.domain.SelectAndLoadIp;
 import com.renxl.rotter.rpcclient.CommunicationClient;
-import com.renxl.rotter.rpcclient.Event;
 import com.renxl.rotter.rpcclient.events.WindowEvent;
 import com.renxl.rotter.sel.window.WindowData;
 import com.renxl.rotter.sel.window.WindowType;
 import com.renxl.rotter.sel.window.buffer.SelectWindowBuffer;
 import com.renxl.rotter.sel.window.buffer.WindowBuffer;
-import com.renxl.rotter.zookeeper.ZKclient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.renxl.rotter.zookeeper.ZookeeperConfig.pipelineWindowTemp;
 
 /**
  * @description:
@@ -78,11 +71,13 @@ public class WindowManager {
      * @param syncNumber
      */
     public void singleExtract(Integer pipelineId, long syncNumber) {
-        WindowData windowData = new WindowData(pipelineId, WindowType.e, AddressUtils.getHostAddress().getHostAddress(), syncNumber);
+
+        WindowData windowData = new WindowData(pipelineId, WindowType.e, CompomentManager.getInstance().getMetaManager().getNodeIp(), syncNumber);
         CommunicationClient communicationClient = CompomentManager.getInstance().getCommunicationClient();
         SelectAndLoadIp selectAndLoadIp = CompomentManager.getInstance().getMetaManager().getPipelineTaskIps().get(pipelineId);
         String selecterIp = selectAndLoadIp.getSelecterIp();
         String selecterport = selectAndLoadIp.getSelecterport();
+
         communicationClient.call(selecterIp, Integer.valueOf(selecterport),  new WindowEvent(windowData.getPipeLineId(),windowData.getWindowType(),windowData.getIp(),windowData.getBatchId()));
     }
 
