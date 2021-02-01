@@ -110,6 +110,7 @@ public class MetaManager {
         pipelineKeyFilter = new HashMap<>();
         pipeLineIdIsMaster = new HashMap<>();
         redisMasterInfoMap = new HashMap<>();
+        nodeIp = AddressUtils.getHostAddress().getHostAddress();
 
     }
 

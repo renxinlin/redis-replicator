@@ -132,7 +132,7 @@ public class DefaultSelector extends Selector {
 
         // 通过manager获取复制进度信息
         RelpInfoResponse relpInfoResponse = param.getRelpInfoResponse();
-        if (relpInfoResponse != null && StringUtils.isEmpty(relpInfoResponse.getReplid()) && StringUtils.isEmpty(relpInfoResponse.getOffset())) {
+        if (relpInfoResponse != null && !StringUtils.isEmpty(relpInfoResponse.getReplid()) && !StringUtils.isEmpty(relpInfoResponse.getOffset())) {
             sourceUri = "redis://" + master + ":" + port + "?verbose=yes&replId=" + relpInfoResponse.getReplid() + "&replOffset=" + relpInfoResponse.getOffset();
         } else {
             sourceUri = "redis://" + master + ":" + port + "?verbose=yes";
