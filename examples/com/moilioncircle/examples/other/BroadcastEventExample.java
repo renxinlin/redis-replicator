@@ -29,7 +29,7 @@ import com.moilioncircle.redis.replicator.event.EventListener;
 public class BroadcastEventExample {
 
     public static void main(String[] args) throws Exception {
-        Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         //broadcast rdb event
         replicator.addEventListener(new EventListener() {
             @Override

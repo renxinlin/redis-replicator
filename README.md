@@ -115,7 +115,7 @@ redis 2.6 - 6.0
 ## 3.1. Usage  
   
 ```java  
-        Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         replicator.addEventListener(new EventListener() {
             @Override
             public void onEvent(Replicator replicator, Event event) {
@@ -216,7 +216,7 @@ See [examples](./examples/com/moilioncircle/examples/README.md)
   
 ### 4.1.3. Register this parser  
 ```java  
-    Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+    Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
     replicator.addCommandParser(CommandName.name("APPEND"),new YourAppendParser());
 ```
   
@@ -310,7 +310,7 @@ See [CommandExtensionExample.java](./examples/com/moilioncircle/examples/extensi
 
 ```java  
     public static void main(String[] args) throws IOException {
-        Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         replicator.addCommandParser(CommandName.name("hellotype.insert"), new HelloTypeParser());
         replicator.addModuleParser("hellotype", 0, new HelloTypeModuleParser());
         replicator.addEventListener(new EventListener() {
@@ -339,7 +339,7 @@ Since Redis 5.0+, Redis add a new data structure `STREAM`. Redis-replicator pars
   
 ```java  
 
-        Replicator r = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator r = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         r.addEventListener(new EventListener() {
             @Override
             public void onEvent(Replicator replicator, Event event) {
@@ -393,14 +393,14 @@ Replicator replicator = new RedisReplicator(new File("/path/to/appendonly.aof", 
 After redis-replicator-2.4.0, We introduced a new concept(Redis URI) which simplify the construction process of `RedisReplicator`.  
 
 ```java  
-Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
 Replicator replicator = new RedisReplicator("redis:///path/to/dump.rdb");
 Replicator replicator = new RedisReplicator("redis:///path/to/appendonly.aof");
 
 // configuration setting example
-Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379?authPassword=foobared&readTimeout=10000&ssl=yes");
+Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379?authPassword=foobared&readTimeout=10000&ssl=yes");
 Replicator replicator = new RedisReplicator("redis:///path/to/dump.rdb?rateLimit=1000000");
-Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?rateLimit=1000000");
+Replicator replicator = new RedisReplicator("rediss://user:pass@daily.redis.mockuai.com:6379?rateLimit=1000000");
 ```
 
 # 5. Other topics  
@@ -447,7 +447,7 @@ Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?r
 ```java  
     Configuration.defaultSetting().setVerbose(true);
     // redis uri
-    "redis://127.0.0.1:6379?verbose=yes"
+    "redis://daily.redis.mockuai.com:6379?verbose=yes"
 ```
   
 ## 5.4. SSL connection  
@@ -468,8 +468,8 @@ Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?r
     Configuration.defaultSetting().setSslParameters(sslParameters);
     Configuration.defaultSetting().setHostnameVerifier(hostnameVerifier);
     // redis uri
-    "redis://127.0.0.1:6379?ssl=yes"
-    "rediss://127.0.0.1:6379"
+    "redis://daily.redis.mockuai.com:6379?ssl=yes"
+    "rediss://daily.redis.mockuai.com:6379"
 ```
   
 ## 5.5. Auth  
@@ -478,8 +478,8 @@ Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?r
     Configuration.defaultSetting().setAuthUser("default");
     Configuration.defaultSetting().setAuthPassword("foobared");
     // redis uri
-    "redis://127.0.0.1:6379?authPassword=foobared&authUser=default"
-    "redis://default:foobared@127.0.0.1:6379"
+    "redis://daily.redis.mockuai.com:6379?authPassword=foobared&authUser=default"
+    "redis://default:foobared@daily.redis.mockuai.com:6379"
 ```  
 
 ## 5.6. Avoid full sync  
@@ -496,7 +496,7 @@ Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?r
 ## 5.7. Lifecycle event  
   
 ```java  
-        Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         final long start = System.currentTimeMillis();
         final AtomicInteger acc = new AtomicInteger(0);
         replicator.addEventListener(new EventListener() {
@@ -545,7 +545,7 @@ More details please refer to:
     System.setProperty("javax.net.ssl.trustStorePassword", "password");
     System.setProperty("javax.net.ssl.trustStoreType", "pkcs12");
 
-    Replicator replicator = new RedisReplicator("rediss://127.0.0.1:6379");
+    Replicator replicator = new RedisReplicator("rediss://daily.redis.mockuai.com:6379");
 
 ```
   
@@ -563,7 +563,7 @@ If you don't want to use `System.setProperty` you can programing as following
     factory.setTrustStorePassword("password");
 
     SslConfiguration ssl = SslConfiguration.defaultSetting().setSslContextFactory(factory);
-    Replicator replicator = new RedisReplicator("rediss://127.0.0.1:6379", ssl);
+    Replicator replicator = new RedisReplicator("rediss://daily.redis.mockuai.com:6379", ssl);
 
 ``` 
 
@@ -571,7 +571,7 @@ If you don't want to use `System.setProperty` you can programing as following
 
 ```java  
 
-    Replicator replicator = new RedisReplicator("redis://user:pass@127.0.0.1:6379");
+    Replicator replicator = new RedisReplicator("redis://user:pass@daily.redis.mockuai.com:6379");
 
 ```
 

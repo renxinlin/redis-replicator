@@ -493,6 +493,7 @@ public class Configuration {
 
     @Override
     public String toString() {
+        
         return "Configuration{" +
                 "connectionTimeout=" + connectionTimeout +
                 ", readTimeout=" + readTimeout +

@@ -28,7 +28,7 @@ import com.moilioncircle.redis.replicator.event.EventListener;
 @SuppressWarnings("resource")
 public class SocketExample {
     public static void main(String[] args) throws Exception {
-        final Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        final Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         replicator.addEventListener(new EventListener() {
             @Override
             public void onEvent(Replicator replicator, Event event) {

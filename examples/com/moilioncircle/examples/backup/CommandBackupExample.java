@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SuppressWarnings("resource")
 public class CommandBackupExample {
     public static void main(String[] args) throws IOException, URISyntaxException {
-        final OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("/path/to/appendonly.aof")));
+        final OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("./appendonly.aof")));
         final RawByteListener rawByteListener = new RawByteListener() {
             @Override
             public void handle(byte... rawBytes) {
@@ -51,7 +51,7 @@ public class CommandBackupExample {
         };
 
         //save 1000 records commands
-        Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         final AtomicInteger acc = new AtomicInteger(0);
         replicator.addEventListener(new EventListener() {
             @Override
@@ -75,13 +75,13 @@ public class CommandBackupExample {
         replicator.open();
 
         //check aof file
-        replicator = new RedisReplicator("redis:///path/to/appendonly.aof");
-        replicator.addEventListener(new EventListener() {
-            @Override
-            public void onEvent(Replicator replicator, Event event) {
-                System.out.println(event);
-            }
-        });
-        replicator.open();
+//        replicator = new RedisReplicator("redis:///path/to/appendonly.aof");
+//        replicator.addEventListener(new EventListener() {
+//            @Override
+//            public void onEvent(Replicator replicator, Event event) {
+//                System.out.println(event);
+//            }
+//        });
+//        replicator.open();
     }
 }

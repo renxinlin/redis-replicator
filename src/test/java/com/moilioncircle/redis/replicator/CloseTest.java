@@ -297,7 +297,7 @@ public class CloseTest {
     @SuppressWarnings("resource")
     @Test
     public void testMixClose8() throws IOException, URISyntaxException {
-        final Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        final Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         final AtomicInteger acc = new AtomicInteger(0);
         replicator.addEventListener(new EventListener() {
             @Override
@@ -321,7 +321,7 @@ public class CloseTest {
     @SuppressWarnings("resource")
     @Test
     public void testMixClose9() throws IOException, URISyntaxException {
-        final Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        final Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         final AtomicInteger acc = new AtomicInteger(0);
         replicator.addEventListener(new EventListener() {
             @Override
@@ -347,7 +347,7 @@ public class CloseTest {
     
     @Test
     public void testMixClose10() throws IOException, URISyntaxException, InterruptedException {
-        final Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        final Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         final AtomicInteger acc = new AtomicInteger(0);
         new Thread() {
             @Override

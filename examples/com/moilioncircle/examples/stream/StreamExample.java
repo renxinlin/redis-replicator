@@ -32,7 +32,7 @@ import java.util.NavigableMap;
 @SuppressWarnings("resource")
 public class StreamExample {
     public static void main(String[] args) throws Exception {
-        Replicator r = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator r = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         r.addEventListener(new EventListener() {
             @SuppressWarnings("unused")
             @Override

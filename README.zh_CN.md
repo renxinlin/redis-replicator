@@ -121,7 +121,7 @@ redis 2.6 - 6.0
 ## 3.1. 用法  
   
 ```java  
-        Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         replicator.addEventListener(new EventListener() {
             @Override
             public void onEvent(Replicator replicator, Event event) {
@@ -222,7 +222,7 @@ redis 2.6 - 6.0
   
 ### 4.1.3. 注册这个command parser到replicator  
 ```java  
-    Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+    Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
     replicator.addCommandParser(CommandName.name("APPEND"),new YourAppendParser());
 ```
   
@@ -316,7 +316,7 @@ redis 2.6 - 6.0
 
 ```java  
     public static void main(String[] args) throws IOException {
-        Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         replicator.addCommandParser(CommandName.name("hellotype.insert"), new HelloTypeParser());
         replicator.addModuleParser("hellotype", 0, new HelloTypeModuleParser());
         replicator.addEventListener(new EventListener() {
@@ -346,7 +346,7 @@ Redis-5.0+ 增加了一个新的数据结构 `STREAM`. Redis-replicator 用下�
   
 ```java  
 
-        Replicator r = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator r = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         r.addEventListener(new EventListener() {
             @Override
             public void onEvent(Replicator replicator, Event event) {
@@ -400,14 +400,14 @@ Replicator replicator = new RedisReplicator(new File("/path/to/appendonly.aof", 
 在 redis-replicator-2.4.0 版之后, 我们引入了一个新的概念(Redis URI) 来简化 `RedisReplicator` 的构造, 以便提供一致的API.  
 
 ```java  
-Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
 Replicator replicator = new RedisReplicator("redis:///path/to/dump.rdb");
 Replicator replicator = new RedisReplicator("redis:///path/to/appendonly.aof");
 
 // 配置的例子
-Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379?authPassword=foobared&readTimeout=10000&ssl=yes");
+Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379?authPassword=foobared&readTimeout=10000&ssl=yes");
 Replicator replicator = new RedisReplicator("redis:///path/to/dump.rdb?rateLimit=1000000");
-Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?rateLimit=1000000");
+Replicator replicator = new RedisReplicator("rediss://user:pass@daily.redis.mockuai.com:6379?rateLimit=1000000");
 ```
 
 
@@ -476,8 +476,8 @@ Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?r
     Configuration.defaultSetting().setSslParameters(sslParameters);
     Configuration.defaultSetting().setHostnameVerifier(hostnameVerifier);
     // redis uri
-    "redis://127.0.0.1:6379?ssl=yes"
-    "rediss://127.0.0.1:6379"
+    "redis://daily.redis.mockuai.com:6379?ssl=yes"
+    "rediss://daily.redis.mockuai.com:6379"
 ```
   
 ## 5.5. redis认证  
@@ -486,8 +486,8 @@ Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?r
     Configuration.defaultSetting().setAuthUser("default");
     Configuration.defaultSetting().setAuthPassword("foobared");
     // redis uri
-    "redis://127.0.0.1:6379?authPassword=foobared&authUser=default"
-    "redis://default:foobared@127.0.0.1:6379"
+    "redis://daily.redis.mockuai.com:6379?authPassword=foobared&authUser=default"
+    "redis://default:foobared@daily.redis.mockuai.com:6379"
 ```  
 
 ## 5.6. 避免全量同步  
@@ -504,7 +504,7 @@ Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?r
 ## 5.7. 生命周期事件  
   
 ```java  
-        Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         final long start = System.currentTimeMillis();
         final AtomicInteger acc = new AtomicInteger(0);
         replicator.addEventListener(new EventListener() {
@@ -553,7 +553,7 @@ Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?r
     System.setProperty("javax.net.ssl.trustStorePassword", "password");
     System.setProperty("javax.net.ssl.trustStoreType", "pkcs12");
 
-    Replicator replicator = new RedisReplicator("rediss://127.0.0.1:6379");
+    Replicator replicator = new RedisReplicator("rediss://daily.redis.mockuai.com:6379");
 
 ```
   
@@ -571,7 +571,7 @@ Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?r
     factory.setTrustStorePassword("password");
 
     SslConfiguration ssl = SslConfiguration.defaultSetting().setSslContextFactory(factory);
-    Replicator replicator = new RedisReplicator("rediss://127.0.0.1:6379", ssl);
+    Replicator replicator = new RedisReplicator("rediss://daily.redis.mockuai.com:6379", ssl);
 
 ``` 
 
@@ -579,7 +579,7 @@ Replicator replicator = new RedisReplicator("rediss://user:pass@127.0.0.1:6379?r
 
 ```java  
 
-    Replicator replicator = new RedisReplicator("redis://user:pass@127.0.0.1:6379");
+    Replicator replicator = new RedisReplicator("redis://user:pass@daily.redis.mockuai.com:6379");
 
 ```
 

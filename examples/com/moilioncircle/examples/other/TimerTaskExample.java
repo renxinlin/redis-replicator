@@ -51,7 +51,7 @@ public class TimerTaskExample {
         @Override
         public void run() {
             try {
-                Replicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+                Replicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
                 replicator.addEventListener(new EventListener() {
                     @Override
                     public void onEvent(Replicator replicator, Event event) {

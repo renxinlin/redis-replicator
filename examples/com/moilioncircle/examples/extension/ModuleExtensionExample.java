@@ -43,7 +43,7 @@ import com.moilioncircle.redis.replicator.rdb.module.ModuleParser;
 public class ModuleExtensionExample {
 
     public static void main(String[] args) throws Exception {
-        RedisReplicator replicator = new RedisReplicator("redis://127.0.0.1:6379");
+        RedisReplicator replicator = new RedisReplicator("redis://daily.redis.mockuai.com:6379");
         replicator.addCommandParser(CommandName.name("hellotype.insert"), new HelloTypeParser());
         replicator.addModuleParser("hellotype", 0, new HelloTypeModuleParser());
         replicator.addEventListener(new EventListener() {

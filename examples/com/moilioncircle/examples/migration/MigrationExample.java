@@ -16,6 +16,7 @@
 
 package com.moilioncircle.examples.migration;
 
+import com.alibaba.fastjson.JSON;
 import com.moilioncircle.redis.replicator.CloseListener;
 import com.moilioncircle.redis.replicator.Configuration;
 import com.moilioncircle.redis.replicator.RedisReplicator;
@@ -32,11 +33,11 @@ import com.moilioncircle.redis.replicator.rdb.datatype.DB;
 import com.moilioncircle.redis.replicator.rdb.dump.DumpRdbVisitor;
 import com.moilioncircle.redis.replicator.rdb.dump.datatype.DumpKeyValuePair;
 import com.moilioncircle.redis.replicator.util.Strings;
-import redis.clients.jedis.Client;
-import redis.clients.jedis.Protocol;
+import redis.clients.jedis.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static redis.clients.jedis.Protocol.Command.AUTH;
@@ -45,13 +46,41 @@ import static redis.clients.jedis.Protocol.Command.SELECT;
 import static redis.clients.jedis.Protocol.toByteArray;
 
 /**
+ * spring dubbo
+ *
  * @author Leon Chen
  * @since 2.5.0
  */
 public class MigrationExample {
 
     public static void main(String[] args) throws IOException, URISyntaxException {
-        sync("redis://127.0.0.1:6379", "redis://127.0.0.1:6380");
+//        sync("redis://daily.redis.mockuai.com:6379", "redis://127.0.0.1:6380");
+
+        // 连接池就采用默认大小
+        JedisPool jedisPool = new JedisPool("daily.redis.mockuai.com",6379);
+        Jedis resource = jedisPool.getResource();
+        resource.select(1);
+        String set = resource.set("asd", "ds");
+        resource.set("aasd", "ds");
+
+
+
+
+//        resource.select(1);
+//        Pipeline pipelined = resource.pipelined();
+//        pipelined.set("12","12");
+//        pipelined.set("13","12");
+//        pipelined.set("#$%^&*(13","12");
+//        // 【load返回后 不在处理 NOT OK 的数据】 二是记录日志
+//        List<Object> objects1 = pipelined.syncAndReturnAll();
+//        System.out.println(JSON.toJSONString(objects1));
+//        resource.close();
+//        pipelined.close();
+//        pipelined.set("132","12");
+//        objects1 = pipelined.syncAndReturnAll();
+//
+//        System.out.println(objects1);
+
     }
 
     /*
@@ -100,6 +129,7 @@ public class MigrationExample {
                         if (ms <= 0) return;
                         Object r = target.restore(dkv.getKey(), ms, dkv.getValue(), true);
                         System.out.println(r);
+
                     }
                 }
 
@@ -109,6 +139,11 @@ public class MigrationExample {
                     Object r = target.send(dc.getCommand(), dc.getArgs());
                     System.out.println(r);
                 }
+
+                // 管道加速性能
+
+
+
             }
         });
 

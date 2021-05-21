@@ -54,7 +54,7 @@ public interface ReplicatorRegister {
     void setRdbVisitor(RdbVisitor rdbVisitor);
     
     RdbVisitor getRdbVisitor();
-    
+    // Redis总共支持四个级别：debug、verbose、notice、warning，默认为verbose
     boolean verbose();
     
     Status getStatus();
