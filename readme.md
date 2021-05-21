@@ -1,3 +1,6 @@
+注意: master 分支为renxl-rotter  
+renxl-study 分支为redis-replicator
+
 设计初衷:
 解决同城双活中，redis的数据同步问题!
 
