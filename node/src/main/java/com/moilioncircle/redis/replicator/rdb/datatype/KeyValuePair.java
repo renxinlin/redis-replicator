@@ -29,7 +29,7 @@ public class KeyValuePair<K, V> extends AbstractEvent {
     protected DB db;
     protected int valueRdbType;
     protected ExpiredType expiredType = ExpiredType.NONE;
-    protected Long expiredValue;
+    protected Long expiredValue= System.currentTimeMillis();
     protected EvictType evictType = EvictType.NONE;
     protected Long evictValue;
     protected K key;

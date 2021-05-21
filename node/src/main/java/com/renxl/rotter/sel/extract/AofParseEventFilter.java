@@ -86,6 +86,7 @@ public class AofParseEventFilter extends Filter {
                     String commandStr = selectorEvent.getAbstartCommand().toString();
                     String hashKey = Md5Util.md5(commandStr);
                     // 没有数据回环和删除保护标记
+                    client.select(selectorEvent.getAbstartCommand().getDbNumber());
                     Long dataCycle = client.del(Constants.DATA_CYCLE + hashKey);
                     Boolean exists = client.exists(Constants.DELETE_PROTECTED + hashKey);
                     if ((dataCycle == null || dataCycle == 0) && !exists) {

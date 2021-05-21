@@ -26,7 +26,7 @@ public class SelectorBatchEvent implements Serializable {
     /**
      * aof rdb 事件
      */
-    private List<SelectorEvent> selectorEvent;
+    private List<SelectorEvent> selectorEvent ;
 
     /**
      * 递增序列号

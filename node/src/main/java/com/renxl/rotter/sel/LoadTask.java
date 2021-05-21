@@ -15,6 +15,7 @@ import com.renxl.rotter.domain.RedisMasterInfo;
 import com.renxl.rotter.sel.extract.LoadMarkFilter;
 import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.PipelineWithCommand;
@@ -34,6 +35,7 @@ import static redis.clients.jedis.Protocol.toByteArray;
  * @create: 2020-12-28 20:02
  */
 @Slf4j
+@AutoConfigureAfter
 public class LoadTask extends Task {
 
 

@@ -257,6 +257,7 @@ public class DefaultSelector extends Selector {
         ArrayBlockingQueue<SelectorEvent> arrayBlockingQueue = new ArrayBlockingQueue(1024 * 1024);
         List buffer = new CopyOnWriteArrayList<>();
 
+
         public RotterSelectorEventHandler(){
             new Thread(this::batch).start();
         }
@@ -273,10 +274,8 @@ public class DefaultSelector extends Selector {
         private void batch() {
             while (true) {
                 try {
-                    // todo 参数配置化
                     Queues.drain(arrayBlockingQueue, buffer, 10, 500, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
-                    // todo 堆栈打印指定行数工具
                     log.error(" thread interrupted", e);
                 }
                 if (!buffer.isEmpty()) {
