@@ -21,7 +21,6 @@ import com.renxl.rotter.sel.window.buffer.WindowBuffer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.omg.CORBA.TIMEOUT;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
